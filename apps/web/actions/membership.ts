@@ -1,5 +1,6 @@
 "use server"
 
+import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 
 import { createClient } from "@/lib/supabase/server"
@@ -95,5 +96,38 @@ export async function joinTownship(
   }
 
   redirect("/onboarding?joined=1")
+}
+
+export async function switchTownship(
+  _state: MembershipActionState,
+  formData: FormData
+): Promise<MembershipActionState> {
+  const townshipId = formData.get("townshipId")
+  if (typeof townshipId !== "string") return { status: "error", message: "Choose a township." }
+
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { status: "error", message: "Sign in before switching townships." }
+
+  const membership = await supabase
+    .from("township_members")
+    .select("township_id,status")
+    .eq("user_id", user.id)
+    .eq("township_id", townshipId)
+    .eq("status", "active")
+    .maybeSingle()
+  if (membership.error || !membership.data) {
+    return { status: "error", message: "You do not have an active membership in that township." }
+  }
+
+  const cookieStore = await cookies()
+  cookieStore.set("selected_township_id", townshipId, {
+    path: "/",
+    sameSite: "lax",
+    maxAge: 60 * 60 * 24 * 365,
+  })
+  redirect("/home")
 }
 

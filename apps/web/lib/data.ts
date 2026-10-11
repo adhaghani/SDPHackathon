@@ -1,4 +1,5 @@
 import { cache } from "react"
+import { cookies } from "next/headers"
 
 import { createClient } from "@/lib/supabase/server"
 
@@ -14,41 +15,52 @@ export const getSessionContext = cache(async () => {
     return { user: null, membership: null, profile: null, points: null }
   }
 
-  const [membershipResult, profileResult, pointsResult] = await Promise.all([
+  const cookieStore = await cookies()
+  const selectedTownshipId = cookieStore.get("selected_township_id")?.value
+  const [membershipsResult, profileResult] = await Promise.all([
     supabase
       .from("township_members")
       .select("id,township_id,user_id,role,status,neighbourhood_id,unit_label")
       .eq("user_id", user.id)
       .in("status", ["active", "pending"])
-      .order("status", { ascending: true })
-      .limit(1)
-      .maybeSingle(),
+      .order("status", { ascending: true }),
     supabase
       .from("profiles")
       .select("id,display_name,interests,language,comfort_prefs,recognition_opt_in")
       .eq("id", user.id)
       .maybeSingle(),
-    supabase
-      .from("v_member_points")
-      .select("township_id,balance,lifetime_points,last_activity_at")
-      .eq("user_id", user.id)
-      .order("last_activity_at", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
   ])
 
-  if (membershipResult.error || profileResult.error || pointsResult.error) {
+  if (membershipsResult.error || profileResult.error) {
     throw new Error(
-      membershipResult.error?.message ??
+      membershipsResult.error?.message ??
         profileResult.error?.message ??
-        pointsResult.error?.message ??
         "Could not load resident context."
     )
   }
 
+  const memberships = membershipsResult.data ?? []
+  const membership =
+    memberships.find((row) => row.township_id === selectedTownshipId) ??
+    memberships.find((row) => row.status === "active") ??
+    memberships[0] ??
+    null
+
+  const pointsResult = membership
+    ? await supabase
+        .from("v_member_points")
+        .select("township_id,balance,lifetime_points,last_activity_at")
+        .eq("user_id", user.id)
+        .eq("township_id", membership.township_id)
+        .maybeSingle()
+    : { data: null, error: null }
+
+  if (pointsResult.error) throw new Error(pointsResult.error.message)
+
   return {
     user,
-    membership: membershipResult.data,
+    membership,
+    memberships,
     profile: profileResult.data,
     points: pointsResult.data,
   }
@@ -63,6 +75,7 @@ export async function requireActiveMember() {
   return {
     user: context.user,
     membership: context.membership,
+    memberships: context.memberships,
     profile: context.profile,
     points: context.points,
     townshipId: context.membership.township_id,

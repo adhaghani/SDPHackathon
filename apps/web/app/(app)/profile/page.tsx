@@ -1,18 +1,22 @@
 import Link from "next/link"
 
 import { requireActiveMember } from "@/lib/data"
+import { isFeatureEnabled } from "@/lib/env"
 import { createClient } from "@/lib/supabase/server"
+import { SwitchTownshipButton } from "@/components/profile/switch-township-button"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 
 export default async function ProfilePage() {
   const active = await requireActiveMember()
   const supabase = await createClient()
-  const [badgesResult, lentResult, borrowedResult] = await Promise.all([
+  const [badgesResult, lentResult, borrowedResult, townshipsResult] = await Promise.all([
     supabase.from("user_badges").select("id,earned_at,badges(name,description)").eq("user_id", active.user.id).eq("township_id", active.townshipId),
     supabase.from("bookings").select("id").eq("lender_id", active.user.id).eq("status", "completed"),
     supabase.from("bookings").select("id").eq("borrower_id", active.user.id).eq("status", "completed"),
+    supabase.from("townships").select("id,name").in("id", (active.memberships ?? []).map((row) => row.township_id)),
   ])
+  const townshipNames = new Map((townshipsResult.data ?? []).map((township) => [township.id, township.name]))
 
   return (
     <div className="flex flex-col gap-7">
@@ -27,6 +31,24 @@ export default async function ProfilePage() {
         </div>
         <Button render={<Link href="/profile/settings" />} variant="outline" className="mt-6 h-11">Edit profile</Button>
       </section>
+
+      {isFeatureEnabled("multi_township") ? (
+      <section>
+        <h2 className="font-heading text-xl font-semibold">Townships</h2>
+        <p className="mt-1 text-sm text-muted-foreground">Switch between your active memberships.</p>
+        <ul className="mt-4 flex flex-col gap-3">
+          {(active.memberships ?? []).filter((row) => row.status === "active").map((row) => (
+            <li key={row.township_id} className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="font-medium">{townshipNames.get(row.township_id) ?? "Township"}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{row.role.replace("_", " ")}</p>
+              </div>
+              <SwitchTownshipButton townshipId={row.township_id} name={townshipNames.get(row.township_id) ?? "this township"} current={row.township_id === active.townshipId} />
+            </li>
+          ))}
+        </ul>
+      </section>
+      ) : null}
 
       <section>
         <h2 className="font-heading text-xl font-semibold">Badges</h2>

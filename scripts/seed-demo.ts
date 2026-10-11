@@ -170,6 +170,52 @@ async function ensureReferenceRows(
   return neighbourhoods.data ?? []
 }
 
+async function ensureSecondTownship(
+  admin: SupabaseClient<Database>,
+  userIds: Record<string, string>
+) {
+  const existing = await findOne(admin, "townships", { slug: "damai-harmoni-demo" })
+  const row = {
+    name: "Damai Heights (Demo Township)",
+    slug: "damai-harmoni-demo",
+    join_code: "DAMAI-DEMO",
+    auto_approve_members: true,
+    require_event_approval: false,
+    timezone: "Asia/Kuala_Lumpur",
+    rewards_enabled: true,
+    is_demo: true,
+    settings: { demo: true },
+  }
+  let townshipId = existing?.id as string | undefined
+  if (!townshipId) {
+    const { data, error } = await admin.from("townships").insert(row).select("id").single()
+    if (error || !data) throw new Error(`Could not create second demo township: ${error?.message}`)
+    townshipId = data.id as string
+  }
+  await admin.from("neighbourhoods").upsert(
+    { township_id: townshipId, name: "Damai" },
+    { onConflict: "township_id,name" }
+  )
+  const neighbourhood = await admin.from("neighbourhoods").select("id").eq("township_id", townshipId).eq("name", "Damai").single()
+  for (const email of ["aisyah@borrowbetter.demo", "raj@borrowbetter.demo", "office@borrowbetter.demo"]) {
+    const userId = userIds[email]
+    if (userId) {
+      await admin.from("township_members").upsert(
+        {
+          township_id: townshipId,
+          user_id: userId,
+          role: email.startsWith("office") ? "township_admin" : email.startsWith("raj") ? "organiser" : "resident",
+          status: "active",
+          neighbourhood_id: neighbourhood.data?.id,
+          approved_at: isoAt(Date.now()),
+        },
+        { onConflict: "township_id,user_id" }
+      )
+    }
+  }
+  return townshipId
+}
+
 async function ensureProfilesAndMembers(
   admin: SupabaseClient<Database>,
   townshipId: string,
@@ -510,6 +556,7 @@ export async function seedDemo(): Promise<void> {
   }
 
   const townshipId = await ensureTownship(admin)
+  await ensureSecondTownship(admin, userIds)
   const neighbourhoods = await ensureReferenceRows(admin, townshipId)
   const neighbourhoodId = neighbourhoods.find((row: { name: string }) => row.name === "Anggun")?.id
   if (!neighbourhoodId) throw new Error("Anggun neighbourhood missing")
