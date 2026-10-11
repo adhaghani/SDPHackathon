@@ -2,6 +2,7 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 
 import { RedemptionVerificationForm } from "@/components/admin/admin-action-button"
+import { ReversePointsForm } from "@/components/admin/admin-forms"
 import { requireActiveMember } from "@/lib/data"
 import { createClient } from "@/lib/supabase/server"
 import { Badge } from "@workspace/ui/components/badge"
@@ -18,6 +19,18 @@ export default async function AdminRewardsPage() {
     .order("created_at", { ascending: false })
     .limit(50)
   if (redemptions.error) throw new Error(redemptions.error.message)
+  const economyResult = await supabase.rpc("admin_rewards_economy", {
+    p_township_id: active.townshipId,
+    p_days: 90,
+  })
+  if (economyResult.error) throw new Error(economyResult.error.message)
+  const candidatesResult = await supabase.rpc("admin_ledger_candidates", {
+    p_township_id: active.townshipId,
+    p_limit: 20,
+  })
+  if (candidatesResult.error) throw new Error(candidatesResult.error.message)
+  const economy = (economyResult.data ?? {}) as Record<string, number>
+  const candidates = (candidatesResult.data ?? []) as Array<{ ledger_id: string; user_id: string; action_type: string; delta: number; created_at: string; reason: string }>
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -27,6 +40,30 @@ export default async function AdminRewardsPage() {
       <section className="mt-6 rounded-xl border border-border bg-card p-5">
         <h2 className="font-heading text-lg font-semibold">Mark a voucher used</h2>
         <div className="mt-4"><RedemptionVerificationForm /></div>
+      </section>
+      <section className="mt-6 grid gap-3 sm:grid-cols-3">
+        <div className="rounded-xl border border-border bg-card p-4"><p className="text-sm text-muted-foreground">Points issued</p><p className="mt-1 font-heading text-2xl font-semibold tabular-nums">{economy.points_issued ?? 0}</p></div>
+        <div className="rounded-xl border border-border bg-card p-4"><p className="text-sm text-muted-foreground">Points redeemed</p><p className="mt-1 font-heading text-2xl font-semibold tabular-nums">{economy.points_redeemed ?? 0}</p></div>
+        <div className="rounded-xl border border-border bg-card p-4"><p className="text-sm text-muted-foreground">Redemption rate</p><p className="mt-1 font-heading text-2xl font-semibold tabular-nums">{Math.round(Number(economy.redemption_rate ?? 0) * 100)}%</p></div>
+        <div className="rounded-xl border border-border bg-card p-4"><p className="text-sm text-muted-foreground">Outstanding points</p><p className="mt-1 font-heading text-2xl font-semibold tabular-nums">{economy.points_outstanding ?? 0}</p></div>
+        <div className="rounded-xl border border-border bg-card p-4"><p className="text-sm text-muted-foreground">Manual check-in share</p><p className="mt-1 font-heading text-2xl font-semibold tabular-nums">{Math.round(Number(economy.manual_checkin_share ?? 0) * 100)}%</p></div>
+        <div className="rounded-xl border border-border bg-card p-4"><p className="text-sm text-muted-foreground">Repeated pair loans</p><p className="mt-1 font-heading text-2xl font-semibold tabular-nums">{economy.repeated_pair_loans ?? 0}</p></div>
+      </section>
+      <section className="mt-6 rounded-xl border border-border bg-card p-5">
+        <h2 className="font-heading text-lg font-semibold">Suspicious-activity review</h2>
+        <p className="mt-1 text-sm text-muted-foreground">Raw ledger access for this review is audit-logged. Reversals create a negative reversal row, never edit history.</p>
+        {candidates.length ? (
+          <ul className="mt-4 divide-y divide-border border-y border-border">
+            {candidates.map((candidate) => (
+              <li key={candidate.ledger_id} className="py-4">
+                <div className="flex flex-wrap items-center justify-between gap-2"><div><p className="font-medium">{candidate.action_type.replaceAll("_", " ")} · {candidate.delta > 0 ? "+" : ""}{candidate.delta} BP</p><p className="mt-1 text-sm text-muted-foreground">{candidate.reason} · {new Date(candidate.created_at).toLocaleString("en-MY")}</p></div><Badge variant="outline">{candidate.user_id.slice(0, 8)}</Badge></div>
+                <div className="mt-3"><ReversePointsForm ledgerId={candidate.ledger_id} /></div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="mt-4 text-sm text-muted-foreground">No candidates for review.</p>
+        )}
       </section>
       <section className="mt-7">
         <h2 className="font-heading text-lg font-semibold">Recent redemptions</h2>

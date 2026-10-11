@@ -340,7 +340,8 @@ async function ensureRsvpAndCheckIn(
   admin: SupabaseClient<Database>,
   eventId: string,
   userId: string,
-  occurredAt: number
+  occurredAt: number,
+  method: "qr" | "manual" = "manual"
 ) {
   const existing = await findOne(admin, "event_rsvps", { event_id: eventId, user_id: userId })
   const rsvpId = existing?.id as string | undefined
@@ -354,7 +355,7 @@ async function ensureRsvpAndCheckIn(
     if (error || !data) throw new Error(`Could not create RSVP: ${error?.message}`)
     return admin.rpc("check_in", {
       p_rsvp_id: data.id,
-      p_method: "manual",
+      p_method: method,
       p_occurred_at: isoAt(occurredAt),
     })
   }
@@ -362,7 +363,7 @@ async function ensureRsvpAndCheckIn(
   if (existing.status === "checked_in") return { error: null }
   return admin.rpc("check_in", {
     p_rsvp_id: rsvpId,
-    p_method: "manual",
+    p_method: method,
     p_occurred_at: isoAt(occurredAt),
   })
 }
@@ -539,7 +540,7 @@ export async function seedDemo(): Promise<void> {
     const startsAt = now - (index + 2) * 7 * DAY
     const [title, slug] = eventTitles[index] ?? ["Demo event", "social"]
     const eventId = await ensureEvent(admin, townshipId, raj, categoryId(slug), title, startsAt)
-    await ensureRsvpAndCheckIn(admin, eventId, aisyah, startsAt + 30 * 60 * 1000)
+    await ensureRsvpAndCheckIn(admin, eventId, aisyah, startsAt + 30 * 60 * 1000, index % 3 === 0 ? "qr" : "manual")
   }
 
   const hostedEventStart = now - 14 * DAY
@@ -553,7 +554,7 @@ export async function seedDemo(): Promise<void> {
   )
   const farah = userIds["farah@borrowbetter.demo"]
   for (const attendee of [raj, office, farah]) {
-    await ensureRsvpAndCheckIn(admin, hostedEventId, attendee, hostedEventStart + 30 * 60 * 1000)
+    await ensureRsvpAndCheckIn(admin, hostedEventId, attendee, hostedEventStart + 30 * 60 * 1000, "qr")
   }
   await admin.rpc("complete_event", {
     p_event_id: hostedEventId,

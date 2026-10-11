@@ -1603,6 +1603,22 @@ export type Database = {
     }
     Functions: {
       accept_help_request: { Args: { p_request_id: string }; Returns: Json }
+      admin_budget: {
+        Args: { p_month?: string; p_township_id: string }
+        Returns: Json
+      }
+      admin_insights: {
+        Args: { p_days?: number; p_township_id: string }
+        Returns: Json
+      }
+      admin_ledger_candidates: {
+        Args: { p_limit?: number; p_township_id: string }
+        Returns: Json
+      }
+      admin_rewards_economy: {
+        Args: { p_days?: number; p_township_id: string }
+        Returns: Json
+      }
       approve_member: {
         Args: { p_approve: boolean; p_member_id: string }
         Returns: Json
@@ -1688,11 +1704,19 @@ export type Database = {
         Returns: Json
       }
       redeem_reward: { Args: { p_reward_id: string }; Returns: Json }
+      reverse_points: {
+        Args: { p_ledger_id: string; p_reason: string }
+        Returns: Json
+      }
       rsvp_event: {
         Args: { p_event_id: string; p_occurred_at?: string; p_role?: string }
         Returns: Json
       }
       run_scheduled_jobs: { Args: Record<PropertyKey, never>; Returns: Json }
+      save_programme_cost: {
+        Args: { p_amount_rm: number; p_label: string; p_month: string }
+        Returns: Json
+      }
       send_booking_message: {
         Args: { p_body: string; p_booking_id: string }
         Returns: Json

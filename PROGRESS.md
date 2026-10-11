@@ -1,6 +1,6 @@
 # BorrowBetter progress
 
-Status: **Phase 2 checkpoint ready**
+Status: **Phase 3 checkpoint ready**
 
 Legend: `[ ]` not started · `[~]` in progress · `[x]` complete · `[!]` blocked
 
@@ -51,12 +51,12 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` complete · `[!]` blocke
 
 ## Phase 3 — Insight and impact
 
-- [ ] Insights and planning suggestions
-- [ ] Budget and pilot comparison
-- [ ] Rewards economy and suspicious activity
-- [ ] CSV export and methodology
-- [ ] Audit-logged raw-record access
-- [ ] Phase 3 checkpoint gates
+- [x] Insights and planning suggestions
+- [x] Budget and pilot comparison
+- [x] Rewards economy and suspicious activity
+- [x] CSV export and methodology
+- [x] Audit-logged raw-record access
+- [~] Phase 3 checkpoint gates
 
 ## Phase 4 — Polish and delivery
 
@@ -91,3 +91,6 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` complete · `[!]` blocke
 | 2026-10-11 | `npm run demo:reset` | Pass — engagement data restored, Aisyah 1,250 BP |
 | 2026-10-11 | `npm run test:db` | Pass — 19 tests including capacity, RLS and scheduled-job idempotency |
 | 2026-10-11 | Manual moderation rehearsal | Pass — report → office review → hide target |
+| 2026-10-11 | `npm run lint && npm run typecheck && npm test && npm run build` | Pass |
+| 2026-10-11 | `npm run test:db` | Pass — 19 tests |
+| 2026-10-11 | Admin insights/budget/economy/export rehearsal | Pass |

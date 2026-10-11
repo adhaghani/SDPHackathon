@@ -1,0 +1,48 @@
+import { NextResponse, type NextRequest } from "next/server"
+
+import { createClient } from "@/lib/supabase/server"
+
+export const dynamic = "force-dynamic"
+
+export async function GET(request: NextRequest) {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: "authentication_required" }, { status: 401 })
+
+  const member = await supabase
+    .from("township_members")
+    .select("township_id,role,status")
+    .eq("user_id", user.id)
+    .eq("role", "township_admin")
+    .eq("status", "active")
+    .limit(1)
+    .maybeSingle()
+  if (!member.data) return NextResponse.json({ error: "admin_required" }, { status: 403 })
+
+  const [pulseResult, economyResult] = await Promise.all([
+    supabase.rpc("township_pulse", { p_township_id: member.data.township_id, p_days: 90 }),
+    supabase.rpc("admin_rewards_economy", { p_township_id: member.data.township_id, p_days: 90 }),
+  ])
+  if (pulseResult.error || economyResult.error) {
+    return NextResponse.json({ error: "export_failed" }, { status: 500 })
+  }
+
+  const pulse = (pulseResult.data ?? {}) as { metrics?: Record<string, number | string> }
+  const economy = (economyResult.data ?? {}) as Record<string, number>
+  const rows = [
+    ["metric", "value"],
+    ...Object.entries(pulse.metrics ?? {}).map(([key, value]) => [key, String(value)]),
+    ...Object.entries(economy).map(([key, value]) => [key, String(value)]),
+  ]
+  const csv = rows.map((row) => row.map((cell) => `"${cell.replaceAll('"', '""')}"`).join(",")).join("\n")
+
+  return new NextResponse(csv, {
+    headers: {
+      "Content-Type": "text/csv; charset=utf-8",
+      "Content-Disposition": `attachment; filename="borrowbetter-aggregates-${new Date().toISOString().slice(0, 10)}.csv"`,
+      "Cache-Control": "private, no-store",
+    },
+  })
+}

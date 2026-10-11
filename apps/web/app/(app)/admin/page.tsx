@@ -73,9 +73,13 @@ export default async function AdminPage({
       </section>
 
       <nav aria-label="Admin tools" className="flex flex-wrap gap-2">
+        <Button render={<Link href="/admin/insights" />} variant="outline" className="h-11">Insights</Button>
+        <Button render={<Link href="/admin/budget" />} variant="outline" className="h-11">Budget</Button>
         <Button render={<Link href="/admin/members" />} variant="outline" className="h-11">Members</Button>
         <Button render={<Link href="/admin/rewards" />} variant="outline" className="h-11">Rewards economy</Button>
         <Button render={<Link href="/admin/moderation" />} variant="outline" className="h-11">Moderation</Button>
+        <Button render={<Link href="/admin/methodology" />} variant="ghost" className="h-11">Methodology</Button>
+        <Button render={<Link href="/admin/export" />} variant="ghost" className="h-11">Export CSV</Button>
       </nav>
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

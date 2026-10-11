@@ -53,5 +53,10 @@ npm run test:e2e
 - [`docs/DESIGN_PLAN.md`](docs/DESIGN_PLAN.md) — township-line design system
 - [`docs/SETUP.md`](docs/SETUP.md) — local, cloud and human-only setup
 - [`docs/DECISIONS.md`](docs/DECISIONS.md) — implementation choices
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — system, data model, booking and points flow
+- [`docs/METRICS.md`](docs/METRICS.md) — metric definitions and limitations
+- [`docs/PRIVACY_AND_SAFETY.md`](docs/PRIVACY_AND_SAFETY.md) — privacy, safety and inclusion controls
+- [`docs/PILOT_PLAN.md`](docs/PILOT_PLAN.md) — baseline/pilot comparison assumptions
+- [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md) — three-minute walkthrough
 
 The prototype uses fictional demo residents, events, partners and rewards. Estimated impact figures are labelled estimated and should not be presented as guaranteed savings.
