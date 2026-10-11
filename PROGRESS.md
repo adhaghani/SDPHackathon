@@ -66,7 +66,7 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` complete · `[!]` blocke
 - [x] PWA install and keep-alive
 - [x] Playwright golden-path test
 - [x] Documentation deliverables
-- [!] Fresh-clone rehearsal
+- [x] Fresh-clone rehearsal
 - [x] Phase 4 checkpoint gates
 
 ## Phase 5 — Stretch
@@ -101,3 +101,5 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` complete · `[!]` blocke
 | 2026-10-11 | `npm run test:e2e` | Pass — 5 tests: accessibility, booking flow, core loop, auth |
 | 2026-10-11 | `npm run lint && npm run typecheck && npm test && npm run test:db && npm run build` | Pass |
 | 2026-10-11 | Fresh clone `npm ci --ignore-scripts` | Blocked by npm `ECONNRESET`; local install and all gates pass |
+| 2026-10-11 | Fresh clone retry `npm ci --ignore-scripts --prefer-offline` | Pass — install in 29s |
+| 2026-10-11 | Fresh clone lint/typecheck/test/build | Pass |

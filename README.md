@@ -60,3 +60,9 @@ npm run test:e2e
 - [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md) — three-minute walkthrough
 
 The prototype uses fictional demo residents, events, partners and rewards. Estimated impact figures are labelled estimated and should not be presented as guaranteed savings.
+
+## Screenshots
+
+![Landing on mobile](docs/screenshots/landing-390.png)
+![Resident home on mobile](docs/screenshots/home-390.png)
+![Township Pulse on desktop](docs/screenshots/admin-1280.png)
