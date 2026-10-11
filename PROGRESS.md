@@ -1,6 +1,6 @@
 # BorrowBetter progress
 
-Status: **Phase 4 checkpoint complete locally; cloud preview pending**
+Status: **Phase 4 local delivery complete; cloud preview and fresh-clone network rehearsal pending**
 
 Legend: `[ ]` not started · `[~]` in progress · `[x]` complete · `[!]` blocked
 
@@ -66,7 +66,7 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` complete · `[!]` blocke
 - [x] PWA install and keep-alive
 - [x] Playwright golden-path test
 - [x] Documentation deliverables
-- [~] Fresh-clone rehearsal
+- [!] Fresh-clone rehearsal
 - [x] Phase 4 checkpoint gates
 
 ## Phase 5 — Stretch
@@ -100,3 +100,4 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` complete · `[!]` blocke
 | 2026-10-11 | Local performance measurement | Home FCP/LCP ≈ 256 ms; Pulse load ≈ 536 ms |
 | 2026-10-11 | `npm run test:e2e` | Pass — 5 tests: accessibility, booking flow, core loop, auth |
 | 2026-10-11 | `npm run lint && npm run typecheck && npm test && npm run test:db && npm run build` | Pass |
+| 2026-10-11 | Fresh clone `npm ci --ignore-scripts` | Blocked by npm `ECONNRESET`; local install and all gates pass |
