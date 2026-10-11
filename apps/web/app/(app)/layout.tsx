@@ -37,7 +37,7 @@ export default async function AppLayout({
         Skip to content
       </a>
       {isDemoMode() ? (
-        <div className="border-b border-line-impact/40 bg-line-impact/10 px-4 py-2 text-center text-sm font-medium text-rimba-ink">
+        <div className="border-b border-line-impact/40 bg-line-impact/10 px-4 py-2 text-center text-sm font-medium text-foreground">
           Demo data — fictional residents, events and rewards
         </div>
       ) : null}

@@ -1,6 +1,6 @@
 # BorrowBetter progress
 
-Status: **Phase 3 checkpoint ready**
+Status: **Phase 4 checkpoint complete locally; cloud preview pending**
 
 Legend: `[ ]` not started · `[~]` in progress · `[x]` complete · `[!]` blocked
 
@@ -60,14 +60,14 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` complete · `[!]` blocke
 
 ## Phase 4 — Polish and delivery
 
-- [ ] Accessibility pass
-- [ ] Performance pass
-- [ ] Loading/empty/error audit
-- [ ] PWA install and keep-alive
-- [ ] Playwright golden-path test
-- [ ] Documentation deliverables
-- [ ] Fresh-clone rehearsal
-- [ ] Phase 4 checkpoint gates
+- [x] Accessibility pass
+- [x] Performance pass
+- [x] Loading/empty/error audit
+- [x] PWA install and keep-alive
+- [x] Playwright golden-path test
+- [x] Documentation deliverables
+- [~] Fresh-clone rehearsal
+- [x] Phase 4 checkpoint gates
 
 ## Phase 5 — Stretch
 
@@ -94,3 +94,9 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` complete · `[!]` blocke
 | 2026-10-11 | `npm run lint && npm run typecheck && npm test && npm run build` | Pass |
 | 2026-10-11 | `npm run test:db` | Pass — 19 tests |
 | 2026-10-11 | Admin insights/budget/economy/export rehearsal | Pass |
+| 2026-10-11 | `npm run test:e2e -- accessibility.spec.ts` | Pass — 2 WCAG A/AA scans |
+| 2026-10-11 | `npm run test:e2e -- core-loop.spec.ts` | Pass — role switcher, event check-in, borrow discovery, rewards |
+| 2026-10-11 | `npm run test:e2e -- booking-flow.spec.ts` | Pass — approve, two-sided handover, return, completed |
+| 2026-10-11 | Local performance measurement | Home FCP/LCP ≈ 256 ms; Pulse load ≈ 536 ms |
+| 2026-10-11 | `npm run test:e2e` | Pass — 5 tests: accessibility, booking flow, core loop, auth |
+| 2026-10-11 | `npm run lint && npm run typecheck && npm test && npm run test:db && npm run build` | Pass |

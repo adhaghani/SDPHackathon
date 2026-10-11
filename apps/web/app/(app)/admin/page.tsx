@@ -55,7 +55,7 @@ export default async function AdminPage({
     <div className="flex flex-col gap-7">
       <section className="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm font-medium text-line-impact">Rimba · Township Pulse</p>
+          <p className="text-sm font-medium text-rimba-ink">Rimba · Township Pulse</p>
           <h1 className="mt-1 font-heading text-3xl font-semibold">Observed activity</h1>
           <p className="mt-2 max-w-2xl text-muted-foreground">
             Aggregate signals for planning. Residents&apos; private activity is not exposed here.

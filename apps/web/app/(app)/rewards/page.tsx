@@ -67,14 +67,14 @@ export default async function RewardsPage() {
       <section className="border-y border-border py-6">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-sm font-medium text-points">Emas · BetterPoints</p>
+            <p className="text-sm font-medium text-points-ink">Emas · BetterPoints</p>
             <h1 className="mt-1 font-heading text-3xl font-semibold">Your recognition route</h1>
             <p className="mt-2 text-muted-foreground">
               Points come from verified real-world activity, never from opening the app.
             </p>
           </div>
           <div className="text-right">
-            <p className="font-heading text-5xl font-semibold tabular-nums text-points">{pointsResult.data?.balance ?? 0}</p>
+            <p className="font-heading text-5xl font-semibold tabular-nums text-points-ink">{pointsResult.data?.balance ?? 0}</p>
             <p className="text-sm text-muted-foreground">BP available</p>
           </div>
         </div>
@@ -132,7 +132,7 @@ export default async function RewardsPage() {
                   <p className="font-medium">{describeActivity(row.action_type)}</p>
                   <p className="mt-1 text-sm text-muted-foreground">{new Date(row.created_at).toLocaleDateString("en-MY")}</p>
                 </div>
-                <span className={`font-heading text-lg font-semibold tabular-nums ${row.delta > 0 ? "text-points" : "text-muted-foreground"}`}>
+                <span className={`font-heading text-lg font-semibold tabular-nums ${row.delta > 0 ? "text-points-ink" : "text-muted-foreground"}`}>
                   {row.delta > 0 ? "+" : ""}{row.delta} BP
                 </span>
               </li>

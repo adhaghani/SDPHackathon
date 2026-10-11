@@ -5,6 +5,14 @@ import { Toaster } from "@workspace/ui/components/sonner"
 import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@workspace/ui/lib/utils"
 
+export const metadata = {
+  title: {
+    default: "BorrowBetter",
+    template: "%s · BorrowBetter",
+  },
+  description: "Share more. Connect more. Live better.",
+}
+
 const atkinson = Atkinson_Hyperlegible({
   weight: ["400", "700"],
   subsets: ["latin"],

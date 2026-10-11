@@ -93,7 +93,7 @@ export default async function HomePage() {
       <section className="border-y border-border bg-card py-5">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-sm font-medium text-points">Emas · BetterPoints</p>
+            <p className="text-sm font-medium text-points-ink">Emas · BetterPoints</p>
             <p className="mt-1 font-heading text-4xl font-semibold tabular-nums">{active.points?.balance ?? 0} BP</p>
           </div>
           <Button render={<Link href="/rewards" />} variant="outline" className="h-11">Open rewards</Button>
@@ -105,7 +105,7 @@ export default async function HomePage() {
                 <li key={row.id} className="relative flex items-center justify-between gap-3 text-sm">
                   <span className="absolute -left-[21px] size-2.5 rounded-full border-2 border-card bg-line-event" aria-hidden="true" />
                   <span>{describeActivity(row.action_type)}</span>
-                  <span className={`font-medium tabular-nums ${row.delta > 0 ? "text-points" : "text-muted-foreground"}`}>{row.delta > 0 ? "+" : ""}{row.delta}</span>
+                  <span className={`font-medium tabular-nums ${row.delta > 0 ? "text-points-ink" : "text-muted-foreground"}`}>{row.delta > 0 ? "+" : ""}{row.delta}</span>
                 </li>
               ))}
             </ul>
@@ -172,7 +172,7 @@ export default async function HomePage() {
       </section>
 
       <section className="rounded-xl border border-border bg-muted/40 p-5">
-        <p className="text-sm font-medium text-line-impact">Township update</p>
+        <p className="text-sm font-medium text-rimba-ink">Township update</p>
         <p className="mt-2 font-heading text-lg font-semibold">The next announcement will appear here.</p>
         <p className="mt-1 text-sm text-muted-foreground">Organisers and the township office can share practical updates in Phase 2.</p>
       </section>

@@ -21,7 +21,7 @@ export default async function ProfilePage() {
         <h1 className="mt-1 font-heading text-3xl font-semibold">{active.profile?.display_name ?? "Neighbour"}</h1>
         <p className="mt-2 text-muted-foreground">Your route, recognition and comfort preferences.</p>
         <div className="mt-6 grid gap-3 sm:grid-cols-3">
-          <div className="rounded-xl border border-border bg-card p-4"><p className="text-sm text-muted-foreground">Balance</p><p className="mt-1 font-heading text-2xl font-semibold text-points tabular-nums">{active.points?.balance ?? 0} BP</p></div>
+          <div className="rounded-xl border border-border bg-card p-4"><p className="text-sm text-muted-foreground">Balance</p><p className="mt-1 font-heading text-2xl font-semibold text-points-ink tabular-nums">{active.points?.balance ?? 0} BP</p></div>
           <div className="rounded-xl border border-border bg-card p-4"><p className="text-sm text-muted-foreground">Items lent</p><p className="mt-1 font-heading text-2xl font-semibold tabular-nums">{lentResult.data?.length ?? 0}</p></div>
           <div className="rounded-xl border border-border bg-card p-4"><p className="text-sm text-muted-foreground">Borrows completed</p><p className="mt-1 font-heading text-2xl font-semibold tabular-nums">{borrowedResult.data?.length ?? 0}</p></div>
         </div>

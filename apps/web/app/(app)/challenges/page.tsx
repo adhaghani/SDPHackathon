@@ -40,7 +40,7 @@ export default async function ChallengesPage() {
                     <h2 className="mt-3 font-heading text-lg font-semibold">{challenge.title}</h2>
                     <p className="mt-1 text-sm text-muted-foreground">{challenge.description}</p>
                   </div>
-                  <span className="shrink-0 font-heading text-lg font-semibold text-points tabular-nums">+{challenge.reward_points}</span>
+                  <span className="shrink-0 font-heading text-lg font-semibold text-points-ink tabular-nums">+{challenge.reward_points}</span>
                 </div>
                 <div className="mt-5">
                   <div className="flex justify-between text-sm"><span>{progress?.contribution ?? 0} / {challenge.target}</span><span className="text-muted-foreground">Ends {new Date(challenge.ends_at).toLocaleDateString("en-MY")}</span></div>

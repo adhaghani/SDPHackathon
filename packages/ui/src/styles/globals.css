@@ -14,6 +14,7 @@
     --color-line-help: var(--line-help);
     --color-line-impact: var(--line-impact);
     --color-points: var(--points);
+    --color-points-ink: var(--points-ink);
     --color-jom-ink: var(--jom-ink);
     --color-rimba-ink: var(--rimba-ink);
     --color-sidebar-ring: var(--sidebar-ring);
@@ -95,8 +96,9 @@
     --line-help: #a83a8c;
     --line-impact: #2f8f5b;
     --points: #f0b429;
+    --points-ink: #8a5a00;
     --jom-ink: #ca421a;
-    --rimba-ink: #2a8052;
+    --rimba-ink: #246b3e;
 }
 
 .dark {
@@ -137,6 +139,7 @@
     --line-help: #e58cd5;
     --line-impact: #65c68d;
     --points: #f0b429;
+    --points-ink: #f0b429;
     --jom-ink: #ff8a61;
     --rimba-ink: #65c68d;
 }
