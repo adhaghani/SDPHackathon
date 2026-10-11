@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest"
 import { canTransitionBooking } from "@/lib/booking"
 import { estimatedPurchasesAvoided, suppressSmallGroup } from "@/lib/metrics"
 import { recommendEvents, recommendItems } from "@/lib/recommendations"
+import { deterministicAdminSummary, parseNaturalLanguageSearch } from "@/lib/ai-search"
 import { canAwardWithCaps, levelForPoints, resolveRewardRule } from "@/lib/points"
 import { createTicketToken, readTicketToken } from "@/lib/qr-core"
 
@@ -124,5 +125,26 @@ describe("Phase 5 recommendations", () => {
       },
     ])
     expect(recommendations[0]?.reason).toContain("Because")
+  })
+})
+
+describe("Phase 5 AI fallback", () => {
+  it("parses natural-language search without an AI key", () => {
+    const parsed = parseNaturalLanguageSearch("something for the kids this weekend")
+    expect(parsed.category).toBe("kids")
+    expect(parsed.kidsOnly).toBe(true)
+    expect(parsed.weekendOnly).toBe(true)
+  })
+
+  it("summarises only aggregate metrics when AI is unavailable", () => {
+    const summary = deterministicAdminSummary({
+      active_residents: 4,
+      completed_borrowing_transactions: 0,
+      items_reused: 0,
+      repeat_event_attendance: 1,
+    })
+    expect(summary).toContain("active residents")
+    expect(summary).toContain("small")
+    expect(summary).not.toContain("resident named")
   })
 })

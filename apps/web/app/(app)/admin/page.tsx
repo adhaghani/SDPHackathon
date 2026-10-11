@@ -2,6 +2,7 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 
 import { requireActiveMember } from "@/lib/data"
+import { isFeatureEnabled } from "@/lib/env"
 import { createClient } from "@/lib/supabase/server"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
@@ -79,7 +80,9 @@ export default async function AdminPage({
         <Button render={<Link href="/admin/rewards" />} variant="outline" className="h-11">Rewards economy</Button>
         <Button render={<Link href="/admin/moderation" />} variant="outline" className="h-11">Moderation</Button>
         <Button render={<Link href="/admin/disputes" />} variant="outline" className="h-11">Disputes</Button>
+        {isFeatureEnabled("equipment_hubs") ? <Button render={<Link href="/admin/hubs" />} variant="outline" className="h-11">Equipment hubs</Button> : null}
         <Button render={<Link href="/admin/methodology" />} variant="ghost" className="h-11">Methodology</Button>
+        <Button render={<Link href="/ai" />} variant="ghost" className="h-11">AI summary</Button>
         <Button render={<Link href="/admin/export" />} variant="ghost" className="h-11">Export CSV</Button>
       </nav>
 

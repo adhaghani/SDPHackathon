@@ -4,18 +4,21 @@ import Link from "next/link"
 import { requireActiveMember } from "@/lib/data"
 import { formatMoney } from "@/lib/format"
 import { createClient } from "@/lib/supabase/server"
+import { isFeatureEnabled } from "@/lib/env"
+import { parseNaturalLanguageSearch } from "@/lib/ai-search"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 
 export default async function BorrowPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; category?: string; free?: string }>
+  searchParams: Promise<{ q?: string; category?: string; free?: string; nl?: string }>
 }) {
   const active = await requireActiveMember()
   const params = await searchParams
   const supabase = await createClient()
   const categories = await supabase.from("item_categories").select("id,slug,name").order("name")
+  const naturalLanguage = isFeatureEnabled("ai_search") && params.nl ? parseNaturalLanguageSearch(params.nl) : null
 
   let query = supabase
     .from("items")
@@ -29,6 +32,8 @@ export default async function BorrowPage({
   if (params.q) query = query.ilike("title", `%${params.q}%`)
   if (params.category) query = query.eq("item_categories.slug", params.category)
   if (params.free === "true") query = query.eq("deposit_rm", 0)
+  if (naturalLanguage?.category) query = query.eq("item_categories.slug", naturalLanguage.category)
+  if (naturalLanguage?.freeOnly) query = query.eq("deposit_rm", 0)
 
   const items = await query
   if (items.error) throw new Error(items.error.message)
@@ -49,6 +54,14 @@ export default async function BorrowPage({
       </section>
 
       <form className="flex flex-col gap-3 border-y border-border py-4 sm:flex-row" action="/borrow" method="get">
+        {isFeatureEnabled("ai_search") ? (
+          <label className="sr-only" htmlFor="borrow-nl">
+            Natural-language search
+          </label>
+        ) : null}
+        {isFeatureEnabled("ai_search") ? (
+          <input id="borrow-nl" name="nl" defaultValue={params.nl ?? ""} placeholder="something for the kids this weekend" className="h-10 min-w-0 flex-1 rounded-lg border border-input bg-background px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50" />
+        ) : null}
         <label className="sr-only" htmlFor="borrow-q">Search items</label>
         <input id="borrow-q" name="q" defaultValue={params.q ?? ""} placeholder="Search items" className="h-10 min-w-0 flex-1 rounded-lg border border-input bg-background px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50" />
         <label className="sr-only" htmlFor="borrow-category">Category</label>

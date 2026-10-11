@@ -95,8 +95,8 @@ Ordered, feature-flagged: recommendations v1 → rotating self-check-in QR and Q
 | 5.1 | Explainable rule-based recommendations | Done behind `NEXT_PUBLIC_ENABLE_RECOMMENDATIONS` |
 | 5.2 | Rotating event QR and QR handover/return | Done behind `NEXT_PUBLIC_ENABLE_ROTATING_QR`; rotating ticket lifecycle verified |
 | 5.3 | Sponsor portal | Done behind `NEXT_PUBLIC_ENABLE_SPONSOR_PORTAL` |
-| 5.4 | AI search/admin summary | Pending |
-| 5.5 | Community equipment hubs | Pending |
+| 5.4 | AI search/admin summary | Done behind `NEXT_PUBLIC_ENABLE_AI_SEARCH`; deterministic fallback and aggregate-only admin summary |
+| 5.5 | Community equipment hubs | Done behind `NEXT_PUBLIC_ENABLE_EQUIPMENT_HUBS`; hub inventory and staff checkout |
 | 5.6 | Multi-township analytics | Pending |
 | 5.7 | Bahasa Malaysia UI | Pending |
 | 5.8 | Leaflet neighbourhood map | Pending |

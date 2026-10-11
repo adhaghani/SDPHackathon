@@ -443,6 +443,45 @@ export type Database = {
           },
         ]
       }
+      equipment_hubs: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          location_text: string
+          name: string
+          staff_user_id: string | null
+          township_id: string
+        }
+        ComputedFields: never
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          location_text: string
+          name: string
+          staff_user_id?: string | null
+          township_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          location_text?: string
+          name?: string
+          staff_user_id?: string | null
+          township_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_hubs_township_id_fkey"
+            columns: ["township_id"]
+            isOneToOne: false
+            referencedRelation: "townships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_categories: {
         Row: {
           counts_as_sustainability: boolean
@@ -774,6 +813,55 @@ export type Database = {
             columns: ["township_id"]
             isOneToOne: false
             referencedRelation: "townships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hub_inventory: {
+        Row: {
+          checked_out_to: string | null
+          checkout_status: string
+          due_at: string | null
+          hub_id: string
+          id: string
+          item_id: string
+          quantity: number
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          checked_out_to?: string | null
+          checkout_status?: string
+          due_at?: string | null
+          hub_id: string
+          id?: string
+          item_id: string
+          quantity?: number
+          updated_at?: string
+        }
+        Update: {
+          checked_out_to?: string | null
+          checkout_status?: string
+          due_at?: string | null
+          hub_id?: string
+          id?: string
+          item_id?: string
+          quantity?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hub_inventory_hub_id_fkey"
+            columns: ["hub_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_hubs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hub_inventory_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
             referencedColumns: ["id"]
           },
         ]
@@ -1658,6 +1746,7 @@ export type Database = {
     }
     Functions: {
       accept_help_request: { Args: { p_request_id: string }; Returns: Json }
+      add_hub_inventory: { Args: { p_payload: Json }; Returns: Json }
       admin_budget: {
         Args: { p_month?: string; p_township_id: string }
         Returns: Json
@@ -1698,6 +1787,10 @@ export type Database = {
         Args: { p_method?: string; p_occurred_at?: string; p_rsvp_id: string }
         Returns: Json
       }
+      checkout_hub_inventory: {
+        Args: { p_inventory_id: string }
+        Returns: Json
+      }
       complete_event: {
         Args: { p_event_id: string; p_occurred_at?: string }
         Returns: Json
@@ -1714,6 +1807,7 @@ export type Database = {
         }
         Returns: Json
       }
+      create_equipment_hub: { Args: { p_payload: Json }; Returns: Json }
       create_event: { Args: { p_payload: Json }; Returns: Json }
       create_help_request: { Args: { p_payload: Json }; Returns: Json }
       create_item: { Args: { p_payload: Json }; Returns: Json }

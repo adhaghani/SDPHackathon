@@ -74,8 +74,8 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` complete · `[!]` blocke
 - [x] Recommendations v1 behind `NEXT_PUBLIC_ENABLE_RECOMMENDATIONS`
 - [x] Rotating event QR and QR handover/return behind `NEXT_PUBLIC_ENABLE_ROTATING_QR`
 - [x] Sponsor portal behind `NEXT_PUBLIC_ENABLE_SPONSOR_PORTAL`
-- [ ] AI search/admin summary
-- [ ] Community equipment hubs
+- [x] AI search/admin summary behind `NEXT_PUBLIC_ENABLE_AI_SEARCH`
+- [x] Community equipment hubs behind `NEXT_PUBLIC_ENABLE_EQUIPMENT_HUBS`
 - [ ] Multi-township analytics
 - [ ] Bahasa Malaysia UI
 - [ ] Leaflet neighbourhood map
@@ -118,3 +118,5 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` complete · `[!]` blocke
 | 2026-10-11 | Phase 5.1 recommendations | Pass — explainable helper tests and Home integration |
 | 2026-10-11 | Phase 5.2 rotating QR | Pass — flag-controlled 60-second ticket lifecycle and local gates |
 | 2026-10-11 | Phase 5.3 sponsor portal | Pass — partner account seed, aggregate stats, reward/challenge creation RPCs and local gates |
+| 2026-10-11 | Phase 5.4 AI search/admin summary | Pass — deterministic parser/fallback tests and local gates |
+| 2026-10-11 | Phase 5.5 equipment hubs | Pass — hub/inventory/checkout RPCs and local gates |
