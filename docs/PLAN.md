@@ -88,6 +88,19 @@ Phase 4 DoD: fresh clone runs in under 20 minutes from `docs/SETUP.md`; `pnpm bu
 
 Ordered, feature-flagged: recommendations v1 → rotating self-check-in QR and QR handover/return → sponsor portal → AI search/admin summary with deterministic fallback → equipment hubs → multi-township analytics → Bahasa Malaysia UI → Leaflet neighbourhood map.
 
+### Stretch status
+
+| ID | Item | Status |
+| --- | --- | --- |
+| 5.1 | Explainable rule-based recommendations | Done behind `NEXT_PUBLIC_ENABLE_RECOMMENDATIONS` |
+| 5.2 | Rotating event QR and QR handover/return | Pending |
+| 5.3 | Sponsor portal | Pending |
+| 5.4 | AI search/admin summary | Pending |
+| 5.5 | Community equipment hubs | Pending |
+| 5.6 | Multi-township analytics | Pending |
+| 5.7 | Bahasa Malaysia UI | Pending |
+| 5.8 | Leaflet neighbourhood map | Pending |
+
 ## Checkpoint report format
 
 At each phase checkpoint report only: what is done, commands and results, what is blocked, and what the human must do.

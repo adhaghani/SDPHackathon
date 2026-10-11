@@ -1,6 +1,6 @@
 # BorrowBetter progress
 
-Status: **Phase 4 local delivery complete; cloud preview and fresh-clone network rehearsal pending**
+Status: **Phase 5 stretch in progress**
 
 Legend: `[ ]` not started · `[~]` in progress · `[x]` complete · `[!]` blocked
 
@@ -71,7 +71,14 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` complete · `[!]` blocke
 
 ## Phase 5 — Stretch
 
-- [ ] Only after Phase 4 passes; keep each item behind a feature flag
+- [x] Recommendations v1 behind `NEXT_PUBLIC_ENABLE_RECOMMENDATIONS`
+- [ ] Rotating event QR and QR handover/return
+- [ ] Sponsor portal
+- [ ] AI search/admin summary
+- [ ] Community equipment hubs
+- [ ] Multi-township analytics
+- [ ] Bahasa Malaysia UI
+- [ ] Leaflet neighbourhood map
 
 ## Verification log
 
@@ -108,3 +115,4 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` complete · `[!]` blocke
 | 2026-10-11 | `npm run test:e2e -- accessibility.spec.ts` after PWA/photo changes | Pass |
 | 2026-10-11 | `npm run lint && npm run typecheck && npm test && npm run build` after PWA/photo changes | Pass |
 | 2026-10-11 | PWA service-worker rehearsal | Pass — `/sw.js` served and registered in Chromium |
+| 2026-10-11 | Phase 5.1 recommendations | Pass — explainable helper tests and Home integration |
