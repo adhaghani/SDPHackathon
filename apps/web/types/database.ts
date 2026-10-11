@@ -1024,6 +1024,39 @@ export type Database = {
         }
         Relationships: []
       }
+      partner_accounts: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          partner_id: string
+          user_id: string
+        }
+        ComputedFields: never
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          partner_id: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          partner_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_accounts_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       partners: {
         Row: {
           created_at: string
@@ -1684,6 +1717,8 @@ export type Database = {
       create_event: { Args: { p_payload: Json }; Returns: Json }
       create_help_request: { Args: { p_payload: Json }; Returns: Json }
       create_item: { Args: { p_payload: Json }; Returns: Json }
+      create_partner_challenge: { Args: { p_payload: Json }; Returns: Json }
+      create_partner_reward: { Args: { p_payload: Json }; Returns: Json }
       create_report: { Args: { p_payload: Json }; Returns: Json }
       delete_my_account: { Args: Record<PropertyKey, never>; Returns: Json }
       evaluate_badges: {
@@ -1695,6 +1730,7 @@ export type Database = {
         Returns: number
       }
       get_join_details: { Args: { p_join_code: string }; Returns: Json }
+      get_partner_context: { Args: Record<PropertyKey, never>; Returns: Json }
       has_role: {
         Args: { p_roles: string[]; p_township_id: string }
         Returns: boolean
@@ -1730,6 +1766,7 @@ export type Database = {
         Args: { p_booking_id: string; p_details?: string; p_reason?: string }
         Returns: Json
       }
+      partner_stats: { Args: { p_partner_id: string }; Returns: Json }
       redeem_reward: { Args: { p_reward_id: string }; Returns: Json }
       resolve_booking_dispute: {
         Args: { p_dispute_id: string; p_note?: string; p_resolution: string }

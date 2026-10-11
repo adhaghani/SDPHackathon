@@ -28,6 +28,11 @@ const demoUsers = [
     displayName: "Farah Nordin",
     role: "resident" as const,
   },
+  {
+    email: "kopi@borrowbetter.demo",
+    displayName: "Kopi Kita partner",
+    role: "resident" as const,
+  },
   { email: "mei@borrowbetter.demo", displayName: "Mei Ling Tan", role: "resident" as const },
   { email: "siti@borrowbetter.demo", displayName: "Siti Aminah", role: "resident" as const },
   { email: "kumar@borrowbetter.demo", displayName: "Kumar Raj", role: "resident" as const },
@@ -220,6 +225,14 @@ async function ensureEngagementData(
   const partnerRows = await admin.from("partners").select("id,name").eq("township_id", townshipId)
   if (partnerRows.error) throw new Error(partnerRows.error.message)
   const partnerId = (name: string) => partnerRows.data?.find((partner) => partner.name === name)?.id
+  const partnerUserId = userIds["kopi@borrowbetter.demo"]
+  const kopiPartnerId = partnerId("Kopi Kita")
+  if (partnerUserId && kopiPartnerId) {
+    await admin.from("partner_accounts").upsert(
+      { partner_id: kopiPartnerId, user_id: partnerUserId, active: true },
+      { onConflict: "partner_id,user_id" }
+    )
+  }
 
   const rewards = [
     { partner: "Kopi Kita", title: "Kopi Kita voucher", description: "A drink at the fictional Kopi Kita café.", kind: "voucher", cost_bp: 300, unit_cost_rm: 8, funded_by: "sponsor", stock: 20, per_user_limit: 1 },

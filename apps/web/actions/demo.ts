@@ -13,6 +13,7 @@ const accounts = {
   resident: "aisyah@borrowbetter.demo",
   organiser: "raj@borrowbetter.demo",
   admin: "office@borrowbetter.demo",
+  partner: "kopi@borrowbetter.demo",
 } as const
 
 export async function continueAsDemo(
@@ -20,7 +21,7 @@ export async function continueAsDemo(
   formData: FormData
 ): Promise<DemoActionState> {
   const role = formData.get("role")
-  const email = role === "resident" || role === "organiser" || role === "admin" ? accounts[role] : null
+  const email = role === "resident" || role === "organiser" || role === "admin" || role === "partner" ? accounts[role] : null
   const password = process.env.DEMO_USER_PASSWORD
 
   if (!email || !password || process.env.NEXT_PUBLIC_DEMO_MODE !== "true") {
@@ -31,5 +32,5 @@ export async function continueAsDemo(
   const { error } = await supabase.auth.signInWithPassword({ email, password })
   if (error) return { status: "error", message: "Demo sign-in is unavailable. Try again." }
 
-  redirect(role === "admin" ? "/admin" : "/home")
+  redirect(role === "admin" ? "/admin" : role === "partner" ? "/sponsor/portal" : "/home")
 }

@@ -14,6 +14,7 @@ const protectedPrefixes = [
   "/profile",
   "/onboarding",
   "/admin",
+  "/sponsor",
 ]
 
 export async function proxy(request: NextRequest) {

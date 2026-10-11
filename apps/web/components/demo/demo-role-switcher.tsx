@@ -24,6 +24,9 @@ export function DemoRoleSwitcher() {
         <Button type="submit" name="role" value="admin" variant="outline" className="h-11" disabled={pending}>
           Township office · admin
         </Button>
+        <Button type="submit" name="role" value="partner" variant="outline" className="h-11" disabled={pending}>
+          Kopi Kita · partner
+        </Button>
       </form>
       {state.message ? (
         <Alert variant="destructive">
