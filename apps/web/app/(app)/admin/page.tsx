@@ -81,6 +81,7 @@ export default async function AdminPage({
         <Button render={<Link href="/admin/moderation" />} variant="outline" className="h-11">Moderation</Button>
         <Button render={<Link href="/admin/disputes" />} variant="outline" className="h-11">Disputes</Button>
         {isFeatureEnabled("equipment_hubs") ? <Button render={<Link href="/admin/hubs" />} variant="outline" className="h-11">Equipment hubs</Button> : null}
+        {isFeatureEnabled("leaflet") ? <Button render={<Link href="/admin/map" />} variant="outline" className="h-11">Neighbourhood map</Button> : null}
         <Button render={<Link href="/admin/methodology" />} variant="ghost" className="h-11">Methodology</Button>
         <Button render={<Link href="/ai" />} variant="ghost" className="h-11">AI summary</Button>
         <Button render={<Link href="/admin/export" />} variant="ghost" className="h-11">Export CSV</Button>

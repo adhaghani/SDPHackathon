@@ -20,10 +20,10 @@ export const getSessionContext = cache(async () => {
   const [membershipsResult, profileResult] = await Promise.all([
     supabase
       .from("township_members")
-      .select("id,township_id,user_id,role,status,neighbourhood_id,unit_label")
+      .select("id,township_id,user_id,role,status,neighbourhood_id,unit_label,created_at,townships(name)")
       .eq("user_id", user.id)
       .in("status", ["active", "pending"])
-      .order("status", { ascending: true }),
+      .order("created_at", { ascending: true }),
     supabase
       .from("profiles")
       .select("id,display_name,interests,language,comfort_prefs,recognition_opt_in")
@@ -40,8 +40,12 @@ export const getSessionContext = cache(async () => {
   }
 
   const memberships = membershipsResult.data ?? []
+  const preferredMembership = memberships.find(
+    (row) => row.status === "active" && row.townships?.name?.includes("Harmoni")
+  )
   const membership =
     memberships.find((row) => row.township_id === selectedTownshipId) ??
+    preferredMembership ??
     memberships.find((row) => row.status === "active") ??
     memberships[0] ??
     null

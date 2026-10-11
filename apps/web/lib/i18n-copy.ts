@@ -1,0 +1,34 @@
+export type Locale = "en" | "ms"
+
+export const copy = {
+  en: {
+    brand: "BorrowBetter",
+    tagline: "Share more. Connect more. Live better.",
+    signIn: "Sign in",
+    signUp: "Join your township",
+    home: "Home",
+    events: "Events",
+    borrow: "Borrow",
+    rewards: "Rewards",
+    community: "Community",
+    profile: "Profile",
+    language: "Language",
+    switchLanguage: "Switch to Bahasa Malaysia",
+    demoData: "Demo data — fictional residents, events and rewards",
+  },
+  ms: {
+    brand: "BorrowBetter",
+    tagline: "Kongsi lebih. Bersama lebih. Hidup lebih baik.",
+    signIn: "Log masuk",
+    signUp: "Sertai perbandaran anda",
+    home: "Utama",
+    events: "Acara",
+    borrow: "Pinjam",
+    rewards: "Ganjaran",
+    community: "Komuniti",
+    profile: "Profil",
+    language: "Bahasa",
+    switchLanguage: "Tukar kepada English",
+    demoData: "Data demo — penduduk, acara dan ganjaran adalah fiksyen",
+  },
+} as const

@@ -98,8 +98,8 @@ Ordered, feature-flagged: recommendations v1 → rotating self-check-in QR and Q
 | 5.4 | AI search/admin summary | Done behind `NEXT_PUBLIC_ENABLE_AI_SEARCH`; deterministic fallback and aggregate-only admin summary |
 | 5.5 | Community equipment hubs | Done behind `NEXT_PUBLIC_ENABLE_EQUIPMENT_HUBS`; hub inventory and staff checkout |
 | 5.6 | Multi-township switcher | Done behind `NEXT_PUBLIC_ENABLE_MULTI_TOWNSHIP`; active memberships are selectable from Profile |
-| 5.7 | Bahasa Malaysia UI | Pending |
-| 5.8 | Leaflet neighbourhood map | Pending |
+| 5.7 | Bahasa Malaysia UI | Done behind `NEXT_PUBLIC_ENABLE_BM_UI`; landing/home/nav copy switcher and cookie-backed locale |
+| 5.8 | Leaflet neighbourhood map | Done behind `NEXT_PUBLIC_ENABLE_LEAFLET`; lazy-loaded neighbourhood-level OSM map |
 
 ## Checkpoint report format
 

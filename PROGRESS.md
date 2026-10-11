@@ -1,6 +1,6 @@
 # BorrowBetter progress
 
-Status: **Phase 5 stretch in progress**
+Status: **Phase 5 stretch complete locally; cloud preview pending**
 
 Legend: `[ ]` not started · `[~]` in progress · `[x]` complete · `[!]` blocked
 
@@ -77,8 +77,9 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` complete · `[!]` blocke
 - [x] AI search/admin summary behind `NEXT_PUBLIC_ENABLE_AI_SEARCH`
 - [x] Community equipment hubs behind `NEXT_PUBLIC_ENABLE_EQUIPMENT_HUBS`
 - [x] Multi-township switcher behind `NEXT_PUBLIC_ENABLE_MULTI_TOWNSHIP`
-- [ ] Bahasa Malaysia UI
-- [ ] Leaflet neighbourhood map
+- [x] Bahasa Malaysia UI behind `NEXT_PUBLIC_ENABLE_BM_UI`
+- [x] Leaflet neighbourhood map behind `NEXT_PUBLIC_ENABLE_LEAFLET`
+- [x] Phase 5 checkpoint gates
 
 ## Verification log
 
@@ -121,3 +122,7 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` complete · `[!]` blocke
 | 2026-10-11 | Phase 5.4 AI search/admin summary | Pass — deterministic parser/fallback tests and local gates |
 | 2026-10-11 | Phase 5.5 equipment hubs | Pass — hub/inventory/checkout RPCs and local gates |
 | 2026-10-11 | Phase 5.6 multi-township switcher | Pass — seeded second township and Profile switcher behind flag |
+| 2026-10-11 | Phase 5.7 Bahasa Malaysia UI | Pass — landing/home/nav copy switcher and local gates |
+| 2026-10-11 | Phase 5.8 Leaflet map | Pass — lazy-loaded neighbourhood-level OSM map and accessibility scan |
+| 2026-10-11 | `npm run test:e2e` | Pass — 5 tests after Phase 5 additions |
+| 2026-10-11 | `npm run lint && npm run typecheck && npm test && npm run test:db && npm run build` | Pass |

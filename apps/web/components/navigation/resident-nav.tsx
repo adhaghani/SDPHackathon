@@ -4,10 +4,31 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 
 import { residentNavigation } from "@/content/navigation"
+import { copy } from "@/lib/i18n-copy"
 import { cn } from "@workspace/ui/lib/utils"
 
-export function ResidentNav({ isAdmin = false }: { isAdmin?: boolean }) {
+export function ResidentNav({
+  isAdmin = false,
+  locale = "en",
+}: {
+  isAdmin?: boolean
+  locale?: "en" | "ms"
+}) {
   const pathname = usePathname()
+  const localized = copy[locale]
+  const navItems = residentNavigation.map((item) => ({
+    ...item,
+    label:
+      item.href === "/home"
+        ? localized.home
+        : item.href === "/events"
+          ? localized.events
+          : item.href === "/borrow"
+            ? localized.borrow
+            : item.href === "/rewards"
+              ? localized.rewards
+              : localized.community,
+  }))
 
   return (
     <>
@@ -16,7 +37,7 @@ export function ResidentNav({ isAdmin = false }: { isAdmin?: boolean }) {
         className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 backdrop-blur-sm lg:hidden"
       >
         <ul className="mx-auto grid max-w-lg grid-cols-5">
-          {residentNavigation.map(({ href, label, icon: Icon }) => {
+          {navItems.map(({ href, label, icon: Icon }) => {
             const active = pathname === href || pathname.startsWith(`${href}/`)
 
             return (
@@ -48,7 +69,7 @@ export function ResidentNav({ isAdmin = false }: { isAdmin?: boolean }) {
           </Link>
         </div>
         <ul className="flex flex-1 flex-col gap-1 p-3">
-          {residentNavigation.map(({ href, label, icon: Icon }) => {
+          {navItems.map(({ href, label, icon: Icon }) => {
             const active = pathname === href || pathname.startsWith(`${href}/`)
 
             return (
@@ -87,7 +108,7 @@ export function ResidentNav({ isAdmin = false }: { isAdmin?: boolean }) {
             href="/profile"
             className="flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium hover:bg-muted"
           >
-            Profile
+            {localized.profile}
           </Link>
         </div>
       </nav>

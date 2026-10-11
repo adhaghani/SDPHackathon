@@ -3,12 +3,17 @@ import Link from "next/link"
 
 import { TownshipLine } from "@/components/shared/township-line"
 import { DemoRoleSwitcher } from "@/components/demo/demo-role-switcher"
+import { LanguageSwitcher } from "@/components/i18n/language-switcher"
 import { marketingContent } from "@/content/marketing"
-import { isDemoMode } from "@/lib/env"
+import { isDemoMode, isFeatureEnabled } from "@/lib/env"
+import { getPreferredLocale } from "@/lib/i18n"
+import { copy } from "@/lib/i18n-copy"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 
-export default function Page() {
+export default async function Page() {
+  const locale = isFeatureEnabled("bm_ui") ? await getPreferredLocale() : "en"
+  const localized = copy[locale]
   return (
     <div className="min-h-svh bg-background">
       <a
@@ -20,7 +25,7 @@ export default function Page() {
       <header className="border-b border-border">
         <div className="mx-auto flex min-h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
           <Link href="/" className="font-heading text-lg font-semibold">
-            {marketingContent.brand}
+            {localized.brand}
           </Link>
           <nav aria-label="Account" className="flex items-center gap-2">
             <Button
@@ -28,13 +33,13 @@ export default function Page() {
               variant="ghost"
               className="h-11"
             >
-              Sign in
+              {localized.signIn}
             </Button>
             <Button
               render={<Link href="/sign-up" />}
               className="hidden h-11 sm:inline-flex"
             >
-              {marketingContent.primaryAction}
+              {localized.signUp}
             </Button>
           </nav>
         </div>
@@ -45,10 +50,10 @@ export default function Page() {
           <div>
             <Badge variant="outline">People and Planet</Badge>
             <h1 className="mt-5 max-w-2xl font-heading text-4xl leading-tight font-semibold sm:text-5xl">
-              {marketingContent.headline}
+              {locale === "ms" ? "Perbandaran anda, disambungkan melalui aktiviti dunia sebenar." : marketingContent.headline}
             </h1>
             <p className="mt-5 max-w-xl text-lg text-muted-foreground">
-              {marketingContent.description}
+              {locale === "ms" ? "Pinjam dan kongsi, sertai acara kejiranan, bantu jiran dan terima pengiktirafan untuk sumbangan yang disahkan." : marketingContent.description}
             </p>
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
               <Button
@@ -56,7 +61,7 @@ export default function Page() {
                 className="h-12 gap-2 px-5"
               >
                 <UserPlusIcon aria-hidden="true" data-icon="inline-start" />
-                {marketingContent.primaryAction}
+                {localized.signUp}
               </Button>
               <Button
                 render={<Link href="/sign-in?next=/home" />}
@@ -64,13 +69,17 @@ export default function Page() {
                 className="h-12 gap-2 px-5"
               >
                 <PlayIcon aria-hidden="true" data-icon="inline-start" />
-                {marketingContent.secondaryAction}
+                {locale === "ms" ? "Cuba demo" : marketingContent.secondaryAction}
               </Button>
             </div>
             <p className="mt-4 text-sm text-muted-foreground">
-              Core features are free for residents. Township operators pay for
-              the managed system.
+              {locale === "ms" ? "Ciri utama percuma untuk penduduk. Pengendali perbandaran membayar untuk sistem ini." : "Core features are free for residents. Township operators pay for the managed system."}
             </p>
+            {isFeatureEnabled("bm_ui") ? (
+              <div className="mt-4">
+              <LanguageSwitcher current={locale} next={locale === "en" ? "ms" : "en"} label={localized.switchLanguage} nextPath="/" />
+              </div>
+            ) : null}
             {isDemoMode() ? (
               <div className="mt-6 border-t border-border pt-5">
                 <DemoRoleSwitcher />
@@ -106,7 +115,7 @@ export default function Page() {
       </main>
 
       <footer className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-8 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
-        <p>{marketingContent.tagline}</p>
+        <p>{localized.tagline}</p>
         <p>Prototype for a university hackathon. No real brands or people.</p>
       </footer>
     </div>

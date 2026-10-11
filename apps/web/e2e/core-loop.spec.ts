@@ -14,7 +14,10 @@ test("seeded demo loop verifies check-in, borrow discovery and rewards", async (
   await expect(aisyah.getByRole("heading", { name: /Home,/ })).toBeVisible()
 
   await aisyah.goto("/events")
-  const eventLink = aisyah.getByRole("link", { name: /Demo check-in window/ }).first()
+  const eventLink = aisyah
+    .locator('a[href^="/events/"]')
+    .filter({ hasText: "Demo check-in window" })
+    .first()
   await eventLink.click()
   await aisyah.getByRole("button", { name: "RSVP as attendee" }).click()
   await expect(aisyah.getByText("You are going")).toBeVisible()
