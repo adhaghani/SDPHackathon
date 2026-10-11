@@ -3,6 +3,8 @@ import Link from "next/link"
 
 import { requireActiveMember } from "@/lib/data"
 import { formatEventRange } from "@/lib/format"
+import { isFeatureEnabled } from "@/lib/env"
+import { recommendEvents, recommendItems } from "@/lib/recommendations"
 import { createClient } from "@/lib/supabase/server"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
@@ -11,7 +13,7 @@ import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@workspace/ui/
 export default async function HomePage() {
   const active = await requireActiveMember()
   const supabase = await createClient()
-  const [bookingsResult, eventsResult, itemsResult, ledgerResult] = await Promise.all([
+  const [bookingsResult, eventsResult, itemsResult, ledgerResult, pastEventsResult] = await Promise.all([
     supabase
       .from("bookings")
       .select("id,status,borrower_id,lender_id,items(title)")
@@ -20,7 +22,7 @@ export default async function HomePage() {
       .limit(10),
     supabase
       .from("events")
-      .select("id,title,starts_at,ends_at,location_text,neighbourhood_id,event_categories(name,counts_as_sustainability)")
+      .select("id,title,starts_at,ends_at,location_text,neighbourhood_id,event_categories(slug,name,counts_as_sustainability)")
       .eq("township_id", active.townshipId)
       .eq("status", "published")
       .gte("starts_at", new Date().toISOString())
@@ -28,7 +30,7 @@ export default async function HomePage() {
       .limit(3),
     supabase
       .from("items")
-      .select("id,title,condition,photo_paths,item_categories(name)")
+      .select("id,title,condition,photo_paths,item_categories(slug,name)")
       .eq("township_id", active.townshipId)
       .eq("status", "active")
       .neq("owner_id", active.user.id)
@@ -40,7 +42,41 @@ export default async function HomePage() {
       .eq("user_id", active.user.id)
       .order("created_at", { ascending: false })
       .limit(4),
+    supabase
+      .from("event_rsvps")
+      .select("event_id,events(event_categories(slug))")
+      .eq("user_id", active.user.id)
+      .eq("status", "checked_in")
+      .order("created_at", { ascending: false })
+      .limit(30),
   ])
+  const interests = active.profile?.interests ?? []
+  const pastCategories = (pastEventsResult.data ?? [])
+    .map((row) => row.events?.event_categories?.slug)
+    .filter((slug): slug is string => Boolean(slug))
+  const eventRecommendations = isFeatureEnabled("recommendations")
+    ? recommendEvents((eventsResult.data ?? []).map((event) => ({
+        eventId: event.id,
+        title: event.title,
+        categorySlug: event.event_categories?.slug ?? "social",
+        neighbourhoodId: event.neighbourhood_id,
+        startsAt: event.starts_at,
+        interests,
+        pastCategories,
+        userNeighbourhoodId: active.membership?.neighbourhood_id,
+      })))
+    : []
+  const itemRecommendations = isFeatureEnabled("recommendations")
+    ? recommendItems((itemsResult.data ?? []).map((item) => ({
+        itemId: item.id,
+        title: item.title,
+        categorySlug: item.item_categories?.slug ?? "events",
+        neighbourhoodId: null,
+        interests,
+        pastCategories,
+        userNeighbourhoodId: active.membership?.neighbourhood_id,
+      })))
+    : []
 
   const todos = (bookingsResult.data ?? [])
     .map((booking) => {
@@ -89,6 +125,29 @@ export default async function HomePage() {
           </div>
         )}
       </section>
+
+      {eventRecommendations.length || itemRecommendations.length ? (
+        <section>
+          <h2 className="font-heading text-xl font-semibold">For you</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Explainable suggestions from your interests, past activity and neighbourhood.</p>
+          <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+            {eventRecommendations.map((recommendation) => (
+              <li key={recommendation.item.eventId} className="rounded-xl border border-border bg-card p-4">
+                <Badge variant="outline">Event</Badge>
+                <Link href={`/events/${recommendation.item.eventId}`} className="mt-3 block font-medium underline-offset-4 hover:underline">{recommendation.item.title}</Link>
+                <p className="mt-1 text-sm text-muted-foreground">{recommendation.reason}</p>
+              </li>
+            ))}
+            {itemRecommendations.map((recommendation) => (
+              <li key={recommendation.item.itemId} className="rounded-xl border border-border bg-card p-4">
+                <Badge variant="outline">Item</Badge>
+                <Link href={`/borrow/items/${recommendation.item.itemId}`} className="mt-3 block font-medium underline-offset-4 hover:underline">{recommendation.item.title}</Link>
+                <p className="mt-1 text-sm text-muted-foreground">{recommendation.reason}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <section className="border-y border-border bg-card py-5">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">

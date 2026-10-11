@@ -34,3 +34,7 @@ export function getAppUrl(): string {
 export function isDemoMode(): boolean {
   return process.env.NEXT_PUBLIC_DEMO_MODE === "true"
 }
+
+export function isFeatureEnabled(name: string): boolean {
+  return process.env[`NEXT_PUBLIC_ENABLE_${name.toUpperCase()}`] === "true"
+}

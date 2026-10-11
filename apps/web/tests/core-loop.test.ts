@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest"
 
 import { canTransitionBooking } from "@/lib/booking"
 import { estimatedPurchasesAvoided, suppressSmallGroup } from "@/lib/metrics"
+import { recommendEvents, recommendItems } from "@/lib/recommendations"
 import { canAwardWithCaps, levelForPoints, resolveRewardRule } from "@/lib/points"
 import { createTicketToken, readTicketToken } from "@/lib/qr-core"
 
@@ -89,5 +90,39 @@ describe("QR ticket tokens", () => {
     await expect(readTicketToken(token, "test-secret")).rejects.toThrow()
     const valid = await createTicketToken({ rsvp: "rsvp-1", evt: "event-1", usr: "user-1" }, "test-secret")
     await expect(readTicketToken(valid, "wrong-secret")).rejects.toThrow()
+  })
+})
+
+describe("Phase 5 recommendations", () => {
+  it("explains rule-based event suggestions", () => {
+    const recommendations = recommendEvents([
+      {
+        eventId: "event-1",
+        title: "Garden morning",
+        categorySlug: "gardening",
+        neighbourhoodId: "anggun",
+        startsAt: "2026-10-11T19:00:00Z",
+        interests: ["garden"],
+        pastCategories: ["gardening"],
+        userNeighbourhoodId: "anggun",
+      },
+    ])
+    expect(recommendations[0]?.reason).toContain("Because")
+    expect(recommendations[0]?.score).toBeGreaterThan(0)
+  })
+
+  it("explains rule-based item suggestions", () => {
+    const recommendations = recommendItems([
+      {
+        itemId: "item-1",
+        title: "Garden cart",
+        categorySlug: "home-tools",
+        neighbourhoodId: "anggun",
+        interests: ["home-tools"],
+        pastCategories: ["home-tools"],
+        userNeighbourhoodId: "anggun",
+      },
+    ])
+    expect(recommendations[0]?.reason).toContain("Because")
   })
 })
