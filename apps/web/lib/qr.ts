@@ -1,6 +1,6 @@
 import "server-only"
 
-import { getSecretKey } from "@/lib/env"
+import { getSecretKey, isFeatureEnabled } from "@/lib/env"
 import { createTicketToken, readTicketToken } from "@/lib/qr-core"
 
 export async function signTicketToken({
@@ -12,7 +12,8 @@ export async function signTicketToken({
   eventId: string
   userId: string
 }): Promise<string> {
-  return createTicketToken({ rsvp: rsvpId, evt: eventId, usr: userId }, getSecretKey())
+  const expiresInSeconds = isFeatureEnabled("rotating_qr") ? 60 : 90
+  return createTicketToken({ rsvp: rsvpId, evt: eventId, usr: userId }, getSecretKey(), expiresInSeconds)
 }
 
 export async function verifyTicketToken(token: string): Promise<{

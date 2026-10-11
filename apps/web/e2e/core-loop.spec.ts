@@ -36,6 +36,11 @@ test("seeded demo loop verifies check-in, borrow discovery and rewards", async (
   await aisyah.goto("/rewards")
   await expect(aisyah.getByText(/Voucher|BP available/)).toBeVisible()
 
+  if (process.env.NEXT_PUBLIC_ENABLE_ROTATING_QR === "true") {
+    await aisyah.goto(eventUrl.pathname + "/ticket")
+    await expect(aisyah.getByText(/refreshes in 60s/)).toBeVisible()
+  }
+
   await aisyahContext.close()
   await rajContext.close()
 })

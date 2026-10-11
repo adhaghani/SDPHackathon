@@ -19,7 +19,7 @@ export function TicketClient({
   initialToken: string
 }) {
   const [token, setToken] = useState<string | null>(initialToken)
-  const [seconds, setSeconds] = useState(30)
+  const [seconds, setSeconds] = useState(process.env.NEXT_PUBLIC_ENABLE_ROTATING_QR === "true" ? 60 : 30)
   const [pending, setPending] = useState(false)
 
   const refresh = useCallback(async () => {
@@ -30,7 +30,7 @@ export function TicketClient({
       const payload = (await response.json()) as { token?: string }
       if (!payload.token) throw new Error("Ticket token missing.")
       setToken(payload.token)
-      setSeconds(30)
+      setSeconds(process.env.NEXT_PUBLIC_ENABLE_ROTATING_QR === "true" ? 60 : 30)
     } finally {
       setPending(false)
     }
@@ -42,7 +42,7 @@ export function TicketClient({
       setSeconds((value) => {
         if (value <= 1) {
           void refresh()
-          return 30
+          return process.env.NEXT_PUBLIC_ENABLE_ROTATING_QR === "true" ? 60 : 30
         }
         return value - 1
       })

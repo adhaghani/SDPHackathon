@@ -72,7 +72,7 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` complete · `[!]` blocke
 ## Phase 5 — Stretch
 
 - [x] Recommendations v1 behind `NEXT_PUBLIC_ENABLE_RECOMMENDATIONS`
-- [ ] Rotating event QR and QR handover/return
+- [x] Rotating event QR and QR handover/return behind `NEXT_PUBLIC_ENABLE_ROTATING_QR`
 - [ ] Sponsor portal
 - [ ] AI search/admin summary
 - [ ] Community equipment hubs
@@ -116,3 +116,4 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` complete · `[!]` blocke
 | 2026-10-11 | `npm run lint && npm run typecheck && npm test && npm run build` after PWA/photo changes | Pass |
 | 2026-10-11 | PWA service-worker rehearsal | Pass — `/sw.js` served and registered in Chromium |
 | 2026-10-11 | Phase 5.1 recommendations | Pass — explainable helper tests and Home integration |
+| 2026-10-11 | Phase 5.2 rotating QR | Pass — flag-controlled 60-second ticket lifecycle and local gates |
