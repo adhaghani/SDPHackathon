@@ -43,6 +43,7 @@ export async function createItem(
     depositRm: formData.get("depositRm") || 0,
     maxLoanDays: formData.get("maxLoanDays"),
     handoverOptions: formData.getAll("handoverOptions").map(String),
+    photoPath: formData.get("photoPath") || undefined,
   })
 
   if (!parsed.success) {
@@ -69,7 +70,7 @@ export async function createItem(
       description: parsed.data.description,
       category_id: category.data.id,
       condition: parsed.data.condition,
-      photo_paths: ["/demo/item-placeholder.svg"],
+      photo_paths: [parsed.data.photoPath || "/demo/item-placeholder.svg"],
       estimated_new_price_rm: parsed.data.estimatedNewPriceRm ?? null,
       deposit_rm: parsed.data.depositRm,
       max_loan_days: parsed.data.maxLoanDays,

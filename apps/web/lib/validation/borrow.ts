@@ -9,6 +9,7 @@ export const itemFormSchema = z.object({
   depositRm: z.coerce.number().min(0).max(100000).default(0),
   maxLoanDays: z.coerce.number().int().min(1).max(30),
   handoverOptions: z.array(z.string()).min(1, { error: "Choose a handover option." }),
+  photoPath: z.string().trim().max(2048).optional(),
 })
 
 export const bookingRequestSchema = z

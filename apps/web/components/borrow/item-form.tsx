@@ -1,9 +1,10 @@
 "use client"
 
-import { useActionState } from "react"
+import { useActionState, useState } from "react"
 import { useRouter } from "next/navigation"
 
 import { createItem } from "@/actions/borrow"
+import { getBrowserClient } from "@/lib/supabase/browser"
 import { Alert, AlertDescription } from "@workspace/ui/components/alert"
 import { Button } from "@workspace/ui/components/button"
 import {
@@ -27,10 +28,50 @@ export function ItemForm({
 }) {
   const router = useRouter()
   const [state, action, pending] = useActionState(createItem, idleState)
+  const [photoPath, setPhotoPath] = useState("/demo/item-placeholder.svg")
+  const [photoMessage, setPhotoMessage] = useState<string | null>(null)
+
+  async function handlePhoto(file: File | undefined) {
+    if (!file) return
+    setPhotoMessage(null)
+    try {
+      const bitmap = await createImageBitmap(file)
+      const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height))
+      const canvas = document.createElement("canvas")
+      canvas.width = Math.round(bitmap.width * scale)
+      canvas.height = Math.round(bitmap.height * scale)
+      canvas.getContext("2d")?.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
+      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/webp", 0.82))
+      if (!blob) throw new Error("compression_failed")
+      const path = `${crypto.randomUUID()}.webp`
+      const { error } = await getBrowserClient().storage.from("item-photos").upload(path, blob, { upsert: true })
+      if (error) throw error
+      const { data } = getBrowserClient().storage.from("item-photos").getPublicUrl(path)
+      setPhotoPath(data.publicUrl)
+      setPhotoMessage("Photo compressed and uploaded.")
+    } catch {
+      setPhotoPath("/demo/item-placeholder.svg")
+      setPhotoMessage("Photo upload is unavailable here, so the demo illustration will be used.")
+    }
+  }
 
   return (
     <form action={action} className="flex flex-col gap-6">
       <FieldGroup>
+        <Field>
+          <FieldLabel htmlFor="item-photo">Photo</FieldLabel>
+          <Input
+            id="item-photo"
+            name="photo"
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            onChange={(event) => void handlePhoto(event.target.files?.[0])}
+          />
+          <FieldDescription>
+            Images are compressed to about 1600 px before upload. A demo illustration is used if storage is unavailable.
+          </FieldDescription>
+          {photoMessage ? <p className="text-sm text-muted-foreground">{photoMessage}</p> : null}
+        </Field>
         <Field data-invalid={Boolean(state.fieldErrors?.title)}>
           <FieldLabel htmlFor="item-title">Item title</FieldLabel>
           <Input id="item-title" name="title" required placeholder="Folding ladder" />
@@ -82,6 +123,7 @@ export function ItemForm({
           <FieldDescription>Never share a private address in the listing.</FieldDescription>
         </Field>
       </FieldGroup>
+      <input type="hidden" name="photoPath" value={photoPath} />
       {state.status === "error" && state.message ? (
         <Alert variant="destructive">
           <AlertDescription>{state.message}</AlertDescription>

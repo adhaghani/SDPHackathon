@@ -105,3 +105,5 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` complete · `[!]` blocke
 | 2026-10-11 | Fresh clone lint/typecheck/test/build | Pass |
 | 2026-10-11 | `npm run test:e2e` after trust/preferences changes | Pass — 5 tests |
 | 2026-10-11 | Manual profile export/delete and notification preference rehearsal | Pass |
+| 2026-10-11 | `npm run test:e2e -- accessibility.spec.ts` after PWA/photo changes | Pass |
+| 2026-10-11 | `npm run lint && npm run typecheck && npm test && npm run build` after PWA/photo changes | Pass |

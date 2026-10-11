@@ -61,6 +61,8 @@ npm run test:e2e
 
 The prototype uses fictional demo residents, events, partners and rewards. Estimated impact figures are labelled estimated and should not be presented as guaranteed savings.
 
+The app includes an install-support service worker without offline data caching.
+
 ## Screenshots
 
 ![Landing on mobile](docs/screenshots/landing-390.png)
