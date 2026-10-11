@@ -1,21 +1,32 @@
+import { BellIcon } from "lucide-react"
+import Link from "next/link"
 import { redirect } from "next/navigation"
 
 import { ResidentNav } from "@/components/navigation/resident-nav"
 import { SignOutButton } from "@/components/navigation/sign-out-button"
+import { getSessionContext } from "@/lib/data"
 import { isDemoMode } from "@/lib/env"
 import { createClient } from "@/lib/supabase/server"
 
 export default async function AppLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const context = await getSessionContext()
 
-  if (!user) {
+  if (!context.user) {
     redirect("/sign-in")
   }
+
+  if (context.membership?.status !== "active") {
+    redirect("/onboarding")
+  }
+
+  const supabase = await createClient()
+  const unread = await supabase
+    .from("notifications")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", context.user.id)
+    .is("read_at", null)
 
   return (
     <div className="min-h-svh bg-background">
@@ -31,11 +42,17 @@ export default async function AppLayout({
         </div>
       ) : null}
       <div className="flex">
-        <ResidentNav />
+        <ResidentNav isAdmin={context.membership?.role === "township_admin"} />
         <div className="min-w-0 flex-1">
           <header className="flex min-h-16 items-center justify-between border-b border-border px-4 sm:px-6">
             <p className="font-heading font-semibold">Harmoni Heights</p>
-            <SignOutButton />
+            <div className="flex items-center gap-2">
+              <Link href="/notifications" className="relative flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-medium hover:bg-muted" aria-label={`Notifications, ${unread.count ?? 0} unread`}>
+                <BellIcon aria-hidden="true" className="size-5" />
+                {unread.count ? <span className="rounded-full bg-line-borrow px-1.5 text-xs font-semibold text-white">{unread.count}</span> : null}
+              </Link>
+              <SignOutButton />
+            </div>
           </header>
           <main
             id="main-content"

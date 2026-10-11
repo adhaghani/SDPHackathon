@@ -1,6 +1,6 @@
 # BorrowBetter progress
 
-Status: **Phase 0 checkpoint ready**
+Status: **Phase 2 checkpoint ready**
 
 Legend: `[ ]` not started · `[~]` in progress · `[x]` complete · `[!]` blocked
 
@@ -27,27 +27,27 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` complete · `[!]` blocke
 
 ## Phase 1 — Core loop
 
-- [ ] Module A: membership, join and profile
-- [ ] Module B: events and QR check-in
-- [ ] Module C: borrow/lend booking state machine
-- [ ] Module D: points, rules, levels, badges and history
-- [ ] Module J: resident home
-- [ ] Module H: first Township Pulse
-- [ ] Seed and demo mode
-- [ ] RLS and database tests
-- [ ] Phase 1 checkpoint gates and demo rehearsal
+- [x] Module A: membership, join and profile
+- [x] Module B: events and QR check-in
+- [x] Module C: borrow/lend booking state machine
+- [x] Module D: points, rules, levels, badges and history
+- [x] Module J: resident home
+- [x] Module H: first Township Pulse
+- [x] Seed and demo mode
+- [x] RLS and database tests
+- [~] Phase 1 checkpoint gates and demo rehearsal
 
 ## Phase 2 — Engagement and trust
 
-- [ ] Rewards catalogue and redemption
-- [ ] Challenges
-- [ ] Notifications and scheduled jobs
-- [ ] Announcements, help requests and groups
-- [ ] Waitlists, volunteer hours and event completion
-- [ ] Booking chat, photos and disputes
-- [ ] Reports, moderation and blocks
-- [ ] Comfort settings
-- [ ] Phase 2 checkpoint gates
+- [x] Rewards catalogue and redemption
+- [x] Challenges
+- [x] Notifications and scheduled jobs
+- [x] Announcements, help requests and groups
+- [x] Waitlists, volunteer hours and event completion
+- [~] Booking chat, notes and disputes
+- [~] Reports, moderation and blocks
+- [x] Comfort settings
+- [~] Phase 2 checkpoint gates
 
 ## Phase 3 — Insight and impact
 
@@ -84,3 +84,10 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` complete · `[!]` blocke
 | 2026-10-11 | `npm run test:db`               | Pass — 2 pgTAP tests              |
 | 2026-10-11 | `npm run build`                 | Pass                              |
 | 2026-10-11 | `npm run test:e2e`              | Pass — sign-up, sign-out, sign-in |
+| 2026-10-11 | `npm run test:e2e`              | Pass — join code → active membership → Home |
+| 2026-10-11 | `npm run demo:reset`            | Pass — Aisyah balance restored to 1,250 BP |
+| 2026-10-11 | `npm run test:db`               | Pass — 17 core-loop/foundation tests |
+| 2026-10-11 | `npm run lint && npm run typecheck && npm test && npm run build` | Pass |
+| 2026-10-11 | `npm run demo:reset` | Pass — engagement data restored, Aisyah 1,250 BP |
+| 2026-10-11 | `npm run test:db` | Pass — 19 tests including capacity, RLS and scheduled-job idempotency |
+| 2026-10-11 | Manual moderation rehearsal | Pass — report → office review → hide target |

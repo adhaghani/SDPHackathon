@@ -1,5 +1,7 @@
 import { SignInForm } from "@/components/auth/sign-in-form"
+import { DemoRoleSwitcher } from "@/components/demo/demo-role-switcher"
 import { authContent } from "@/content/auth"
+import { isDemoMode } from "@/lib/env"
 
 export default async function SignInPage({
   searchParams,
@@ -28,6 +30,11 @@ export default async function SignInPage({
         </p>
       ) : null}
       <SignInForm next={next} />
+      {isDemoMode() ? (
+        <div className="border-t border-border pt-5">
+          <DemoRoleSwitcher />
+        </div>
+      ) : null}
     </div>
   )
 }

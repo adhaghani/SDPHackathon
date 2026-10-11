@@ -1,0 +1,656 @@
+import { createClient, type SupabaseClient } from "@supabase/supabase-js"
+import { randomUUID } from "node:crypto"
+
+import { loadDemoEnv, requiredEnv } from "./env"
+
+type Database = Record<string, never>
+
+const DAY = 24 * 60 * 60 * 1000
+
+const demoUsers = [
+  {
+    email: "aisyah@borrowbetter.demo",
+    displayName: "Aisyah Rahman",
+    role: "resident" as const,
+  },
+  {
+    email: "raj@borrowbetter.demo",
+    displayName: "Raj Kumar",
+    role: "organiser" as const,
+  },
+  {
+    email: "office@borrowbetter.demo",
+    displayName: "Township office",
+    role: "township_admin" as const,
+  },
+  {
+    email: "farah@borrowbetter.demo",
+    displayName: "Farah Nordin",
+    role: "resident" as const,
+  },
+  { email: "mei@borrowbetter.demo", displayName: "Mei Ling Tan", role: "resident" as const },
+  { email: "siti@borrowbetter.demo", displayName: "Siti Aminah", role: "resident" as const },
+  { email: "kumar@borrowbetter.demo", displayName: "Kumar Raj", role: "resident" as const },
+  { email: "nurul@borrowbetter.demo", displayName: "Nurul Huda", role: "resident" as const },
+  { email: "lim@borrowbetter.demo", displayName: "Lim Wei", role: "resident" as const },
+  { email: "priya@borrowbetter.demo", displayName: "Priya Nair", role: "resident" as const },
+  { email: "azlan@borrowbetter.demo", displayName: "Azlan Musa", role: "resident" as const },
+  { email: "hafiz@borrowbetter.demo", displayName: "Hafiz Rahman", role: "resident" as const },
+  { email: "daniel@borrowbetter.demo", displayName: "Daniel Lee", role: "resident" as const },
+  { email: "nadia@borrowbetter.demo", displayName: "Nadia Ismail", role: "resident" as const },
+  { email: "cheryl@borrowbetter.demo", displayName: "Cheryl Wong", role: "resident" as const },
+  { email: "syafiq@borrowbetter.demo", displayName: "Syafiq Zain", role: "resident" as const },
+  { email: "kavitha@borrowbetter.demo", displayName: "Kavitha Devi", role: "resident" as const },
+  { email: "ramesh@borrowbetter.demo", displayName: "Ramesh Kumar", role: "resident" as const },
+  { email: "zara@borrowbetter.demo", displayName: "Zara Hakim", role: "resident" as const },
+  { email: "amir@borrowbetter.demo", displayName: "Amir Hakimi", role: "resident" as const },
+  { email: "joanne@borrowbetter.demo", displayName: "Joanne Goh", role: "resident" as const },
+  { email: "hakim@borrowbetter.demo", displayName: "Hakim Omar", role: "resident" as const },
+  { email: "felicia@borrowbetter.demo", displayName: "Felicia Tan", role: "resident" as const },
+  { email: "ravi@borrowbetter.demo", displayName: "Ravi Subramaniam", role: "resident" as const },
+  { email: "mira@borrowbetter.demo", displayName: "Mira Yusof", role: "resident" as const },
+  { email: "brandon@borrowbetter.demo", displayName: "Brandon Sim", role: "resident" as const },
+  { email: "ain@borrowbetter.demo", displayName: "Ain Zaleha", role: "resident" as const },
+  { email: "kelvin@borrowbetter.demo", displayName: "Kelvin Ong", role: "resident" as const },
+  { email: "sharma@borrowbetter.demo", displayName: "Sharma Nair", role: "resident" as const },
+  { email: "faizal@borrowbetter.demo", displayName: "Faizal Ali", role: "resident" as const },
+]
+
+function isoAt(timestamp: number): string {
+  return new Date(timestamp).toISOString()
+}
+
+async function ensureUser(
+  admin: SupabaseClient<Database>,
+  email: string,
+  displayName: string
+): Promise<string> {
+  const password = process.env.DEMO_USER_PASSWORD ?? "BorrowBetter-Demo-2026!"
+  const listed = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 })
+  const existing = listed.data.users.find(
+    (user) => user.email?.toLowerCase() === email.toLowerCase()
+  )
+
+  if (existing) {
+    await admin.auth.admin.updateUserById(existing.id, {
+      user_metadata: {
+        display_name: displayName,
+        terms_accepted_at: isoAt(Date.now()),
+        privacy_accepted_at: isoAt(Date.now()),
+      },
+    })
+    return existing.id
+  }
+
+  const created = await admin.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: {
+      display_name: displayName,
+      terms_accepted_at: isoAt(Date.now()),
+      privacy_accepted_at: isoAt(Date.now()),
+    },
+  })
+
+  if (created.error || !created.data.user) {
+    throw new Error(`Could not create demo user ${email}: ${created.error?.message}`)
+  }
+
+  return created.data.user.id
+}
+
+async function findOne(
+  admin: SupabaseClient<Database>,
+  table: string,
+  filters: Record<string, unknown>
+) {
+  let query = admin.from(table).select("*")
+  for (const [key, value] of Object.entries(filters)) {
+    query = query.eq(key, value as never)
+  }
+  const { data, error } = await query.limit(1).maybeSingle()
+  if (error) throw new Error(`Could not read ${table}: ${error.message}`)
+  return data
+}
+
+async function ensureTownship(admin: SupabaseClient<Database>) {
+  const existing = await findOne(admin, "townships", { slug: "harmoni-heights-demo" })
+  const row = {
+    name: "Harmoni Heights (Demo Township)",
+    slug: "harmoni-heights-demo",
+    join_code: "HARMONI-DEMO",
+    auto_approve_members: true,
+    require_event_approval: false,
+    timezone: "Asia/Kuala_Lumpur",
+    rewards_enabled: true,
+    is_demo: true,
+    settings: { demo: true },
+  }
+
+  if (existing) {
+    const { error } = await admin.from("townships").update(row).eq("id", existing.id)
+    if (error) throw new Error(`Could not update demo township: ${error.message}`)
+    return existing.id as string
+  }
+
+  const { data, error } = await admin.from("townships").insert(row).select("id").single()
+  if (error || !data) throw new Error(`Could not create demo township: ${error?.message}`)
+  return data.id as string
+}
+
+async function ensureReferenceRows(
+  admin: SupabaseClient<Database>,
+  townshipId: string
+) {
+  const neighbourhoodRows = ["Anggun", "Bestari", "Cahaya", "Damai"].map((name) => ({
+    township_id: townshipId,
+    name,
+  }))
+  const facilityRows = [
+    { name: "Clubhouse hall", kind: "hall", capacity: 120, weekly_available_hours: 40 },
+    { name: "Badminton courts", kind: "sports", capacity: 16, weekly_available_hours: 30 },
+    { name: "Community garden", kind: "garden", capacity: 30, weekly_available_hours: 50 },
+    { name: "Multipurpose field", kind: "field", capacity: 80, weekly_available_hours: 35 },
+  ].map((row) => ({ ...row, township_id: townshipId }))
+
+  await admin.from("neighbourhoods").upsert(neighbourhoodRows, { onConflict: "township_id,name" })
+  await admin.from("facilities").upsert(facilityRows, { onConflict: "township_id,name" })
+
+  const neighbourhoods = await admin
+    .from("neighbourhoods")
+    .select("id,name")
+    .eq("township_id", townshipId)
+  if (neighbourhoods.error) throw new Error(neighbourhoods.error.message)
+  return neighbourhoods.data ?? []
+}
+
+async function ensureProfilesAndMembers(
+  admin: SupabaseClient<Database>,
+  townshipId: string,
+  userIds: Record<string, string>,
+  neighbourhoodId: string
+) {
+  for (const user of demoUsers) {
+    const userId = userIds[user.email]
+    await admin
+      .from("profiles")
+      .upsert(
+        {
+          id: userId,
+          display_name: user.displayName,
+          interests: ["community", "sustainability"],
+          language: "en",
+          comfort_prefs: {},
+          recognition_opt_in: false,
+          terms_accepted_at: isoAt(Date.now()),
+          privacy_accepted_at: isoAt(Date.now()),
+        },
+        { onConflict: "id" }
+      )
+
+    await admin
+      .from("township_members")
+      .upsert(
+        {
+          township_id: townshipId,
+          user_id: userId,
+          role: user.role,
+          status: "active",
+          neighbourhood_id: neighbourhoodId,
+          approved_at: isoAt(Date.now()),
+        },
+        { onConflict: "township_id,user_id" }
+      )
+  }
+}
+
+async function ensureEngagementData(
+  admin: SupabaseClient<Database>,
+  townshipId: string,
+  userIds: Record<string, string>
+) {
+  const partners = [
+    { name: "Kopi Kita", description: "Fictional neighbourhood café partner." },
+    { name: "Harmoni Sports Club", description: "Fictional township amenity partner." },
+    { name: "Rimba Garden", description: "Fictional community garden partner." },
+  ].map((partner) => ({ ...partner, township_id: townshipId }))
+  await admin.from("partners").upsert(partners, { onConflict: "township_id,name" })
+
+  const partnerRows = await admin.from("partners").select("id,name").eq("township_id", townshipId)
+  if (partnerRows.error) throw new Error(partnerRows.error.message)
+  const partnerId = (name: string) => partnerRows.data?.find((partner) => partner.name === name)?.id
+
+  const rewards = [
+    { partner: "Kopi Kita", title: "Kopi Kita voucher", description: "A drink at the fictional Kopi Kita café.", kind: "voucher", cost_bp: 300, unit_cost_rm: 8, funded_by: "sponsor", stock: 20, per_user_limit: 1 },
+    { partner: "Harmoni Sports Club", title: "Clubhouse badminton hour", description: "One hour on a fictional badminton court.", kind: "amenity", cost_bp: 500, unit_cost_rm: 0, funded_by: "operator", stock: 10, per_user_limit: 1 },
+    { partner: "Rimba Garden", title: "Community garden compost bag", description: "A bag of compost from the fictional garden.", kind: "amenity", cost_bp: 200, unit_cost_rm: 5, funded_by: "sponsor", stock: 15, per_user_limit: 2 },
+  ].map((reward) => ({
+    township_id: townshipId,
+    partner_id: partnerId(reward.partner),
+    title: reward.title,
+    description: reward.description,
+    kind: reward.kind,
+    cost_bp: reward.cost_bp,
+    unit_cost_rm: reward.unit_cost_rm,
+    funded_by: reward.funded_by,
+    stock: reward.stock,
+    per_user_limit: reward.per_user_limit,
+    valid_until: new Date(Date.now() + 90 * DAY).toISOString().slice(0, 10),
+    active: true,
+  }))
+  await admin.from("rewards").upsert(rewards, { onConflict: "township_id,title" })
+
+  const challenges = [
+    { title: "Two helping actions this month", description: "Complete two helping actions in the next 30 days.", scope: "individual", action_types: ["help_completed"], target: 2, reward_points: 100 },
+    { title: "100 township loans", description: "The township completes 100 verified borrows.", scope: "community", action_types: ["item_lent_completed"], target: 100, reward_points: 200 },
+  ].map((challenge) => ({
+    township_id: townshipId,
+    ...challenge,
+    starts_at: new Date(Date.now() - 30 * DAY).toISOString(),
+    ends_at: new Date(Date.now() + 30 * DAY).toISOString(),
+    status: "active",
+  }))
+  await admin.from("challenges").upsert(challenges, { onConflict: "township_id,title" })
+
+  const office = userIds["office@borrowbetter.demo"]
+  const siti = userIds["siti@borrowbetter.demo"]
+  await admin.from("announcements").upsert(
+    [{
+      township_id: townshipId,
+      author_id: office,
+      title: "Welcome to Harmoni Heights",
+      body: "BorrowBetter is a fictional demo township. Meet in shared spaces and look out for one another.",
+      pinned: true,
+    }],
+    { onConflict: "township_id,title" }
+  )
+  await admin.from("help_requests").upsert(
+    [{
+      township_id: townshipId,
+      requester_id: siti,
+      title: "Help carry groceries",
+      details: "A short helping request for the demo community tab.",
+      kind: "errand",
+      needed_by: new Date(Date.now() + 2 * DAY).toISOString().slice(0, 10),
+      status: "open",
+    }],
+    { onConflict: "township_id,requester_id,title" }
+  )
+  await admin.from("interest_groups").upsert(
+    [
+      { township_id: townshipId, name: "Community garden", description: "Grow, share and learn together." },
+      { township_id: townshipId, name: "Weekend sports", description: "Casual sports and fitness meetups." },
+    ],
+    { onConflict: "township_id,name" }
+  )
+  await admin.from("reward_rules").upsert(
+    [{ township_id: townshipId, action_type: "challenge_completed", category_slug: null, points: 200, active: true }],
+    { onConflict: "township_id,action_type,category_slug" }
+  )
+}
+
+async function ensureEvent(
+  admin: SupabaseClient<Database>,
+  townshipId: string,
+  hostId: string,
+  categoryId: string,
+  title: string,
+  startsAt: number,
+  options: {
+    description?: string
+    location?: string
+    capacity?: number
+  } = {}
+) {
+  const existing = await findOne(admin, "events", { township_id: townshipId, title })
+  if (existing) return existing.id as string
+
+  const { data, error } = await admin
+    .from("events")
+    .insert({
+      township_id: townshipId,
+      host_id: hostId,
+      title,
+      description: options.description ?? "Fictional demo activity for Harmoni Heights.",
+      category_id: categoryId,
+      starts_at: isoAt(startsAt),
+      ends_at: isoAt(startsAt + 2 * 60 * 60 * 1000),
+      location_text: options.location ?? "Harmoni Heights shared space",
+      capacity: options.capacity ?? 40,
+      volunteer_slots: 8,
+      accessibility_tags: ["step-free", "family-friendly"],
+      languages: ["English", "Bahasa Malaysia"],
+      status: "published",
+      hidden: false,
+    })
+    .select("id")
+    .single()
+
+  if (error || !data) throw new Error(`Could not create event ${title}: ${error?.message}`)
+
+  await admin
+    .from("event_staff")
+    .upsert({ event_id: data.id, user_id: hostId }, { onConflict: "event_id,user_id" })
+
+  return data.id as string
+}
+
+async function ensureRsvpAndCheckIn(
+  admin: SupabaseClient<Database>,
+  eventId: string,
+  userId: string,
+  occurredAt: number
+) {
+  const existing = await findOne(admin, "event_rsvps", { event_id: eventId, user_id: userId })
+  const rsvpId = existing?.id as string | undefined
+
+  if (!rsvpId) {
+    const { data, error } = await admin
+      .from("event_rsvps")
+      .insert({ event_id: eventId, user_id: userId, role: "attendee", status: "going" })
+      .select("id,status")
+      .single()
+    if (error || !data) throw new Error(`Could not create RSVP: ${error?.message}`)
+    return admin.rpc("check_in", {
+      p_rsvp_id: data.id,
+      p_method: "manual",
+      p_occurred_at: isoAt(occurredAt),
+    })
+  }
+
+  if (existing.status === "checked_in") return { error: null }
+  return admin.rpc("check_in", {
+    p_rsvp_id: rsvpId,
+    p_method: "manual",
+    p_occurred_at: isoAt(occurredAt),
+  })
+}
+
+async function ensureItem(
+  admin: SupabaseClient<Database>,
+  townshipId: string,
+  ownerId: string,
+  categoryId: string,
+  title: string
+) {
+  const existing = await findOne(admin, "items", { township_id: townshipId, title, owner_id: ownerId })
+  if (existing) return existing.id as string
+
+  const { data, error } = await admin
+    .from("items")
+    .insert({
+      township_id: townshipId,
+      owner_id: ownerId,
+      title,
+      description: "A fictional item available through the Harmoni Heights demo.",
+      category_id: categoryId,
+      condition: "good",
+      estimated_new_price_rm: 250,
+      deposit_rm: 0,
+      max_loan_days: 4,
+      handover_options: [" clubhouse lobby", "community garden gate"],
+      status: "active",
+      hidden: false,
+    })
+    .select("id")
+    .single()
+
+  if (error || !data) throw new Error(`Could not create item ${title}: ${error?.message}`)
+  return data.id as string
+}
+
+async function ensureBooking(
+  admin: SupabaseClient<Database>,
+  townshipId: string,
+  itemId: string,
+  borrowerId: string,
+  lenderId: string,
+  startDate: string,
+  endDate: string
+) {
+  const existing = await findOne(admin, "bookings", {
+    item_id: itemId,
+    borrower_id: borrowerId,
+    start_date: startDate,
+    end_date: endDate,
+  })
+  if (existing) return existing.id as string
+
+  const { data, error } = await admin
+    .from("bookings")
+    .insert({
+      item_id: itemId,
+      township_id: townshipId,
+      borrower_id: borrowerId,
+      lender_id: lenderId,
+      start_date: startDate,
+      end_date: endDate,
+      status: "requested",
+      handover_method: "Clubhouse lobby",
+    })
+    .select("id,status")
+    .single()
+
+  if (error || !data) throw new Error(`Could not create booking: ${error?.message}`)
+  return data.id as string
+}
+
+async function transitionAs(
+  admin: SupabaseClient<Database>,
+  bookingId: string,
+  action: string,
+  actorId: string,
+  payload: Record<string, unknown> = {},
+  occurredAt?: number
+) {
+  const { error } = await admin.rpc("transition_booking", {
+    p_booking_id: bookingId,
+    p_action: action,
+    p_payload: payload,
+    p_actor_id: actorId,
+    ...(occurredAt ? { p_occurred_at: isoAt(occurredAt) } : {}),
+  })
+  if (error) throw new Error(`Booking transition ${action} failed: ${error.message}`)
+}
+
+async function completeSeededBooking(
+  admin: SupabaseClient<Database>,
+  bookingId: string,
+  borrowerId: string,
+  lenderId: string,
+  completedAt: number,
+  wouldHaveBought: "yes" | "no" | "unsure"
+) {
+  const booking = await findOne(admin, "bookings", { id: bookingId })
+  if (!booking || booking.status === "completed") return
+
+  if (booking.status === "requested") {
+    await transitionAs(admin, bookingId, "approve", lenderId)
+  }
+
+  const current = await findOne(admin, "bookings", { id: bookingId })
+  if (!current.borrower_handover_confirmed_at) {
+    await transitionAs(admin, bookingId, "confirm_handover", borrowerId, {}, completedAt - 2 * DAY)
+  }
+  if (!current.lender_handover_confirmed_at) {
+    await transitionAs(admin, bookingId, "confirm_handover", lenderId, {}, completedAt - DAY)
+  }
+  if (!current.borrower_return_marked_at) {
+    await transitionAs(admin, bookingId, "mark_returned", borrowerId, { would_have_bought: wouldHaveBought }, completedAt)
+  }
+  await transitionAs(admin, bookingId, "confirm_return", lenderId, {}, completedAt)
+}
+
+export async function seedDemo(): Promise<void> {
+  loadDemoEnv()
+  const url = requiredEnv("NEXT_PUBLIC_SUPABASE_URL")
+  const key = requiredEnv("SUPABASE_SECRET_KEY")
+  const admin = createClient(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  }) as unknown as SupabaseClient<Database>
+
+  const userIds: Record<string, string> = {}
+  for (const user of demoUsers) {
+    userIds[user.email] = await ensureUser(admin, user.email, user.displayName)
+  }
+
+  const townshipId = await ensureTownship(admin)
+  const neighbourhoods = await ensureReferenceRows(admin, townshipId)
+  const neighbourhoodId = neighbourhoods.find((row: { name: string }) => row.name === "Anggun")?.id
+  if (!neighbourhoodId) throw new Error("Anggun neighbourhood missing")
+  await ensureProfilesAndMembers(admin, townshipId, userIds, neighbourhoodId)
+  await ensureEngagementData(admin, townshipId, userIds)
+
+  const categories = await admin.from("event_categories").select("id,slug")
+  const itemCategories = await admin.from("item_categories").select("id,slug")
+  if (categories.error || itemCategories.error) {
+    throw new Error(categories.error?.message ?? itemCategories.error?.message)
+  }
+
+  const categoryId = (slug: string) => {
+    const row = categories.data?.find((category: { slug: string }) => category.slug === slug)
+    if (!row) throw new Error(`Missing event category ${slug}`)
+    return row.id as string
+  }
+  const itemCategoryId = (slug: string) => {
+    const row = itemCategories.data?.find((category: { slug: string }) => category.slug === slug)
+    if (!row) throw new Error(`Missing item category ${slug}`)
+    return row.id as string
+  }
+
+  const aisyah = userIds["aisyah@borrowbetter.demo"]
+  const raj = userIds["raj@borrowbetter.demo"]
+  const office = userIds["office@borrowbetter.demo"]
+  const now = Date.now()
+  const eventTitles = [
+    ["Saturday gotong-royong", "gotong-royong"],
+    ["Community garden morning", "gotong-royong"],
+    ["Repair café", "social"],
+    ["Jogging group", "gotong-royong"],
+    ["Neighbourhood market", "gardening"],
+    ["Kids reading hour", "gotong-royong"],
+    ["Seniors stretch class", "social"],
+    ["Weekend sports mix", "gotong-royong"],
+    ["Zero-waste workshop", "gardening"],
+  ] as const
+
+  for (let index = 0; index < eventTitles.length; index += 1) {
+    const startsAt = now - (index + 2) * 7 * DAY
+    const [title, slug] = eventTitles[index] ?? ["Demo event", "social"]
+    const eventId = await ensureEvent(admin, townshipId, raj, categoryId(slug), title, startsAt)
+    await ensureRsvpAndCheckIn(admin, eventId, aisyah, startsAt + 30 * 60 * 1000)
+  }
+
+  const hostedEventStart = now - 14 * DAY
+  const hostedEventId = await ensureEvent(
+    admin,
+    townshipId,
+    aisyah,
+    categoryId("social"),
+    "Aisyah's welcome tea",
+    hostedEventStart
+  )
+  const farah = userIds["farah@borrowbetter.demo"]
+  for (const attendee of [raj, office, farah]) {
+    await ensureRsvpAndCheckIn(admin, hostedEventId, attendee, hostedEventStart + 30 * 60 * 1000)
+  }
+  await admin.rpc("complete_event", {
+    p_event_id: hostedEventId,
+    p_occurred_at: isoAt(hostedEventStart + 3 * 60 * 60 * 1000),
+  })
+
+  const futureTitles = [
+    "Demo check-in window · gotong-royong",
+    "Repair and reuse clinic",
+    "Community kitchen night",
+    "Evening badminton",
+    "Garden compost workshop",
+  ]
+  for (let index = 0; index < futureTitles.length; index += 1) {
+    const startsAt = index === 0 ? now + 20 * 60 * 1000 : now + (index + 2) * 7 * DAY
+    await ensureEvent(
+      admin,
+      townshipId,
+      index % 2 === 0 ? raj : office,
+      categoryId(index === 0 ? "gotong-royong" : index % 2 === 0 ? "social" : "repair"),
+      futureTitles[index] ?? "Demo event",
+      startsAt
+    )
+  }
+
+  const itemTitles = [
+    "Pressure washer",
+    "Folding ladder",
+    "Camping tent",
+    "Badminton set",
+    "Sewing machine",
+    "Projector",
+    "Cordless drill",
+    "Cooler box",
+    "Board game bundle",
+    "Kids scooter",
+    "Garden cart",
+  ]
+
+  for (let index = 0; index < itemTitles.length; index += 1) {
+    const itemId = await ensureItem(
+      admin,
+      townshipId,
+      aisyah,
+      itemCategoryId(index % 2 === 0 ? "home-tools" : "events"),
+      itemTitles[index] ?? "Demo item"
+    )
+    const startDate = new Date(now - (index + 10) * 6 * DAY).toISOString().slice(0, 10)
+    const endDate = new Date(now - (index + 10) * 6 * DAY + 3 * DAY).toISOString().slice(0, 10)
+    const bookingId = await ensureBooking(admin, townshipId, itemId, raj, aisyah, startDate, endDate)
+    const completedAt = index === 0 ? Date.parse(`${startDate}T10:00:00Z`) : Date.parse(`${endDate}T18:00:00Z`) + DAY
+    await completeSeededBooking(admin, bookingId, raj, aisyah, completedAt, index === 0 ? "yes" : "no")
+    if (index === 0) {
+      await admin.rpc("award_points", {
+        p_user_id: aisyah,
+        p_township_id: townshipId,
+        p_action_type: "item_returned_on_time",
+        p_source_type: "booking_return",
+        p_source_id: bookingId,
+        p_category_slug: null,
+        p_metadata: { seeded_return_confirmation: true },
+        p_occurred_at: isoAt(completedAt),
+      })
+    }
+  }
+
+  const demoBookingItem = await ensureItem(
+    admin,
+    townshipId,
+    raj,
+    itemCategoryId("cleaning"),
+    "Pressure washer for the next clean-up"
+  )
+  await ensureBooking(
+    admin,
+    townshipId,
+    demoBookingItem,
+    aisyah,
+    raj,
+    new Date(now + 2 * DAY).toISOString().slice(0, 10),
+    new Date(now + 5 * DAY).toISOString().slice(0, 10)
+  )
+
+  const points = await admin
+    .from("points_ledger")
+    .select("delta")
+    .eq("township_id", townshipId)
+    .eq("user_id", aisyah)
+  if (points.error) throw new Error(points.error.message)
+  const balance = (points.data ?? []).reduce((sum, row: { delta: number }) => sum + row.delta, 0)
+
+  console.log(`Demo data ready. Aisyah balance: ${balance} BP.`)
+}
+
+if (process.argv[1]?.endsWith("seed-demo.ts")) {
+  seedDemo().catch((error: unknown) => {
+    console.error(error)
+    process.exitCode = 1
+  })
+}

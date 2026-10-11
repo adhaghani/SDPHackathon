@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation"
 import { residentNavigation } from "@/content/navigation"
 import { cn } from "@workspace/ui/lib/utils"
 
-export function ResidentNav() {
+export function ResidentNav({ isAdmin = false }: { isAdmin?: boolean }) {
   const pathname = usePathname()
 
   return (
@@ -67,6 +67,20 @@ export function ResidentNav() {
               </li>
             )
           })}
+          {isAdmin ? (
+            <li>
+              <Link
+                href="/admin"
+                aria-current={pathname === "/admin" ? "page" : undefined}
+                className={cn(
+                  "flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground",
+                  pathname === "/admin" && "bg-muted text-foreground"
+                )}
+              >
+                Township Pulse
+              </Link>
+            </li>
+          ) : null}
         </ul>
         <div className="border-t border-border p-3">
           <Link

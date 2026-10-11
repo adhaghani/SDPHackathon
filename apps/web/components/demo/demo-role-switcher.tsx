@@ -1,0 +1,35 @@
+"use client"
+
+import { useActionState } from "react"
+
+import { continueAsDemo } from "@/actions/demo"
+import { Alert, AlertDescription } from "@workspace/ui/components/alert"
+import { Button } from "@workspace/ui/components/button"
+
+const idleState = { status: "idle" } as const
+
+export function DemoRoleSwitcher() {
+  const [state, action, pending] = useActionState(continueAsDemo, idleState)
+
+  return (
+    <div className="flex flex-col gap-3">
+      <p className="text-sm font-medium">Continue as</p>
+      <form action={action} className="flex flex-wrap gap-2">
+        <Button type="submit" name="role" value="resident" variant="outline" className="h-11" disabled={pending}>
+          Aisyah · resident
+        </Button>
+        <Button type="submit" name="role" value="organiser" variant="outline" className="h-11" disabled={pending}>
+          Raj · organiser
+        </Button>
+        <Button type="submit" name="role" value="admin" variant="outline" className="h-11" disabled={pending}>
+          Township office · admin
+        </Button>
+      </form>
+      {state.message ? (
+        <Alert variant="destructive">
+          <AlertDescription>{state.message}</AlertDescription>
+        </Alert>
+      ) : null}
+    </div>
+  )
+}

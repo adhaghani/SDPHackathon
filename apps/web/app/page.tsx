@@ -2,7 +2,9 @@ import { PlayIcon, UserPlusIcon } from "lucide-react"
 import Link from "next/link"
 
 import { TownshipLine } from "@/components/shared/township-line"
+import { DemoRoleSwitcher } from "@/components/demo/demo-role-switcher"
 import { marketingContent } from "@/content/marketing"
+import { isDemoMode } from "@/lib/env"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 
@@ -69,6 +71,11 @@ export default function Page() {
               Core features are free for residents. Township operators pay for
               the managed system.
             </p>
+            {isDemoMode() ? (
+              <div className="mt-6 border-t border-border pt-5">
+                <DemoRoleSwitcher />
+              </div>
+            ) : null}
           </div>
 
           <div>
