@@ -4,9 +4,11 @@ import { redirect } from "next/navigation"
 
 import { ResidentNav } from "@/components/navigation/resident-nav"
 import { SignOutButton } from "@/components/navigation/sign-out-button"
+import { RealtimeRefresh } from "@/components/shared/realtime-refresh"
 import { getSessionContext } from "@/lib/data"
 import { isDemoMode } from "@/lib/env"
 import { createClient } from "@/lib/supabase/server"
+import { cn } from "@workspace/ui/lib/utils"
 
 export default async function AppLayout({
   children,
@@ -27,9 +29,19 @@ export default async function AppLayout({
     .select("id", { count: "exact", head: true })
     .eq("user_id", context.user.id)
     .is("read_at", null)
+  const comfort = context.profile?.comfort_prefs
+  const comfortPrefs = comfort && typeof comfort === "object" && !Array.isArray(comfort)
+    ? (comfort as Record<string, unknown>)
+    : {}
+  const comfortClass = cn(
+    comfortPrefs.large_text === true && "bb-large-text",
+    comfortPrefs.high_contrast === true && "bb-high-contrast",
+    comfortPrefs.reduce_motion === true && "bb-reduce-motion"
+  )
 
   return (
-    <div className="min-h-svh bg-background">
+    <div className={cn("min-h-svh bg-background", comfortClass)}>
+      <RealtimeRefresh table="notifications" filter={`user_id=eq.${context.user.id}`} />
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-50 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground"

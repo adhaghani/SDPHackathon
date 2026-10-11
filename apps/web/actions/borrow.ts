@@ -137,6 +137,18 @@ export async function transitionBooking(
   }
 
   const supabase = await createClient()
+  if (parsed.data.action === "open_dispute") {
+    const { error } = await supabase.rpc("open_booking_dispute", {
+      p_booking_id: parsed.data.bookingId,
+      p_reason: "booking_issue",
+      p_details: parsed.data.handoverNote ?? "",
+    })
+    if (error) return { status: "error", message: borrowErrorMessage(error) }
+    revalidatePath(`/borrow/bookings/${parsed.data.bookingId}`)
+    revalidatePath("/borrow/mine")
+    return { status: "success", message: "Issue reported. The township office will review it.", bookingId: parsed.data.bookingId }
+  }
+
   const { data, error } = await supabase.rpc("transition_booking", {
     p_booking_id: parsed.data.bookingId,
     p_action: parsed.data.action,

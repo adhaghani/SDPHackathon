@@ -965,6 +965,28 @@ export type Database = {
           },
         ]
       }
+      notification_preferences: {
+        Row: {
+          enabled: boolean
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        ComputedFields: never
+        Insert: {
+          enabled?: boolean
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          enabled?: boolean
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           body: string
@@ -1663,6 +1685,7 @@ export type Database = {
       create_help_request: { Args: { p_payload: Json }; Returns: Json }
       create_item: { Args: { p_payload: Json }; Returns: Json }
       create_report: { Args: { p_payload: Json }; Returns: Json }
+      delete_my_account: { Args: Record<PropertyKey, never>; Returns: Json }
       evaluate_badges: {
         Args: { p_township_id: string; p_user_id: string }
         Returns: number
@@ -1703,7 +1726,15 @@ export type Database = {
         Args: { p_action: string; p_report_id: string }
         Returns: Json
       }
+      open_booking_dispute: {
+        Args: { p_booking_id: string; p_details?: string; p_reason?: string }
+        Returns: Json
+      }
       redeem_reward: { Args: { p_reward_id: string }; Returns: Json }
+      resolve_booking_dispute: {
+        Args: { p_dispute_id: string; p_note?: string; p_resolution: string }
+        Returns: Json
+      }
       reverse_points: {
         Args: { p_ledger_id: string; p_reason: string }
         Returns: Json
@@ -1719,6 +1750,10 @@ export type Database = {
       }
       send_booking_message: {
         Args: { p_body: string; p_booking_id: string }
+        Returns: Json
+      }
+      set_notification_preference: {
+        Args: { p_enabled: boolean; p_type: string }
         Returns: Json
       }
       show_limit: { Args: Record<PropertyKey, never>; Returns: number }

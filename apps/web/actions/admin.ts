@@ -7,6 +7,7 @@ import {
   memberActionSchema,
   moderationSchema,
   programmeCostSchema,
+  resolveDisputeSchema,
   reversePointsSchema,
 } from "@/lib/validation/admin"
 
@@ -100,4 +101,28 @@ export async function reversePointsAction(
   revalidatePath("/admin/rewards")
   revalidatePath("/rewards")
   return { status: "success", message: "Points reversal recorded with an audit entry." }
+}
+
+export async function resolveDisputeAction(
+  _state: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  const parsed = resolveDisputeSchema.safeParse({
+    disputeId: formData.get("disputeId"),
+    resolution: formData.get("resolution"),
+    note: formData.get("note"),
+  })
+  if (!parsed.success) return { status: "error", message: "Check the dispute resolution fields." }
+
+  const supabase = await createClient()
+  const { error } = await supabase.rpc("resolve_booking_dispute", {
+    p_dispute_id: parsed.data.disputeId,
+    p_resolution: parsed.data.resolution,
+    p_note: parsed.data.note,
+  })
+  if (error) return { status: "error", message: "Only the township office can resolve disputes." }
+
+  revalidatePath("/admin/disputes")
+  revalidatePath("/borrow/mine")
+  return { status: "success", message: "Dispute resolved." }
 }

@@ -20,3 +20,9 @@ export const reversePointsSchema = z.object({
   ledgerId: z.uuid({ error: "Ledger row not found." }),
   reason: z.string().trim().min(3, { error: "Add a short reason." }).max(240),
 })
+
+export const resolveDisputeSchema = z.object({
+  disputeId: z.uuid({ error: "Dispute not found." }),
+  resolution: z.enum(["completed", "closed"]),
+  note: z.string().trim().max(600).default(""),
+})

@@ -38,3 +38,18 @@ export async function submitReport(
   revalidatePath("/community")
   return { status: "success", message: "Report submitted. The township office will review it." }
 }
+
+export async function blockUserAction(
+  _state: ReportActionState,
+  formData: FormData
+): Promise<ReportActionState> {
+  const blockedId = formData.get("blockedId")
+  if (typeof blockedId !== "string") return { status: "error", message: "That resident cannot be blocked." }
+
+  const supabase = await createClient()
+  const { error } = await supabase.rpc("block_user", { p_blocked_id: blockedId })
+  if (error) return { status: "error", message: "That resident cannot be blocked." }
+
+  revalidatePath("/borrow/mine")
+  return { status: "success", message: "Resident blocked. Their content and bookings are hidden from you." }
+}

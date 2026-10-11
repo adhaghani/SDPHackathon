@@ -35,7 +35,7 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` complete · `[!]` blocke
 - [x] Module H: first Township Pulse
 - [x] Seed and demo mode
 - [x] RLS and database tests
-- [~] Phase 1 checkpoint gates and demo rehearsal
+- [x] Phase 1 checkpoint gates and demo rehearsal
 
 ## Phase 2 — Engagement and trust
 
@@ -44,10 +44,10 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` complete · `[!]` blocke
 - [x] Notifications and scheduled jobs
 - [x] Announcements, help requests and groups
 - [x] Waitlists, volunteer hours and event completion
-- [~] Booking chat, notes and disputes
-- [~] Reports, moderation and blocks
+- [x] Booking chat, notes and disputes
+- [x] Reports, moderation and blocks
 - [x] Comfort settings
-- [~] Phase 2 checkpoint gates
+- [x] Phase 2 checkpoint gates
 
 ## Phase 3 — Insight and impact
 
@@ -103,3 +103,5 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` complete · `[!]` blocke
 | 2026-10-11 | Fresh clone `npm ci --ignore-scripts` | Blocked by npm `ECONNRESET`; local install and all gates pass |
 | 2026-10-11 | Fresh clone retry `npm ci --ignore-scripts --prefer-offline` | Pass — install in 29s |
 | 2026-10-11 | Fresh clone lint/typecheck/test/build | Pass |
+| 2026-10-11 | `npm run test:e2e` after trust/preferences changes | Pass — 5 tests |
+| 2026-10-11 | Manual profile export/delete and notification preference rehearsal | Pass |

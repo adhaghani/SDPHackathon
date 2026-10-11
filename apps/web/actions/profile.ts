@@ -1,6 +1,7 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
+import { redirect } from "next/navigation"
 
 import { createClient } from "@/lib/supabase/server"
 import { profileSchema } from "@/lib/validation/profile"
@@ -51,4 +52,21 @@ export async function updateProfile(
   revalidatePath("/profile")
   revalidatePath("/profile/settings")
   return { status: "success", message: "Profile updated." }
+}
+
+export async function deleteMyAccount(
+  _state: ProfileActionState
+): Promise<ProfileActionState> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { status: "error", message: "Sign in before deleting your account." }
+
+  const { error } = await supabase.rpc("delete_my_account")
+  if (error) return { status: "error", message: "Your account could not be deleted. Try again." }
+
+  const { getAdminClient } = await import("@/lib/supabase/admin")
+  await getAdminClient().auth.admin.deleteUser(user.id)
+  redirect("/sign-in?message=Your+account+was+deleted.")
 }

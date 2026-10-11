@@ -3,6 +3,8 @@ import { notFound } from "next/navigation"
 
 import { BookingActions } from "@/components/borrow/booking-actions"
 import { BookingChat } from "@/components/borrow/booking-chat"
+import { BlockUserButton } from "@/components/reports/block-user-button"
+import { RealtimeRefresh } from "@/components/shared/realtime-refresh"
 import { requireActiveMember } from "@/lib/data"
 import { formatEventDate } from "@/lib/format"
 import { createClient } from "@/lib/supabase/server"
@@ -39,11 +41,13 @@ export default async function BookingPage({
   if (!bookingResult.data) notFound()
   const booking = bookingResult.data
   const actor = booking.borrower_id === active.user.id ? "borrower" : "lender"
+  const otherUserId = booking.borrower_id === active.user.id ? booking.lender_id : booking.borrower_id
   const currentIndex = timeline.findIndex((step) => step.key === booking.status)
   const returned = Boolean(booking.borrower_return_marked_at)
 
   return (
     <div className="mx-auto max-w-3xl">
+      <RealtimeRefresh table="booking_messages" filter={`booking_id=eq.${id}`} />
       <Link href="/borrow/mine" className="text-sm text-muted-foreground underline underline-offset-4">Back to my borrowing</Link>
       <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
         <div>
@@ -87,6 +91,7 @@ export default async function BookingPage({
       </section>
 
       <BookingChat bookingId={booking.id} messages={messagesResult.data ?? []} currentUserId={active.user.id} />
+      <div className="mt-5"><BlockUserButton blockedId={otherUserId} name="other participant" /></div>
 
       <section className="mt-8 border-t border-border pt-6">
         <h2 className="font-heading text-lg font-semibold">Safety</h2>

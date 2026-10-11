@@ -78,6 +78,7 @@ export default async function AdminPage({
         <Button render={<Link href="/admin/members" />} variant="outline" className="h-11">Members</Button>
         <Button render={<Link href="/admin/rewards" />} variant="outline" className="h-11">Rewards economy</Button>
         <Button render={<Link href="/admin/moderation" />} variant="outline" className="h-11">Moderation</Button>
+        <Button render={<Link href="/admin/disputes" />} variant="outline" className="h-11">Disputes</Button>
         <Button render={<Link href="/admin/methodology" />} variant="ghost" className="h-11">Methodology</Button>
         <Button render={<Link href="/admin/export" />} variant="ghost" className="h-11">Export CSV</Button>
       </nav>
