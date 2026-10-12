@@ -20,7 +20,7 @@ import { Spinner } from "@workspace/ui/components/spinner"
 
 const idleState = { status: "idle" } as const
 
-export function SignUpForm() {
+export function SignUpForm({ inviteCode }: { inviteCode?: string }) {
   const [state, action, pending] = useActionState(signUp, idleState)
   const displayNameError = state.fieldErrors?.displayName?.[0]
   const emailError = state.fieldErrors?.email?.[0]
@@ -30,6 +30,7 @@ export function SignUpForm() {
 
   return (
     <form action={action} className="flex w-full flex-col gap-5">
+      {inviteCode ? <input type="hidden" name="inviteCode" value={inviteCode} /> : null}
       <FieldGroup>
         <Field data-invalid={Boolean(displayNameError)}>
           <FieldLabel htmlFor="displayName">

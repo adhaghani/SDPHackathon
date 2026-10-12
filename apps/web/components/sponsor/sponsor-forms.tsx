@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react"
 
 import { createPartnerChallenge, createPartnerReward } from "@/actions/sponsor"
+import { prepareImageForUpload } from "@/lib/media"
 import { getBrowserClient } from "@/lib/supabase/browser"
 import { Alert, AlertDescription } from "@workspace/ui/components/alert"
 import { Button } from "@workspace/ui/components/button"
@@ -22,14 +23,7 @@ export function SponsorRewardForm() {
     if (!file) return
     setImageMessage(null)
     try {
-      const bitmap = await createImageBitmap(file)
-      const scale = Math.min(1, 1200 / Math.max(bitmap.width, bitmap.height))
-      const canvas = document.createElement("canvas")
-      canvas.width = Math.round(bitmap.width * scale)
-      canvas.height = Math.round(bitmap.height * scale)
-      canvas.getContext("2d")?.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
-      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/webp", 0.82))
-      if (!blob) throw new Error("compression_failed")
+      const blob = await prepareImageForUpload(file, { maxDimension: 1200, quality: 0.82 })
       const path = `reward-${crypto.randomUUID()}.webp`
       const { error } = await getBrowserClient().storage.from("item-photos").upload(path, blob, { upsert: true })
       if (error) throw error

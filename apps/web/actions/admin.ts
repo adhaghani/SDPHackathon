@@ -11,6 +11,8 @@ import {
   resolveDisputeSchema,
   reversePointsSchema,
   badgeSchema,
+  carbonGoalSchema,
+  highlightSchema,
 } from "@/lib/validation/admin"
 
 export type AdminActionState = {
@@ -160,4 +162,50 @@ export async function resolveDisputeAction(
   revalidatePath("/admin/disputes")
   revalidatePath("/borrow/mine")
   return { status: "success", message: "Dispute resolved." }
+}
+
+export async function approveHighlightAction(
+  _state: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  const parsed = highlightSchema.safeParse({
+    monthStart: formData.get("monthStart"),
+    residentId: formData.get("residentId"),
+    reason: formData.get("reason"),
+  })
+  if (!parsed.success) return { status: "error", message: "Check the highlight fields." }
+
+  const supabase = await createClient()
+  const { error } = await supabase.rpc("approve_monthly_highlight", {
+    p_month_start: parsed.data.monthStart,
+    p_resident_id: parsed.data.residentId,
+    p_reason: parsed.data.reason,
+  })
+  if (error) return { status: "error", message: "Only organisers can approve a highlight." }
+
+  revalidatePath("/admin/engagement")
+  revalidatePath("/home")
+  return { status: "success", message: "Neighbour of the month approved." }
+}
+
+export async function saveCarbonGoalAction(
+  _state: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  const parsed = carbonGoalSchema.safeParse({
+    year: formData.get("year"),
+    targetKg: formData.get("targetKg"),
+  })
+  if (!parsed.success) return { status: "error", message: "Check the carbon goal values." }
+
+  const supabase = await createClient()
+  const { error } = await supabase.rpc("set_township_goal", {
+    p_year: parsed.data.year,
+    p_target_co2e_kg: parsed.data.targetKg,
+  })
+  if (error) return { status: "error", message: "Only the township office can set a goal." }
+
+  revalidatePath("/admin/engagement")
+  revalidatePath("/home")
+  return { status: "success", message: "Carbon goal saved." }
 }

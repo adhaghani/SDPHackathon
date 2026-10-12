@@ -1,7 +1,12 @@
 import { SignUpForm } from "@/components/auth/sign-up-form"
 import { authContent } from "@/content/auth"
 
-export default function SignUpPage() {
+export default async function SignUpPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ invite?: string }>
+}) {
+  const params = await searchParams
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -12,7 +17,7 @@ export default function SignUpPage() {
           {authContent.signUp.description}
         </p>
       </div>
-      <SignUpForm />
+      <SignUpForm inviteCode={params.invite} />
     </div>
   )
 }

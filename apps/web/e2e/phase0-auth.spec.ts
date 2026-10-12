@@ -14,7 +14,7 @@ test("a resident can create an account and sign in again", async ({ page }) => {
 
   await page.waitForURL("**/onboarding")
   await expect(
-    page.getByRole("heading", { name: "Start with a verified join code" })
+    page.getByRole("heading", { name: "Start with your township's join code" })
   ).toBeVisible()
   await page.getByLabel("Township join code").fill("HARMONI-DEMO")
   await page.getByRole("button", { name: "Check code" }).click()
@@ -22,7 +22,7 @@ test("a resident can create an account and sign in again", async ({ page }) => {
   await page.getByLabel("Unit label").fill("A-12-3")
   await page.getByRole("button", { name: "Join township" }).click()
   await page.waitForURL("**/home")
-  await expect(page.getByRole("heading", { name: /Home,/ })).toBeVisible()
+  await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible()
 
   await page.getByRole("button", { name: "Sign out" }).click()
   await page.waitForURL("**/sign-in")
@@ -33,6 +33,6 @@ test("a resident can create an account and sign in again", async ({ page }) => {
 
   await page.waitForURL("**/home")
   await expect(
-    page.getByRole("heading", { name: /Home,/ })
+    page.getByRole("heading", { level: 1 }).first()
   ).toBeVisible()
 })

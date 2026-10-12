@@ -460,10 +460,16 @@ async function ensureItem(
 ) {
   const existing = await findOne(admin, "items", { township_id: townshipId, title, owner_id: ownerId })
   if (existing) {
-    if (photoPath) {
-      const { error } = await admin.from("items").update({ photo_paths: [photoPath] }).eq("id", existing.id as string)
-      if (error) throw new Error(`Could not add the demo image for ${title}: ${error.message}`)
-    }
+    const { error } = await admin.from("items").update({
+      ...(photoPath ? { photo_paths: [photoPath] } : {}),
+      kind: "item",
+      value_source: "owner",
+      estimated_new_price_rm: 250,
+      requires_deposit: false,
+      allow_deposit_waiver: false,
+      min_trust_tier: null,
+    }).eq("id", existing.id as string)
+    if (error) throw new Error(`Could not refresh the demo item ${title}: ${error.message}`)
     return existing.id as string
   }
 
@@ -475,8 +481,13 @@ async function ensureItem(
       title,
       description: "A fictional item available through the Harmoni Heights demo.",
       category_id: categoryId,
+      kind: "item",
       condition: "good",
       estimated_new_price_rm: 250,
+      value_source: "owner",
+      requires_deposit: false,
+      allow_deposit_waiver: false,
+      min_trust_tier: null,
       deposit_rm: 0,
       max_loan_days: 4,
       handover_options: [" clubhouse lobby", "community garden gate"],
@@ -489,6 +500,295 @@ async function ensureItem(
 
   if (error || !data) throw new Error(`Could not create item ${title}: ${error?.message}`)
   return data.id as string
+}
+
+async function ensureDemoSearchEvents(
+  admin: SupabaseClient<Database>,
+  townshipId: string,
+  neighbourhoodId: string,
+  categoryId: string
+) {
+  const existing = await admin
+    .from("search_events")
+    .select("id")
+    .eq("township_id", townshipId)
+    .eq("is_demo", true)
+    .limit(1)
+  if (existing.error) throw new Error(`Could not read demo searches: ${existing.error.message}`)
+  if (existing.data?.length) return
+
+  const searches = [
+    ["drill", 9, 2],
+    ["gerudi", 6, 2],
+    ["ladder", 7, 1],
+    ["table", 12, 0],
+    ["chair", 10, 0],
+    ["periuk", 8, 1],
+  ] as const
+
+  const { error } = await admin.from("search_events").insert(
+    searches.map(([term, results, available]) => ({
+      township_id: townshipId,
+      neighbourhood_id: neighbourhoodId,
+      normalized_term: term,
+      category_id: term === "drill" || term === "gerudi" ? categoryId : null,
+      results_count: results,
+      available_count: available,
+      is_demo: true,
+    }))
+  )
+  if (error) throw new Error(`Could not create demo searches: ${error.message}`)
+}
+
+async function ensureDemandDemoData(
+  admin: SupabaseClient<Database>,
+  townshipId: string,
+  neighbourhoodId: string,
+  userIds: Record<string, string>,
+  itemCategoryId: (slug: string) => string,
+  now: number
+) {
+  const aisyah = userIds["aisyah@borrowbetter.demo"]
+  const farah = userIds["farah@borrowbetter.demo"]
+
+  const skillRows = [
+    {
+      title: "Basic drill repair demo session",
+      categoryId: itemCategoryId("repairs"),
+      duration: 45,
+      guardian: false,
+    },
+    {
+      title: "After-school maths tuition demo session",
+      categoryId: itemCategoryId("tuition"),
+      duration: 60,
+      guardian: true,
+    },
+  ]
+  for (const skill of skillRows) {
+    const existing = await findOne(admin, "items", { township_id: townshipId, title: skill.title })
+    if (existing) continue
+    const { error } = await admin.from("items").insert({
+      township_id: townshipId,
+      owner_id: rajIdForSeed(userIds),
+      title: skill.title,
+      description: "A fictional skill session for the BorrowBetter demo.",
+      category_id: skill.categoryId,
+      kind: "skill",
+      condition: "good",
+      photo_paths: ["/demo/item-placeholder.svg"],
+      estimated_new_price_rm: null,
+      value_source: "category_default",
+      requires_deposit: false,
+      deposit_rm: 0,
+      allow_deposit_waiver: false,
+      min_trust_tier: null,
+      duration_minutes: skill.duration,
+      meeting_arrangement: "arranged_by_message",
+      guardian_acknowledgement: skill.guardian,
+      max_loan_days: 1,
+      handover_options: ["Arranged by message"],
+      status: "active",
+      hidden: false,
+    })
+    if (error) throw new Error(`Could not create demo skill ${skill.title}: ${error.message}`)
+  }
+
+  const bundleSpecs = [
+    {
+      title: "Camping kit",
+      description: "Tent, cooler and sleeping essentials for a weekend away.",
+      itemTitles: ["Camping tent", "Cooler box"],
+    },
+    {
+      title: "Kenduri set",
+      description: "Tables, chairs and a large pot for a shared meal.",
+      itemTitles: ["Folding tables", "Folding chairs", "Periuk besar"],
+    },
+  ]
+  const bundleItemTitles = ["Folding tables", "Folding chairs", "Periuk besar"]
+  for (const title of bundleItemTitles) {
+    const existing = await findOne(admin, "items", { township_id: townshipId, title })
+    if (existing) continue
+    const { error } = await admin.from("items").insert({
+      township_id: townshipId,
+      owner_id: aisyah,
+      title,
+      description: "A fictional item for the Kenduri set demo bundle.",
+      category_id: itemCategoryId("kitchen"),
+      kind: "item",
+      condition: "good",
+      photo_paths: ["/demo/item-placeholder.svg"],
+      estimated_new_price_rm: 150,
+      value_source: "owner",
+      requires_deposit: false,
+      deposit_rm: 0,
+      allow_deposit_waiver: false,
+      min_trust_tier: null,
+      max_loan_days: 4,
+      handover_options: ["Clubhouse lobby"],
+      status: "active",
+      hidden: false,
+    })
+    if (error) throw new Error(`Could not create bundle item ${title}: ${error.message}`)
+  }
+
+  for (const bundleSpec of bundleSpecs) {
+    let bundle = await findOne(admin, "bundles", { township_id: townshipId, title: bundleSpec.title })
+    if (!bundle) {
+      const { data, error } = await admin
+        .from("bundles")
+        .insert({
+          township_id: townshipId,
+          owner_id: aisyah,
+          title: bundleSpec.title,
+          description: bundleSpec.description,
+          cover_path: "/demo/item-placeholder.svg",
+          is_demo: true,
+        })
+        .select("id")
+        .single()
+      if (error || !data) throw new Error(`Could not create demo bundle ${bundleSpec.title}: ${error?.message}`)
+      bundle = data
+    }
+    const bundleId = bundle.id as string
+    for (let index = 0; index < bundleSpec.itemTitles.length; index += 1) {
+      const item = await findOne(admin, "items", {
+        township_id: townshipId,
+        title: bundleSpec.itemTitles[index],
+      })
+      if (!item) continue
+      const { error } = await admin.from("bundle_items").upsert(
+        {
+          bundle_id: bundleId,
+          item_id: item.id,
+          position: index,
+          is_demo: true,
+        },
+        { onConflict: "bundle_id,item_id" }
+      )
+      if (error) throw new Error(`Could not add ${bundleSpec.itemTitles[index]} to bundle: ${error.message}`)
+    }
+
+    const existingGroup = await findOne(admin, "booking_groups", { bundle_id: bundleId })
+    if (!existingGroup) {
+      const { data: group, error: groupError } = await admin
+        .from("booking_groups")
+        .insert({
+          bundle_id: bundleId,
+          township_id: townshipId,
+          borrower_id: farah,
+          lender_id: aisyah,
+          start_date: new Date(now + 100 * DAY).toISOString().slice(0, 10),
+          end_date: new Date(now + 103 * DAY).toISOString().slice(0, 10),
+          status: "cancelled",
+          is_demo: true,
+        })
+        .select("id")
+        .single()
+      if (groupError || !group) throw new Error(`Could not create demo booking group: ${groupError?.message}`)
+      const children = await admin
+        .from("bundle_items")
+        .select("item_id")
+        .eq("bundle_id", bundleId)
+      if (children.error) throw new Error(children.error.message)
+      for (const child of children.data ?? []) {
+        const { error } = await admin.from("bookings").insert({
+          item_id: child.item_id,
+          township_id: townshipId,
+          borrower_id: farah,
+          lender_id: aisyah,
+          start_date: new Date(now + 100 * DAY).toISOString().slice(0, 10),
+          end_date: new Date(now + 103 * DAY).toISOString().slice(0, 10),
+          handover_method: "Clubhouse lobby",
+          booking_group_id: group.id,
+          status: "cancelled",
+        })
+        if (error) throw new Error(`Could not create demo group booking: ${error.message}`)
+      }
+    }
+  }
+
+  const requestSpecs = [
+    {
+      title: "Need a cordless drill this weekend",
+      status: "open",
+      categoryId: itemCategoryId("home-tools"),
+    },
+    {
+      title: "Need folding tables for a kenduri",
+      status: "offered",
+      categoryId: itemCategoryId("kitchen"),
+    },
+  ]
+  for (const requestSpec of requestSpecs) {
+    let request = await findOne(admin, "item_requests", {
+      township_id: townshipId,
+      title: requestSpec.title,
+    })
+    if (!request) {
+      const { data, error } = await admin
+        .from("item_requests")
+        .insert({
+          township_id: townshipId,
+          requester_id: farah,
+          title: requestSpec.title,
+          category_id: requestSpec.categoryId,
+          neighbourhood_id: neighbourhoodId,
+          needed_from: new Date(now + 2 * DAY).toISOString().slice(0, 10),
+          needed_until: new Date(now + 9 * DAY).toISOString().slice(0, 10),
+          note: "Fictional demo request.",
+          status: requestSpec.status,
+          is_demo: true,
+        })
+        .select("id")
+        .single()
+      if (error || !data) throw new Error(`Could not create demo request: ${error?.message}`)
+      request = data
+    }
+    if (requestSpec.status === "offered") {
+      const offerTitle = requestSpec.title.includes("tables") ? "Folding tables" : "Cordless drill"
+      const item = await findOne(admin, "items", { township_id: townshipId, title: offerTitle })
+      const existingOffer = await findOne(admin, "item_request_offers", { request_id: request.id })
+      if (item && !existingOffer) {
+        const { error } = await admin.from("item_request_offers").insert({
+          request_id: request.id,
+          offerer_id: aisyah,
+          item_id: item.id,
+          message: "Available from the clubhouse.",
+          status: "proposed",
+          is_demo: true,
+        })
+        if (error) throw new Error(`Could not create demo offer: ${error.message}`)
+      }
+    }
+  }
+
+  const alertUsers = [
+    "aisyah@borrowbetter.demo",
+    "farah@borrowbetter.demo",
+    "mei@borrowbetter.demo",
+    "siti@borrowbetter.demo",
+    "kumar@borrowbetter.demo",
+  ]
+  for (const email of alertUsers) {
+    const { error } = await admin.from("item_request_alert_opt_ins").upsert(
+      {
+        user_id: userIds[email],
+        township_id: townshipId,
+        category_id: itemCategoryId("home-tools"),
+        is_demo: true,
+      },
+      { onConflict: "user_id,township_id,category_id" }
+    )
+    if (error) throw new Error(`Could not create demo request alert: ${error.message}`)
+  }
+}
+
+function rajIdForSeed(userIds: Record<string, string>): string {
+  const id = userIds["raj@borrowbetter.demo"]
+  if (!id) throw new Error("Raj demo user missing")
+  return id
 }
 
 async function ensureBooking(
@@ -714,6 +1014,24 @@ export async function seedDemo(): Promise<void> {
     }
   }
 
+  await ensureDemoSearchEvents(
+    admin,
+    townshipId,
+    neighbourhoodId,
+    itemCategoryId("home-tools")
+  )
+  await ensureDemandDemoData(
+    admin,
+    townshipId,
+    neighbourhoodId,
+    userIds,
+    itemCategoryId,
+    now
+  )
+  await ensureEngagementV2DemoData(admin, townshipId, userIds, now)
+  await ensureAdminIntelligenceDemoData(admin, townshipId, userIds, itemCategoryId)
+  await ensureSupportDemoData(admin, townshipId, userIds)
+
   const demoBookingItem = await ensureItem(
     admin,
     townshipId,
@@ -741,6 +1059,196 @@ export async function seedDemo(): Promise<void> {
   const balance = (points.data ?? []).reduce((sum, row: { delta: number }) => sum + row.delta, 0)
 
   console.log(`Demo data ready. Aisyah balance: ${balance} BP.`)
+}
+
+async function ensureEngagementV2DemoData(
+  admin: SupabaseClient<Database>,
+  townshipId: string,
+  userIds: Record<string, string>,
+  now: number
+) {
+  const aisyah = userIds["aisyah@borrowbetter.demo"]
+  const raj = userIds["raj@borrowbetter.demo"]
+  const currentMonth = new Date(now)
+  currentMonth.setDate(1)
+  const monthStart = currentMonth.toISOString().slice(0, 10)
+  const previousMonth = new Date(currentMonth)
+  previousMonth.setMonth(previousMonth.getMonth() - 1)
+  const previousStart = previousMonth.toISOString().slice(0, 10)
+  const twoMonthsAgo = new Date(previousMonth)
+  twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 1)
+  const twoMonthsStart = twoMonthsAgo.toISOString().slice(0, 10)
+
+  for (const month of [twoMonthsStart, previousStart, monthStart]) {
+    const { error } = await admin.from("streak_months").upsert(
+      {
+        user_id: aisyah,
+        township_id: townshipId,
+        month_start: month,
+        lend_completed: true,
+        borrow_completed: month !== twoMonthsStart,
+        is_demo: true,
+      },
+      { onConflict: "user_id,township_id,month_start" }
+    )
+    if (error) throw new Error(`Could not seed demo streak month: ${error.message}`)
+  }
+
+  const invite = await findOne(admin, "invites", { inviter_id: aisyah })
+  if (!invite) {
+    const { error } = await admin.from("invites").insert({
+      code: "DEMOINVITEA",
+      inviter_id: aisyah,
+      is_demo: true,
+    })
+    if (error) throw new Error(`Could not seed demo invite: ${error.message}`)
+  }
+  const rajInvite = await findOne(admin, "invites", { inviter_id: raj })
+  if (!rajInvite) {
+    const { error } = await admin.from("invites").insert({
+      code: "DEMOINVITER",
+      inviter_id: raj,
+      is_demo: true,
+    })
+    if (error) throw new Error(`Could not seed demo inviter code: ${error.message}`)
+  }
+
+  const profileUpdate = await admin
+    .from("profiles")
+    .update({ show_in_highlights: true })
+    .eq("id", aisyah)
+  if (profileUpdate.error) throw new Error(profileUpdate.error.message)
+
+  const highlight = await findOne(admin, "monthly_highlights", {
+    township_id: townshipId,
+    month_start: monthStart,
+  })
+  if (!highlight) {
+    const { error } = await admin.from("monthly_highlights").insert({
+      township_id: townshipId,
+      month_start: monthStart,
+      resident_id: aisyah,
+      reason: "Lent 12 items in September",
+      status: "approved",
+      approved_by: raj,
+      approved_at: isoAt(now),
+      is_demo: true,
+    })
+    if (error) throw new Error(`Could not seed demo highlight: ${error.message}`)
+  }
+
+  const goal = await findOne(admin, "township_goals", {
+    township_id: townshipId,
+    year: currentMonth.getUTCFullYear(),
+  })
+  if (!goal) {
+    const { error } = await admin.from("township_goals").insert({
+      township_id: townshipId,
+      year: currentMonth.getUTCFullYear(),
+      target_co2e_kg: 5000,
+      is_demo: true,
+      created_by: raj,
+    })
+    if (error) throw new Error(`Could not seed demo carbon goal: ${error.message}`)
+  }
+}
+
+async function ensureAdminIntelligenceDemoData(
+  admin: SupabaseClient<Database>,
+  townshipId: string,
+  userIds: Record<string, string>,
+  itemCategoryId: (slug: string) => string
+) {
+  const existing = await findOne(admin, "shared_library_wishlists", {
+    township_id: townshipId,
+    normalized_term: "drill",
+  })
+  if (existing) return
+  const { error } = await admin.from("shared_library_wishlists").insert({
+    township_id: townshipId,
+    category_id: itemCategoryId("home-tools"),
+    normalized_term: "drill",
+    requested_label: "Cordless drills for the shared library",
+    is_demo: true,
+    created_by: userIds["office@borrowbetter.demo"],
+  })
+  if (error) throw new Error(`Could not seed demo wishlist: ${error.message}`)
+}
+
+async function ensureSupportDemoData(
+  admin: SupabaseClient<Database>,
+  townshipId: string,
+  userIds: Record<string, string>
+) {
+  const aisyah = userIds["aisyah@borrowbetter.demo"]
+  const raj = userIds["raj@borrowbetter.demo"]
+  const office = userIds["office@borrowbetter.demo"]
+
+  const completedBooking = await findOne(admin, "bookings", {
+    township_id: townshipId,
+    borrower_id: raj,
+    lender_id: aisyah,
+    status: "completed",
+  })
+  if (completedBooking) {
+    const existingToken = await findOne(admin, "booking_handover_tokens", {
+      booking_id: completedBooking.id,
+    })
+    if (!existingToken) {
+      const { error } = await admin.from("booking_handover_tokens").insert({
+        booking_id: completedBooking.id,
+        jti: "DEMOHANDOVERTOKEN",
+        issued_by: aisyah,
+        expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+        is_demo: true,
+      })
+      if (error) throw new Error(`Could not seed demo handover token: ${error.message}`)
+    }
+  }
+
+  const conversation = await findOne(admin, "help_conversations", {
+    user_id: aisyah,
+    is_demo: true,
+  })
+  let conversationId = conversation?.id as string | undefined
+  if (!conversationId) {
+    const { data, error } = await admin
+      .from("help_conversations")
+      .insert({
+        user_id: aisyah,
+        township_id: townshipId,
+        status: "open",
+        is_demo: true,
+      })
+      .select("id")
+      .single()
+    if (error || !data) throw new Error(`Could not seed demo help conversation: ${error?.message}`)
+    conversationId = data.id as string
+    const { error: messageError } = await admin.from("help_messages").insert({
+      conversation_id: conversationId,
+      user_id: aisyah,
+      role: "user",
+      content: "How does offline handover work?",
+      is_demo: true,
+    })
+    if (messageError) throw new Error(`Could not seed demo help message: ${messageError.message}`)
+  }
+
+  const ticket = await findOne(admin, "support_tickets", {
+    requester_id: aisyah,
+    is_demo: true,
+  })
+  if (!ticket) {
+    const { error } = await admin.from("support_tickets").insert({
+      conversation_id: conversationId,
+      township_id: townshipId,
+      requester_id: aisyah,
+      subject: "Demo question about offline handover",
+      status: "open",
+      is_demo: true,
+    })
+    if (error) throw new Error(`Could not seed demo support ticket: ${error.message}`)
+  }
 }
 
 if (process.argv[1]?.endsWith("seed-demo.ts")) {

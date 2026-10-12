@@ -32,6 +32,12 @@ type Pulse = {
   suppression_rule?: string
 }
 
+type ForecastCard = {
+  available?: boolean
+  event?: { name?: string }
+  forecasts?: Array<{ category_name: string; forecast: number }>
+}
+
 type Insights = {
   neighbourhood_participation?: Array<{ neighbourhood: string; residents: number }>
   suppression_rule?: string
@@ -46,6 +52,7 @@ const lines = [
 
 const adminLinks = [
   { href: "/admin/insights", label: "Insights" },
+  { href: "/admin/demand", label: "Demand" },
   { href: "/admin/members", label: "Members" },
   { href: "/admin/moderation", label: "Moderation" },
   { href: "/admin/disputes", label: "Disputes" },
@@ -53,6 +60,7 @@ const adminLinks = [
   { href: "/admin/rewards", label: "Rewards economy" },
   { href: "/admin/badges", label: "Awards" },
   { href: "/admin/hubs", label: "Hubs", flag: "equipment_hubs" },
+  { href: "/admin/engagement", label: "Engagement" },
   { href: "/admin/map", label: "Map", flag: "leaflet" },
   { href: "/admin/methodology", label: "Methodology" },
 ] as const
@@ -69,7 +77,7 @@ export default async function AdminPage({
   const days = Math.min(90, Math.max(7, Number(params.days ?? 30) || 30))
   const supabase = await createClient()
   const nowIso = new Date().toISOString()
-  const [pulseResult, insightsResult, disputesResult, reportsResult, eventsToCloseResult, rewardsLiveResult] = await Promise.all([
+  const [pulseResult, insightsResult, disputesResult, reportsResult, eventsToCloseResult, rewardsLiveResult, valueResult, forecastResult] = await Promise.all([
     supabase.rpc("township_pulse", { p_township_id: active.townshipId, p_days: days }),
     supabase.rpc("admin_insights", { p_township_id: active.townshipId, p_days: days }),
     supabase.from("disputes").select("id", { count: "exact", head: true }).eq("status", "open"),
@@ -86,11 +94,20 @@ export default async function AdminPage({
       .eq("township_id", active.townshipId)
       .eq("active", true)
       .not("partner_id", "is", null),
+    supabase.rpc("township_value_shared", {
+      p_township_id: active.townshipId,
+      p_days: days,
+    }),
+    supabase.rpc("predictive_demand", { p_township_id: active.townshipId }),
   ])
   if (pulseResult.error) throw new Error(pulseResult.error.message)
+  if (forecastResult.error) throw new Error(forecastResult.error.message)
   const pulse = (pulseResult.data ?? {}) as Pulse
   const insights = (insightsResult.data ?? {}) as Insights
   const metrics = pulse.metrics ?? {}
+  const valueShared = valueResult.data as { estimated_value_shared_rm?: number } | null
+  const forecast = (forecastResult.data ?? {}) as ForecastCard
+  const topForecast = forecast.forecasts?.[0]
 
   const lineTotals = (pulse.activity_mix ?? []).reduce<Record<string, number>>((totals, row) => {
     const line = activityLine(row.action_type)
@@ -155,7 +172,26 @@ export default async function AdminPage({
           value={`RM ${Math.round(Number(metrics.estimated_purchases_avoided_rm ?? 0)).toLocaleString("en-MY")}`}
           estimated
         />
+        <StatTile
+          label="Estimated value shared"
+          value={`RM ${Math.round(Number(valueShared?.estimated_value_shared_rm ?? 0)).toLocaleString("en-MY")}`}
+          detail="Every completed borrow"
+          estimated
+        />
       </section>
+
+      {forecast.available && topForecast ? (
+        <section aria-label="Demand forecast" className="flex flex-wrap items-center justify-between gap-4 rounded-lg bg-lilac-tint p-4 text-ink">
+          <div>
+            <p className="text-eyebrow text-ink-muted">Township Pulse · Forecast</p>
+            <p className="mt-1 font-bold">
+              Expect high demand for {topForecast.category_name.toLowerCase()} next week
+              {forecast.event?.name ? ` (${forecast.event.name})` : ""} · Estimated
+            </p>
+          </div>
+          <Button render={<Link href="/admin/demand" />} variant="outline">Open demand intelligence</Button>
+        </section>
+      ) : null}
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] xl:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="flex min-w-0 flex-col gap-6">

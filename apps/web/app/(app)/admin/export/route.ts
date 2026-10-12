@@ -21,20 +21,45 @@ export async function GET(request: NextRequest) {
     .maybeSingle()
   if (!member.data) return NextResponse.json({ error: "admin_required" }, { status: 403 })
 
-  const [pulseResult, economyResult] = await Promise.all([
+  const [pulseResult, economyResult, demandResult, forecastResult] = await Promise.all([
     supabase.rpc("township_pulse", { p_township_id: member.data.township_id, p_days: 90 }),
     supabase.rpc("admin_rewards_economy", { p_township_id: member.data.township_id, p_days: 90 }),
+    supabase.rpc("admin_demand_gaps", { p_township_id: member.data.township_id }),
+    supabase.rpc("predictive_demand", { p_township_id: member.data.township_id }),
   ])
-  if (pulseResult.error || economyResult.error) {
+  if (pulseResult.error || economyResult.error || demandResult.error || forecastResult.error) {
     return NextResponse.json({ error: "export_failed" }, { status: 500 })
   }
 
   const pulse = (pulseResult.data ?? {}) as { metrics?: Record<string, number | string> }
   const economy = (economyResult.data ?? {}) as Record<string, number>
+  const demand = (demandResult.data ?? []) as Array<{
+    key: string
+    label: string
+    searches: number
+    open_requests: number
+    available_items: number
+    gap: number
+  }>
+  const forecast = (forecastResult.data ?? {}) as {
+    available?: boolean
+    event?: { name?: string }
+    forecasts?: Array<{ category_name: string; baseline_weekly_demand: number; uplift: number; forecast: number }>
+  }
   const rows = [
     ["metric", "value"],
     ...Object.entries(pulse.metrics ?? {}).map(([key, value]) => [key, String(value)]),
     ...Object.entries(economy).map(([key, value]) => [key, String(value)]),
+    ...demand.map((gap) => [
+      `demand_gap:${gap.key}`,
+      `${gap.searches} searches; ${gap.open_requests} open requests; ${gap.available_items} available; gap ${gap.gap}`,
+    ]),
+    ...(forecast.available && forecast.event?.name
+      ? (forecast.forecasts ?? []).map((row) => [
+          `forecast:${row.category_name}`,
+          `${row.forecast} for ${forecast.event?.name}; baseline ${row.baseline_weekly_demand}/week; uplift ${row.uplift}; Forecast`,
+        ])
+      : []),
   ]
   const csv = rows.map((row) => row.map((cell) => `"${cell.replaceAll('"', '""')}"`).join(",")).join("\n")
 

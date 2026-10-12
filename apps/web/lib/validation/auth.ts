@@ -26,6 +26,7 @@ export const signUpSchema = z.object({
     .refine((value) => value, {
       error: "Accept the privacy notice to continue.",
     }),
+  inviteCode: z.string().trim().max(64).optional(),
 })
 
 export const magicLinkSchema = z.object({

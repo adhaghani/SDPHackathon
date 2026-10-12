@@ -6,19 +6,27 @@ import { BetterPointsChip } from "@/components/shared/better-points-chip"
 import { requireActiveMember } from "@/lib/data"
 import { isFeatureEnabled } from "@/lib/env"
 import { createClient } from "@/lib/supabase/server"
+import { parseTrustScore, trustTierLabel } from "@/lib/trust"
 import { SwitchTownshipButton } from "@/components/profile/switch-township-button"
 import { BadgeCard } from "@/components/rewards/badge-card"
 import { SignOutButton } from "@/components/navigation/sign-out-button"
+import { InviteShare } from "@/components/profile/invite-share"
+import { getAppUrl } from "@/lib/env"
 
 export default async function ProfilePage() {
   const active = await requireActiveMember()
   const supabase = await createClient()
-  const [badgesResult, lentResult, borrowedResult, townshipsResult] = await Promise.all([
+  const [badgesResult, lentResult, borrowedResult, townshipsResult, trustResult, inviteResult] = await Promise.all([
     supabase.from("user_badges").select("id,earned_at,badges(name,description,icon)").eq("user_id", active.user.id).eq("township_id", active.townshipId),
     supabase.from("bookings").select("id").eq("lender_id", active.user.id).eq("status", "completed"),
     supabase.from("bookings").select("id").eq("borrower_id", active.user.id).eq("status", "completed"),
     supabase.from("townships").select("id,name").in("id", (active.memberships ?? []).map((row) => row.township_id)),
+    supabase.rpc("compute_trust_score", { p_user_id: active.user.id }),
+    supabase.from("invites").select("code").eq("inviter_id", active.user.id).order("created_at").limit(1).maybeSingle(),
   ])
+  if (trustResult.error) throw new Error(trustResult.error.message)
+  if (inviteResult.error) throw new Error(inviteResult.error.message)
+  const trust = parseTrustScore(trustResult.data)
   const townshipNames = new Map((townshipsResult.data ?? []).map((township) => [township.id, township.name]))
 
   const name = active.profile?.display_name ?? "Neighbour"
@@ -54,6 +62,30 @@ export default async function ProfilePage() {
           <dd className="mt-1 font-display text-3xl font-extrabold text-ink tabular-nums">{borrowedResult.data?.length ?? 0}</dd>
         </div>
       </dl>
+
+      <section aria-labelledby="trust-heading" className="bb-card p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-eyebrow text-ink-muted">Your trust score</p>
+            <h2 id="trust-heading" className="text-title text-ink">{trustTierLabel(trust?.tier)}</h2>
+          </div>
+          <span className="font-display text-4xl font-extrabold text-ink tabular-nums">{trust?.score ?? 0}<span className="text-base font-bold text-ink-muted">/100</span></span>
+        </div>
+        {trust?.pending_dispute ? (
+          <p className="mt-3 rounded-lg bg-coral-tint p-3 text-sm text-ink">Pending review: the disputed booking does not count until the township office resolves it.</p>
+        ) : null}
+        <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+          {(trust?.reasons ?? []).map((reason, index) => (
+            <li key={`${reason.label}-${index}`} className="flex items-start justify-between gap-3 rounded-lg bg-ground px-3 py-2 text-sm">
+              <span className="text-ink">{reason.label}</span>
+              <strong className={reason.delta && reason.delta < 0 ? "text-coral" : "text-ink"}>{reason.delta && reason.delta > 0 ? "+" : ""}{reason.delta ?? 0}</strong>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-3 text-xs text-ink-muted">Owners see only your tier on incoming requests, never this breakdown.</p>
+      </section>
+
+      <InviteShare initialCode={inviteResult.data?.code} appUrl={getAppUrl()} />
 
       <nav aria-label="Your account">
         <ul className="bb-card divide-y divide-hairline">

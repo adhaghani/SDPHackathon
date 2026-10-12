@@ -1,6 +1,8 @@
 import Link from "next/link"
-import { PlusIcon, SearchIcon } from "lucide-react"
+import { PlusIcon } from "lucide-react"
 
+import { BorrowSearchForm } from "@/components/borrow/borrow-search-form"
+import { ForecastNudge } from "@/components/borrow/forecast-nudge"
 import { DemoLabel } from "@/components/shared/demo-label"
 import { MediaPoster } from "@/components/shared/media-poster"
 import { Pagination } from "@/components/shared/pagination"
@@ -15,7 +17,7 @@ import { cn } from "@workspace/ui/lib/utils"
 export default async function BorrowPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; category?: string; free?: string; nl?: string; page?: string }>
+  searchParams: Promise<{ q?: string; category?: string; free?: string; nl?: string; kind?: string; page?: string }>
 }) {
   const active = await requireActiveMember()
   const params = await searchParams
@@ -23,12 +25,20 @@ export default async function BorrowPage({
   const pageSize = 12
   const page = Math.max(1, Number(params.page ?? 1) || 1)
   const offset = (page - 1) * pageSize
-  const categories = await supabase.from("item_categories").select("id,slug,name").order("name")
+  const categories = await supabase.from("item_categories").select("id,slug,name,kind").order("name")
+  const bundlesResult = await supabase
+    .from("bundles")
+    .select("id,title,description,cover_path,bundle_items(count)")
+    .eq("township_id", active.townshipId)
+    .eq("is_demo", false)
+    .order("title")
+    .limit(4)
+  if (bundlesResult.error) throw new Error(bundlesResult.error.message)
   const naturalLanguage = isFeatureEnabled("ai_search") && params.nl ? parseNaturalLanguageSearch(params.nl) : null
 
   let query = supabase
     .from("items")
-    .select("id,title,description,condition,photo_paths,deposit_rm,estimated_new_price_rm,max_loan_days,item_categories(slug,name)", { count: "exact" })
+    .select("id,title,description,condition,kind,duration_minutes,photo_paths,deposit_rm,estimated_new_price_rm,max_loan_days,item_categories(slug,name)", { count: "exact" })
     .eq("township_id", active.townshipId)
     .eq("status", "active")
     .eq("hidden", false)
@@ -36,6 +46,7 @@ export default async function BorrowPage({
     .range(offset, offset + pageSize - 1)
 
   if (params.q) query = query.ilike("title", `%${params.q}%`)
+  if (params.kind === "skill" || params.kind === "item") query = query.eq("kind", params.kind)
   if (params.category) query = query.eq("item_categories.slug", params.category)
   if (params.free === "true") query = query.eq("deposit_rm", 0)
   if (naturalLanguage?.category) query = query.eq("item_categories.slug", naturalLanguage.category)
@@ -48,13 +59,23 @@ export default async function BorrowPage({
   if (params.q) current.set("q", params.q)
   if (params.nl) current.set("nl", params.nl)
   if (params.free === "true") current.set("free", "true")
+  if (params.kind) current.set("kind", params.kind)
 
-  const categoryOptions = categories.data ?? []
+  const categoryOptions = (categories.data ?? []).filter((category) =>
+    params.kind === "skill" ? category.kind === "skill" : category.kind !== "skill"
+  )
 
   const chipHref = (category?: string) => {
     const next = new URLSearchParams(current)
     if (category) next.set("category", category)
     else next.delete("category")
+    const query = next.toString()
+    return query ? `/borrow?${query}` : "/borrow"
+  }
+  const kindHref = (kind: "item" | "skill") => {
+    const next = new URLSearchParams(current)
+    if (params.kind === kind) next.delete("kind")
+    else next.set("kind", kind)
     const query = next.toString()
     return query ? `/borrow?${query}` : "/borrow"
   }
@@ -75,6 +96,7 @@ export default async function BorrowPage({
 
   return (
     <div className="flex flex-col gap-5">
+      <ForecastNudge />
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-eyebrow text-ink-muted">Pinjam · Borrow</p>
@@ -89,39 +111,24 @@ export default async function BorrowPage({
         </div>
       </div>
 
-      <form className="flex flex-col gap-3" action="/borrow" method="get" role="search">
-        {params.category ? <input type="hidden" name="category" value={params.category} /> : null}
-        {params.free === "true" ? <input type="hidden" name="free" value="true" /> : null}
-        <label className="sr-only" htmlFor="borrow-q">Search items</label>
-        <div className="flex h-13 w-full items-center gap-3 rounded-lg border border-ink-muted bg-surface px-4 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ink">
-          <SearchIcon aria-hidden="true" className="size-5 shrink-0 text-ink-muted" strokeWidth={1.8} />
-          <input
-            id="borrow-q"
-            name="q"
-            type="search"
-            defaultValue={params.q ?? ""}
-            placeholder="Search drills, tables, tents…"
-            className="h-full min-w-0 flex-1 bg-transparent text-base text-ink outline-none placeholder:text-ink-muted focus-visible:outline-none"
-          />
-          <Button type="submit" variant="ghost" size="sm" className="shrink-0">Search</Button>
-        </div>
-        {isFeatureEnabled("ai_search") ? (
-          <>
-            <label className="text-sm font-bold text-ink" htmlFor="borrow-nl">Or describe what you need</label>
-            <input
-              id="borrow-nl"
-              name="nl"
-              defaultValue={params.nl ?? ""}
-              placeholder="Something for the kids this weekend"
-              className="min-h-11 w-full rounded-lg border border-ink-muted bg-surface px-4 text-base text-ink outline-none placeholder:text-ink-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
-            />
-          </>
-        ) : null}
-      </form>
+      <BorrowSearchForm
+        query={params.q ?? ""}
+        category={params.category}
+        free={params.free === "true"}
+        naturalLanguage={params.nl}
+        showNaturalLanguage={isFeatureEnabled("ai_search")}
+      />
 
       <nav aria-label="Borrow filters" className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
         <Link href={chipHref()} aria-current={!params.category ? "true" : undefined} className={chipClass(!params.category)}>
           All
+        </Link>
+        <Link href="/borrow/requests" className={chipClass(false)}>Requests</Link>
+        <Link href={kindHref("item")} aria-current={params.kind === "item" ? "true" : undefined} className={chipClass(params.kind === "item")}>
+          Items
+        </Link>
+        <Link href={kindHref("skill")} aria-current={params.kind === "skill" ? "true" : undefined} className={chipClass(params.kind === "skill")}>
+          Skills
         </Link>
         <Link href={freeHref} aria-current={params.free === "true" ? "true" : undefined} className={chipClass(params.free === "true")}>
           Free to borrow
@@ -137,6 +144,32 @@ export default async function BorrowPage({
           </Link>
         ))}
       </nav>
+
+      {!params.kind || params.kind === "item" ? (
+        <section aria-labelledby="bundles-heading" className={bundlesResult.data?.length ? "" : "hidden"}>
+          <div className="flex items-baseline justify-between gap-3">
+            <h2 id="bundles-heading" className="text-title text-ink">Bundles</h2>
+            <span className="text-sm text-ink-muted">Book several items together</span>
+          </div>
+          {bundlesResult.data?.length ? (
+            <ul className="mt-3 grid gap-3 sm:grid-cols-2">
+              {bundlesResult.data.map((bundle) => (
+                <li key={bundle.id}>
+                  <Link href={`/borrow/bundles/${bundle.id}`} className="flex items-center justify-between gap-3 rounded-lg border border-hairline bg-surface p-4 transition-shadow duration-150 ease-out hover:shadow-raised">
+                    <span className="min-w-0">
+                      <span className="block font-bold text-ink">{bundle.title}</span>
+                      <span className="block truncate text-sm text-ink-muted">{bundle.description}</span>
+                    </span>
+                    <span className="shrink-0 rounded-full bg-lilac-tint px-3 py-1 text-xs font-bold text-ink tabular-nums">
+                      {bundle.bundle_items?.[0]?.count ?? 0} items
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </section>
+      ) : null}
 
       <div className="flex items-center justify-between gap-3 border-t border-hairline pt-4">
         <p className="text-ink-muted tabular-nums">
@@ -158,14 +191,16 @@ export default async function BorrowPage({
                   className={cn("border border-hairline transition-shadow duration-150 ease-out group-hover:shadow-raised", posterTints[index % posterTints.length])}
                   badge={
                     <span className={cn("rounded-full px-2.5 py-1 text-xs font-bold text-ink sm:text-sm", free ? "bg-mint-tint" : "bg-surface")}>
-                      {free ? "Free" : `${formatMoney(item.deposit_rm)} deposit`}
+                      {item.kind === "skill" ? "Skill session" : free ? "Free" : `${formatMoney(item.deposit_rm)} deposit`}
                     </span>
                   }
                   sizes="(min-width: 1280px) 20vw, (min-width: 768px) 30vw, 50vw"
                 />
                 <p className="mt-2 font-display text-base leading-tight font-bold text-ink sm:text-lg">{item.title}</p>
                 <p className="mt-0.5 text-sm text-ink-muted">
-                  {item.condition.replace("_", " ")} · up to {item.max_loan_days} {item.max_loan_days === 1 ? "day" : "days"}
+                  {item.kind === "skill"
+                    ? `${item.duration_minutes ?? 60} min skill session`
+                    : `${item.condition.replace("_", " ")} · up to ${item.max_loan_days} ${item.max_loan_days === 1 ? "day" : "days"}`}
                 </p>
               </Link>
             </li>
@@ -174,7 +209,11 @@ export default async function BorrowPage({
         {items.data?.length === 0 ? (
           <li className="bb-card col-span-full p-8 text-center">
             <p className="font-display text-lg font-bold text-ink">No items match this search.</p>
-            <p className="mt-2 text-sm text-ink-muted">Try a broader search, or list something useful for your neighbours.</p>
+            <p className="mt-2 text-sm text-ink-muted">
+              Try a broader search,{" "}
+              <Link href={`/borrow/requests?prefill=${encodeURIComponent(params.q ?? "")}`} className="font-bold underline underline-offset-4">post a request for this</Link>
+              , or list something useful for your neighbours.
+            </p>
             <Button render={<Link href="/borrow/new" />} variant="cta" size="cta" className="mt-5">List an item</Button>
           </li>
         ) : null}
@@ -183,7 +222,7 @@ export default async function BorrowPage({
         page={page}
         totalPages={totalPages}
         basePath="/borrow"
-        searchParams={{ q: params.q, category: params.category, free: params.free, nl: params.nl }}
+        searchParams={{ q: params.q, category: params.category, free: params.free, nl: params.nl, kind: params.kind }}
       />
     </div>
   )

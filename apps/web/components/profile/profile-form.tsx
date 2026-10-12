@@ -20,6 +20,7 @@ export function ProfileForm({
     interests: string[]
     comfort_prefs: unknown
     recognition_opt_in: boolean
+    show_in_highlights: boolean
   }
 }) {
   const [state, action, pending] = useActionState(updateProfile, idleState)
@@ -58,6 +59,17 @@ export function ProfileForm({
       <Field orientation="horizontal">
         <Checkbox id="recognitionOptIn" name="recognitionOptIn" defaultChecked={profile.recognition_opt_in} aria-label="Opt in to recognition wall" />
         <FieldLabel htmlFor="recognitionOptIn">Show my first name and badges on the recognition wall</FieldLabel>
+      </Field>
+      <Field orientation="horizontal">
+        <Checkbox
+          id="showInHighlights"
+          name="showInHighlights"
+          defaultChecked={profile.show_in_highlights}
+          aria-label="Opt in to monthly neighbour highlights"
+        />
+        <FieldLabel htmlFor="showInHighlights">
+          Let organisers consider me for Neighbour of the month
+        </FieldLabel>
       </Field>
 
       {state.message ? (

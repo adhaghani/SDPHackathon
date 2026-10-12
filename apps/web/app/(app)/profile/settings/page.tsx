@@ -8,7 +8,7 @@ import { createClient } from "@/lib/supabase/server"
 export default async function ProfileSettingsPage() {
   const active = await requireActiveMember()
   const supabase = await createClient()
-  const profile = await supabase.from("profiles").select("display_name,interests,comfort_prefs,recognition_opt_in").eq("id", active.user.id).single()
+  const profile = await supabase.from("profiles").select("display_name,interests,comfort_prefs,recognition_opt_in,show_in_highlights").eq("id", active.user.id).single()
   if (profile.error || !profile.data) throw new Error(profile.error?.message ?? "Profile not found")
   const preferenceRows = await supabase.from("notification_preferences").select("type,enabled").eq("user_id", active.user.id)
   if (preferenceRows.error) throw new Error(preferenceRows.error.message)

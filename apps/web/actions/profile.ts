@@ -23,6 +23,7 @@ export async function updateProfile(
     highContrast: formData.get("highContrast") === "on",
     reduceMotion: formData.get("reduceMotion") === "on",
     recognitionOptIn: formData.get("recognitionOptIn") === "on",
+    showInHighlights: formData.get("showInHighlights") === "on",
   })
 
   if (!parsed.success) {
@@ -43,6 +44,7 @@ export async function updateProfile(
       reduce_motion: parsed.data.reduceMotion,
     },
     p_recognition_opt_in: parsed.data.recognitionOptIn,
+    p_show_in_highlights: parsed.data.showInHighlights,
   })
 
   if (error) {

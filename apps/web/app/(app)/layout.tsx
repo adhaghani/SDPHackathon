@@ -1,4 +1,4 @@
-import { SearchIcon, UserRoundIcon } from "lucide-react"
+import { MessageCircleIcon, SearchIcon, UserRoundIcon } from "lucide-react"
 import Link from "next/link"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
@@ -115,6 +115,9 @@ export default async function AppLayout({
               <BetterPointsChip balance={context.points?.balance ?? 0} className="hidden sm:inline-flex" />
               <Link href="/borrow" aria-label="Search items to borrow" className={cn(iconButton, "md:hidden")}>
                 <SearchIcon aria-hidden="true" className="size-5" strokeWidth={1.8} />
+              </Link>
+              <Link href="/help" aria-label="Help" className={cn(iconButton, "md:hidden")}>
+                <MessageCircleIcon aria-hidden="true" className="size-5" strokeWidth={1.8} />
               </Link>
               <NotificationBell count={unread.count ?? 0} />
               <Link href="/profile" aria-label={localized.profile} className={cn(iconButton, "md:hidden")}>

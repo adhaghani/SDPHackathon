@@ -16,6 +16,7 @@ import {
   WalletIcon,
   WarehouseIcon,
   GiftIcon,
+  MessageCircleIcon,
 } from "lucide-react"
 
 export const residentNavigation = [
@@ -32,6 +33,7 @@ export const sidebarNavigation = [
   { href: "/community", label: "Community", icon: HandHelpingIcon },
   { href: "/challenges", label: "Challenges", icon: StarIcon },
   { href: "/rewards", label: "Impact & rewards", icon: Leaf },
+  { href: "/help", label: "Help", icon: MessageCircleIcon },
 ] as const
 
 export const adminNavigation = [
@@ -46,5 +48,6 @@ export const adminNavigation = [
   { href: "/admin/rewards", label: "Rewards economy", icon: GiftIcon },
   { href: "/admin/badges", label: "Awards", icon: AwardIcon },
   { href: "/admin/methodology", label: "Methodology", icon: BookOpenIcon },
+  { href: "/help", label: "Help", icon: MessageCircleIcon },
 ] as const
 

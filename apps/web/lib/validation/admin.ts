@@ -33,3 +33,14 @@ export const badgeSchema = z.object({
   description: z.string().trim().min(3).max(240),
   icon: z.enum(["award", "hand-heart", "leaf", "recycle", "shield", "sparkles", "users-round"]),
 })
+
+export const highlightSchema = z.object({
+  monthStart: z.string().regex(/^\d{4}-\d{2}-01$/),
+  residentId: z.uuid(),
+  reason: z.string().trim().min(3).max(160),
+})
+
+export const carbonGoalSchema = z.object({
+  year: z.coerce.number().int().min(2020).max(2100),
+  targetKg: z.coerce.number().positive().max(1_000_000),
+})

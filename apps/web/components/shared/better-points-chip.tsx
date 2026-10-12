@@ -18,8 +18,10 @@ export function BetterPointsChip({
           balance >= 0 ? "bg-sun-tint" : "bg-lilac-tint",
           className
         )}
-        aria-label={`${balance >= 0 ? "Earned" : "Spent"} ${Math.abs(balance).toLocaleString("en-MY")} BetterPoints`}
       >
+        <span className="sr-only">
+          {balance >= 0 ? "Earned" : "Spent"} {Math.abs(balance).toLocaleString("en-MY")} BetterPoints
+        </span>
         {sign}
         {Math.abs(balance).toLocaleString("en-MY")}
       </span>
@@ -32,7 +34,6 @@ export function BetterPointsChip({
         "inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full bg-sun py-1 pr-4 pl-1 text-ink",
         className
       )}
-      aria-label={`${balance.toLocaleString("en-MY")} BetterPoints`}
     >
       <span aria-hidden="true" className="grid size-8 place-items-center rounded-full bg-ink text-[10px] font-extrabold text-sun">
         BP

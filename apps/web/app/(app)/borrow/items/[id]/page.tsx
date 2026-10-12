@@ -3,6 +3,7 @@ import { notFound } from "next/navigation"
 import { CalendarRangeIcon, HandshakeIcon, ShieldCheckIcon, TagIcon, WalletIcon } from "lucide-react"
 
 import { BookingRequestForm } from "@/components/borrow/booking-request-form"
+import { ItemGuideForm } from "@/components/borrow/item-guide-form"
 import { ReportForm } from "@/components/reports/report-form"
 import { DemoLabel } from "@/components/shared/demo-label"
 import { MediaPoster } from "@/components/shared/media-poster"
@@ -11,6 +12,7 @@ import { requireActiveMember } from "@/lib/data"
 import { isDemoMode } from "@/lib/env"
 import { formatEventDate, formatMoney } from "@/lib/format"
 import { createClient } from "@/lib/supabase/server"
+import { trustTierLabel } from "@/lib/trust"
 import { cn } from "@workspace/ui/lib/utils"
 
 const shortDate = (value: string) => formatEventDate(value).replace(/ \d{4}$/, "")
@@ -26,7 +28,7 @@ export default async function ItemDetailPage({
   const [itemResult, bookingsResult] = await Promise.all([
     supabase
       .from("items")
-      .select("id,title,description,condition,photo_paths,deposit_rm,estimated_new_price_rm,max_loan_days,handover_options,owner_id,category_id,item_categories(name,slug)")
+      .select("id,title,description,condition,photo_paths,deposit_rm,estimated_new_price_rm,max_loan_days,handover_options,owner_id,category_id,kind,value_source,requires_deposit,allow_deposit_waiver,min_trust_tier,duration_minutes,meeting_arrangement,guardian_acknowledgement,item_categories(name,slug,typical_new_price_rm,hourly_rate_rm)")
       .eq("id", id)
       .eq("township_id", active.townshipId)
       .maybeSingle(),
@@ -40,7 +42,7 @@ export default async function ItemDetailPage({
   if (!itemResult.data) notFound()
   const item = itemResult.data
   const isOwner = item.owner_id === active.user.id
-  const [ownerResult, relatedResult] = await Promise.all([
+  const [ownerResult, relatedResult, guideResult, historyResult, valueResult] = await Promise.all([
     supabase.from("profiles").select("display_name").eq("id", item.owner_id).maybeSingle(),
     supabase
       .from("items")
@@ -52,7 +54,32 @@ export default async function ItemDetailPage({
       .neq("id", item.id)
       .order("created_at", { ascending: false })
       .limit(4),
+    supabase
+      .from("item_guides")
+      .select("id,body,safety_note,photo_paths,updated_at")
+      .eq("item_id", item.id)
+      .maybeSingle(),
+    supabase.rpc("get_item_history", { p_item_id: item.id }),
+    supabase
+      .from("bookings")
+      .select("estimated_value_saved_rm")
+      .eq("item_id", item.id)
+      .eq("status", "completed"),
   ])
+  if (historyResult.error) throw new Error(historyResult.error.message)
+  const history = historyResult.data as {
+    is_owner?: boolean
+    borrow_count?: number
+    unique_borrowers?: number
+    lifetime_saved_rm?: number
+    timeline?: Array<{ date?: string; type?: string; display_name?: string }>
+  } | null
+  if (valueResult.error) throw new Error(valueResult.error.message)
+  const guide = guideResult.data
+  const lifetimeSaved = (valueResult.data ?? []).reduce(
+    (sum, row) => sum + Number(row.estimated_value_saved_rm ?? 0),
+    0
+  )
 
   const photo = item.photo_paths?.[0] ?? "/demo/item-placeholder.svg"
   const free = Number(item.deposit_rm) === 0
@@ -61,8 +88,35 @@ export default async function ItemDetailPage({
   const facts = [
     { icon: TagIcon, label: "Condition", value: item.condition.replace("_", " ") },
     { icon: CalendarRangeIcon, label: "Loan limit", value: `Up to ${item.max_loan_days} ${item.max_loan_days === 1 ? "day" : "days"}` },
-    { icon: WalletIcon, label: "Deposit", value: free ? "None" : `${formatMoney(item.deposit_rm)}, arranged in person` },
+    {
+      icon: WalletIcon,
+      label: "Deposit",
+      value: free
+        ? "None"
+        : item.allow_deposit_waiver
+          ? `${formatMoney(item.deposit_rm)}, arranged in person · highly trusted borrowers may be waived`
+          : `${formatMoney(item.deposit_rm)}, arranged in person`,
+    },
     { icon: HandshakeIcon, label: "Handover", value: handover.join(" · ") },
+    {
+      icon: ShieldCheckIcon,
+      label: "Trust requirement",
+      value: item.min_trust_tier ? `${trustTierLabel(item.min_trust_tier)} or higher` : "Any neighbour",
+    },
+    ...(item.kind === "skill"
+      ? [
+          {
+            icon: CalendarRangeIcon,
+            label: "Session duration",
+            value: `${item.duration_minutes ?? 60} minutes`,
+          },
+          {
+            icon: HandshakeIcon,
+            label: "Meeting",
+            value: item.meeting_arrangement === "shared_facility" ? "Shared township space" : "Arranged by message",
+          },
+        ]
+      : []),
   ]
   const related = relatedResult.data ?? []
 
@@ -162,6 +216,86 @@ export default async function ItemDetailPage({
               <p className="mt-2 max-w-[68ch] text-[17px] leading-7 whitespace-pre-line text-ink">{item.description}</p>
             </section>
           ) : null}
+
+          <section aria-labelledby="history-heading">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h2 id="history-heading" className="text-title text-ink">Item history</h2>
+              <span className="text-sm text-ink-muted">Dates show the day only</span>
+            </div>
+            <p className="mt-2 text-sm text-ink-muted">
+              Borrowed {history?.borrow_count ?? 0} times by {history?.unique_borrowers ?? 0} neighbours ·{" "}
+              <strong className="text-ink">
+                ~RM {Math.round(lifetimeSaved).toLocaleString("en-MY")} saved
+              </strong>{" "}
+              (Estimated)
+            </p>
+            {history?.timeline?.length ? (
+              <ol className="mt-4 space-y-3 border-l-2 border-lilac pl-4">
+                {history.timeline.map((event, index) => (
+                  <li key={`${event.date}-${event.type}-${index}`} className="relative text-sm">
+                    <span aria-hidden="true" className="absolute -left-[23px] top-1.5 size-3 rounded-full border-2 border-ink bg-surface" />
+                    <p className="font-bold text-ink">
+                      {event.type === "listed" ? "Listed" : event.type === "guide_added" ? "How-to guide added" : event.type === "returned" ? "Returned" : "Borrowed"}
+                    </p>
+                    <p className="text-ink-muted">{event.date} · {event.display_name}</p>
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <p className="mt-3 rounded-lg border border-hairline bg-surface p-4 text-sm text-ink-muted">
+                No borrowing history yet. This item&apos;s first loan will start the timeline.
+              </p>
+            )}
+          </section>
+
+          {item.kind === "skill" && item.guardian_acknowledgement ? (
+            <p className="rounded-lg bg-mint-tint p-3 text-sm text-ink">
+              Tuition listing: a guardian will be present for students under 18.
+            </p>
+          ) : null}
+
+          <section aria-labelledby="guide-heading" className="bb-card p-5 sm:p-6">
+            <h2 id="guide-heading" className="text-title text-ink">How to use it</h2>
+            {guide ? (
+              <div className="mt-3">
+                <p className="max-w-[70ch] whitespace-pre-line text-ink">{guide.body}</p>
+                {guide.safety_note ? (
+                  <p className="mt-3 rounded-lg bg-coral-tint p-3 text-sm text-ink">
+                    <strong>Safety:</strong> {guide.safety_note}
+                  </p>
+                ) : null}
+                {guide.photo_paths?.length ? (
+                  <ul className="mt-3 grid grid-cols-3 gap-2">
+                    {guide.photo_paths.map((path) => (
+                      <li key={path}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={path} alt="How-to guide" className="aspect-square w-full rounded-lg border border-hairline object-cover" />
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+                {isOwner ? (
+                  <div className="mt-5 border-t border-hairline pt-5">
+                    <ItemGuideForm
+                      itemId={item.id}
+                      initialBody={guide.body}
+                      initialSafetyNote={guide.safety_note}
+                      initialPhotoPaths={guide.photo_paths ?? []}
+                    />
+                  </div>
+                ) : null}
+              </div>
+            ) : isOwner ? (
+              <div className="mt-3">
+                <p className="text-sm text-ink-muted">Add short instructions before handing this item over. Your first guide earns 5 BP.</p>
+                <div className="mt-4">
+                  <ItemGuideForm itemId={item.id} />
+                </div>
+              </div>
+            ) : (
+              <p className="mt-3 text-sm text-ink-muted">The owner has not added a how-to guide yet.</p>
+            )}
+          </section>
 
           <div className="flex flex-wrap items-start gap-3 rounded-lg bg-mint-tint p-4 text-sm text-ink">
             <ShieldCheckIcon aria-hidden="true" className="mt-0.5 size-5 shrink-0" />

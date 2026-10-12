@@ -26,7 +26,7 @@ export const getSessionContext = cache(async () => {
       .order("created_at", { ascending: true }),
     supabase
       .from("profiles")
-      .select("id,display_name,interests,language,comfort_prefs,recognition_opt_in")
+      .select("id,display_name,interests,language,comfort_prefs,recognition_opt_in,show_in_highlights")
       .eq("id", user.id)
       .maybeSingle(),
   ])

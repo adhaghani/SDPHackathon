@@ -15,7 +15,7 @@ import { Badge } from "@workspace/ui/components/badge"
 export default async function RewardsPage() {
   const active = await requireActiveMember()
   const supabase = await createClient()
-  const [pointsResult, ledgerResult, statsResult, badgesResult, earnedBadgesResult, levelsResult, rewardsResult, redemptionsResult] = await Promise.all([
+  const [pointsResult, ledgerResult, statsResult, badgesResult, earnedBadgesResult, levelsResult, rewardsResult, redemptionsResult, valueResult, streakResult] = await Promise.all([
     supabase
       .from("v_member_points")
       .select("balance,lifetime_points,last_activity_at")
@@ -57,7 +57,26 @@ export default async function RewardsPage() {
       .eq("user_id", active.user.id)
       .eq("township_id", active.townshipId)
       .order("created_at", { ascending: false }),
+    supabase
+      .from("bookings")
+      .select("estimated_value_saved_rm")
+      .eq("borrower_id", active.user.id)
+      .eq("township_id", active.townshipId)
+      .eq("status", "completed"),
+    supabase.rpc("compute_user_streak", { p_user_id: active.user.id }),
   ])
+  if (valueResult.error) throw new Error(valueResult.error.message)
+  if (streakResult.error) throw new Error(streakResult.error.message)
+  const estimatedShared = (valueResult.data ?? []).reduce(
+    (sum, row) => sum + Number(row.estimated_value_saved_rm ?? 0),
+    0
+  )
+  const streak = streakResult.data as {
+    streak_months?: number
+    current_month_active?: boolean
+    at_risk?: boolean
+    next_deadline?: string
+  } | null
 
   const lifetime = pointsResult.data?.lifetime_points ?? 0
   const balance = pointsResult.data?.balance ?? 0
@@ -119,9 +138,32 @@ export default async function RewardsPage() {
         <p className="mt-3 text-sm">
           <span className="tabular-nums">{lifetime.toLocaleString("en-MY")}</span> lifetime points, all from verified borrows, events and help.
         </p>
+        <p className="mt-1 text-sm">
+          Estimated value shared: <strong className="tabular-nums">RM {Math.round(estimatedShared).toLocaleString("en-MY")}</strong>{" "}
+          across completed borrows · Estimated · <Link href="/admin/methodology" className="underline underline-offset-4">How we measure</Link>
+        </p>
       </section>
 
       <div className="grid gap-9 lg:grid-cols-2 lg:gap-8">
+        <section aria-labelledby="streak-heading" className="bb-card p-5">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-eyebrow text-ink-muted">Sharing streak</p>
+              <h2 id="streak-heading" className="text-title text-ink">
+                <span className="tabular-nums">{streak?.streak_months ?? 0}</span> months
+              </h2>
+            </div>
+            <span className={`rounded-full px-3 py-1 text-sm font-bold text-ink ${streak?.at_risk ? "bg-coral-tint" : "bg-mint-tint"}`}>
+              {streak?.at_risk ? "At risk" : streak?.current_month_active ? "Active" : "Start this month"}
+            </span>
+          </div>
+          <p className="mt-3 text-sm text-ink-muted">
+            {streak?.at_risk && streak.next_deadline
+              ? `Borrow or lend by ${formatRelativeDay(streak.next_deadline)} to keep your ${streak.streak_months}-month streak.`
+              : "A calendar month counts when you complete at least one lend or borrow."}
+          </p>
+        </section>
+
         <section aria-labelledby="badges-heading">
           <h2 id="badges-heading" className="text-heading text-ink">Badges</h2>
           {badgeDefinitions.length ? (

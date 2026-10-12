@@ -80,6 +80,7 @@ export async function signUp(
     password: formData.get("password"),
     acceptedTerms: formData.get("acceptedTerms") === "on",
     acceptedPrivacy: formData.get("acceptedPrivacy") === "on",
+    inviteCode: formData.get("inviteCode") || undefined,
   })
 
   if (!parsed.success) {
@@ -101,6 +102,7 @@ export async function signUp(
         display_name: parsed.data.displayName,
         terms_accepted_at: acceptedAt,
         privacy_accepted_at: acceptedAt,
+        ...(parsed.data.inviteCode ? { invite_code: parsed.data.inviteCode } : {}),
       },
     },
   })

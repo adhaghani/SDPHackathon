@@ -15,6 +15,7 @@ import { formatEventDate, formatEventTime } from "@/lib/format"
 import { recommendEvents } from "@/lib/recommendations"
 import { createClient } from "@/lib/supabase/server"
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@workspace/ui/components/empty"
+import { formatEstimatedMoney } from "@/lib/impact"
 
 type Todo = { id: string; title: string; detail: string; href: string; actionLabel: string; urgent: boolean }
 
@@ -24,7 +25,7 @@ export default async function HomePage() {
   const active = await requireActiveMember()
   const supabase = await createClient()
   const now = new Date()
-  const [bookingsResult, rsvpsResult, eventsResult, ledgerResult, actionsResult, levelsResult, pastEventsResult, helpResult] = await Promise.all([
+  const [bookingsResult, rsvpsResult, eventsResult, ledgerResult, actionsResult, levelsResult, pastEventsResult, helpResult, valueResult, streakResult, carbonResult, highlightResult] = await Promise.all([
     supabase
       .from("bookings")
       .select("id,status,borrower_id,lender_id,start_date,end_date,handover_method,items(title)")
@@ -76,7 +77,51 @@ export default async function HomePage() {
       .neq("requester_id", active.user.id)
       .order("created_at", { ascending: false })
       .limit(3),
+    supabase.rpc("township_value_shared", { p_township_id: active.townshipId }),
+    supabase.rpc("compute_user_streak", { p_user_id: active.user.id }),
+    supabase.rpc("township_carbon_progress", { p_township_id: active.townshipId }),
+    supabase
+      .from("monthly_highlights")
+      .select("id,month_start,reason,resident_id")
+      .eq("township_id", active.townshipId)
+      .eq("status", "approved")
+      .lte("month_start", new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10))
+      .gte("month_start", new Date(now.getFullYear(), now.getMonth() - 2, 1).toISOString().slice(0, 10))
+      .order("month_start", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
   ])
+  if (valueResult.error) throw new Error(valueResult.error.message)
+  if (streakResult.error) throw new Error(streakResult.error.message)
+  if (carbonResult.error) throw new Error(carbonResult.error.message)
+  if (highlightResult.error) throw new Error(highlightResult.error.message)
+  const townshipValue = valueResult.data as { estimated_value_shared_rm?: number } | null
+  const streak = streakResult.data as {
+    streak_months?: number
+    current_month_active?: boolean
+    at_risk?: boolean
+    next_deadline?: string
+  } | null
+  const carbon = carbonResult.data as {
+    has_goal?: boolean
+    available?: boolean
+    partial_data?: boolean
+    percent?: number
+    avoided_co2e_kg?: number
+    target_co2e_kg?: number
+  } | null
+  const highlight = highlightResult.data as {
+    id: string
+    reason: string
+    resident_id: string
+  } | null
+  const highlightProfile = highlight
+    ? (await supabase
+        .from("profiles")
+        .select("display_name,avatar_path")
+        .eq("id", highlight.resident_id)
+        .maybeSingle()).data
+    : null
 
   const firstName = active.profile?.display_name?.split(" ")[0] ?? "neighbour"
   const townshipName = active.membership.townships?.name ?? "Your township"
@@ -180,8 +225,60 @@ export default async function HomePage() {
             </p>
           </div>
           <TownshipLine tone="ink" current={currentStation} details={stationDetails} />
+          <p className="mt-4 text-sm text-band-eyebrow">
+            Township estimated value shared:{" "}
+            <strong className="text-surface tabular-nums">{formatEstimatedMoney(Number(townshipValue?.estimated_value_shared_rm ?? 0))}</strong>{" "}
+            · Estimated · <Link href="/admin/methodology" className="underline underline-offset-4">Methodology</Link>
+          </p>
+          <p className="mt-3 text-sm text-band-eyebrow">
+            <strong className="text-surface tabular-nums">{streak?.streak_months ?? 0}-month streak</strong>
+            {streak?.at_risk
+              ? ` · Borrow or lend by ${streak.next_deadline ? formatEventDate(streak.next_deadline) : "month end"} to keep it`
+              : streak?.current_month_active
+                ? " · Active this month"
+                : ""}
+          </p>
+          {carbon?.has_goal ? (
+            <div className="mt-4">
+              {carbon.available ? (
+                <>
+                  <div className="flex justify-between text-xs font-bold text-band-eyebrow">
+                    <span>{townshipName} avoided {Math.round(Number(carbon.avoided_co2e_kg ?? 0)).toLocaleString("en-MY")} of {Math.round(Number(carbon.target_co2e_kg ?? 0)).toLocaleString("en-MY")} kg</span>
+                    <span>Estimated</span>
+                  </div>
+                  <div
+                    className="mt-2 h-3 overflow-hidden rounded-full bg-surface"
+                    role="progressbar"
+                    aria-label="Township carbon goal"
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={Number(carbon.percent ?? 0)}
+                  >
+                    <div className="h-full bg-mint" style={{ width: `${Math.min(100, Number(carbon.percent ?? 0))}%` }} />
+                  </div>
+                </>
+              ) : (
+                <p className="text-xs text-band-eyebrow">Carbon goal awaiting documented category factors · Estimated figures are not shown yet.</p>
+              )}
+            </div>
+          ) : null}
         </div>
       </section>
+
+      {highlight && highlightProfile ? (
+        <section aria-label="Neighbour of the month" className="rounded-lg bg-lilac-tint p-4 text-ink">
+          <div className="flex items-center gap-3">
+            <span aria-hidden="true" className="grid size-11 shrink-0 place-items-center rounded-full bg-lilac font-display font-extrabold">
+              {(highlightProfile.display_name ?? "N").slice(0, 1).toUpperCase()}
+            </span>
+            <div className="min-w-0">
+              <p className="text-eyebrow text-ink-muted">Neighbour of the month</p>
+              <p className="font-bold">{highlightProfile.display_name}</p>
+              <p className="text-sm text-ink-muted">{highlight.reason}</p>
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] xl:grid-cols-[minmax(0,1fr)_24rem]">
         <nav aria-label="Quick actions" className="grid grid-cols-2 gap-3 lg:col-start-1 lg:row-start-1 xl:grid-cols-4">

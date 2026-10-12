@@ -7,4 +7,5 @@ export const profileSchema = z.object({
   highContrast: z.boolean().default(false),
   reduceMotion: z.boolean().default(false),
   recognitionOptIn: z.boolean().default(false),
+  showInHighlights: z.boolean().default(false),
 })

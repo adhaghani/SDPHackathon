@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 
 import { BookingActions } from "@/components/borrow/booking-actions"
 import { BookingChat } from "@/components/borrow/booking-chat"
+import { HandoverPanel } from "@/components/borrow/handover-panel"
 import { BlockUserButton } from "@/components/reports/block-user-button"
 import { PageBand } from "@/components/shared/page-band"
 import { RealtimeRefresh } from "@/components/shared/realtime-refresh"
@@ -30,7 +31,7 @@ export default async function BookingPage({
   const [bookingResult, messagesResult] = await Promise.all([
     supabase
       .from("bookings")
-    .select("id,status,start_date,end_date,handover_method,handover_note,return_note,borrower_id,lender_id,borrower_would_have_bought,borrower_handover_confirmed_at,lender_handover_confirmed_at,borrower_return_marked_at,lender_return_confirmed_at,items(title,photo_paths,item_categories(name))")
+      .select("id,status,start_date,end_date,handover_method,handover_note,return_note,borrower_id,lender_id,borrower_would_have_bought,return_condition,return_condition_reason,condition_contest_ends_at,deposit_amount_rm,deposit_waived,borrower_handover_confirmed_at,lender_handover_confirmed_at,borrower_return_marked_at,lender_return_confirmed_at,items(id,title,photo_paths,estimated_new_price_rm,item_categories(name,typical_new_price_rm))")
       .eq("id", id)
       .maybeSingle(),
     supabase
@@ -45,6 +46,27 @@ export default async function BookingPage({
   const otherUserId = booking.borrower_id === active.user.id ? booking.lender_id : booking.borrower_id
   const currentIndex = timeline.findIndex((step) => step.key === booking.status)
   const returned = Boolean(booking.borrower_return_marked_at)
+  const guideResult = await supabase
+    .from("item_guides")
+    .select("id")
+    .eq("item_id", booking.items?.id ?? "")
+    .maybeSingle()
+  const hasGuide = Boolean(guideResult.data)
+  const disputeResult = await supabase
+    .from("disputes")
+    .select("id")
+    .eq("booking_id", booking.id)
+    .eq("kind", "condition")
+    .eq("status", "open")
+    .maybeSingle()
+  const canContest =
+    actor === "borrower" &&
+    booking.return_condition === "damaged" &&
+    Boolean(booking.condition_contest_ends_at) &&
+    new Date(booking.condition_contest_ends_at ?? 0) > new Date() &&
+    !disputeResult.data
+  const estimatedShared =
+    Number(booking.items?.estimated_new_price_rm ?? booking.items?.item_categories?.typical_new_price_rm ?? 0)
 
   const range = `${formatEventDate(booking.start_date).replace(/ \d{4}$/, "")} – ${formatEventDate(booking.end_date).replace(/ \d{4}$/, "")}`
 
@@ -90,11 +112,36 @@ export default async function BookingPage({
           <section aria-labelledby="actions-heading" className="bb-card p-5">
             <h2 id="actions-heading" className="text-title text-ink">What happens next</h2>
             <div className="mt-4">
-              <BookingActions bookingId={booking.id} status={booking.status} actor={actor} borrowerWouldHaveBought={booking.borrower_would_have_bought} />
+              <BookingActions
+                bookingId={booking.id}
+                status={booking.status}
+                actor={actor}
+                borrowerWouldHaveBought={booking.borrower_would_have_bought}
+                hasGuide={hasGuide}
+                canContest={canContest}
+              />
+              <HandoverPanel
+                bookingId={booking.id}
+                status={booking.status}
+                actor={actor}
+                hasGuide={hasGuide}
+              />
             </div>
             {returned && booking.borrower_would_have_bought ? (
               <p className="mt-4 text-sm text-ink-muted">
                 Would have bought or rented it otherwise: <strong className="text-ink capitalize">{booking.borrower_would_have_bought}</strong>
+              </p>
+            ) : null}
+            {booking.status === "completed" && estimatedShared > 0 ? (
+              <p className="mt-4 rounded-lg bg-sun-tint p-3 text-sm text-ink">
+                <strong>Estimated value shared: RM {Math.round(estimatedShared).toLocaleString("en-MY")}</strong>{" "}
+                compared with buying this item. Estimated, not a guaranteed saving.
+              </p>
+            ) : null}
+            {booking.return_condition ? (
+              <p className="mt-4 text-sm text-ink-muted">
+                Return condition: <strong className="text-ink capitalize">{booking.return_condition.replace("_", " ")}</strong>
+                {booking.return_condition_reason ? ` · ${booking.return_condition_reason}` : ""}
               </p>
             ) : null}
           </section>
