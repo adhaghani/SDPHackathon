@@ -1,6 +1,7 @@
 "use client"
 
 import { useActionState } from "react"
+import { FlagIcon } from "lucide-react"
 
 import { submitReport } from "@/actions/reports"
 import { Alert, AlertDescription } from "@workspace/ui/components/alert"
@@ -23,9 +24,12 @@ export function ReportForm({
   const [state, action, pending] = useActionState(submitReport, idleState)
 
   return (
-    <details className="mt-4 rounded-lg border border-border p-3">
-      <summary className="cursor-pointer text-sm font-medium">Report this {targetType.replace("_", " ")}</summary>
-      <form action={action} className="mt-4 flex flex-col gap-3">
+    <details className="group">
+      <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-1.5 rounded-md text-sm font-bold text-ink-muted transition-colors duration-150 ease-out hover:text-ink [&::-webkit-details-marker]:hidden">
+        <FlagIcon aria-hidden="true" className="size-4" />
+        Report this {targetType.replace("_", " ")}
+      </summary>
+      <form action={action} className="mt-2 flex flex-col gap-3 rounded-lg border border-hairline bg-surface p-4">
         <input type="hidden" name="townshipId" value={townshipId} />
         <input type="hidden" name="targetType" value={targetType} />
         <input type="hidden" name="targetId" value={targetId} />

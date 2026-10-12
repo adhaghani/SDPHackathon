@@ -21,7 +21,7 @@ export function CommunityForms({ role }: { role: string }) {
     <div className="grid gap-5">
       {role === "organiser" || role === "township_admin" ? (
         <section className="bb-card p-5">
-          <h2 className="font-display text-lg font-bold">Post an announcement</h2>
+          <h2 className="text-title text-ink">Post an announcement</h2>
           <form action={announcementAction} className="mt-4 flex flex-col gap-4">
             <FieldGroup>
               <Field data-invalid={Boolean(announcementState.fieldErrors?.title)}>
@@ -48,7 +48,8 @@ export function CommunityForms({ role }: { role: string }) {
       ) : null}
 
       <section className="bb-card p-5">
-        <h2 className="font-display text-lg font-bold">Ask for help</h2>
+        <h2 className="text-title text-ink">Ask for help</h2>
+        <p className="mt-1 text-sm text-ink-muted">Neighbours see your first name and the request. Meet in a shared space.</p>
         <form action={helpAction} className="mt-4 flex flex-col gap-4">
           <FieldGroup>
             <Field data-invalid={Boolean(helpState.fieldErrors?.title)}>
@@ -60,6 +61,7 @@ export function CommunityForms({ role }: { role: string }) {
               <FieldLabel htmlFor="help-details">Details</FieldLabel>
               <Textarea id="help-details" name="details" rows={3} />
             </Field>
+            <div className="grid gap-4 sm:grid-cols-2">
             <Field>
               <FieldLabel htmlFor="help-kind">Kind</FieldLabel>
               <select id="help-kind" name="kind" defaultValue="errand" className="h-11 w-full rounded-lg border border-input bg-background px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50">
@@ -75,9 +77,10 @@ export function CommunityForms({ role }: { role: string }) {
               <FieldLabel htmlFor="help-needed-by">Needed by</FieldLabel>
               <Input id="help-needed-by" name="neededBy" type="date" />
             </Field>
+            </div>
           </FieldGroup>
           {helpState.message ? <Alert variant={helpState.status === "error" ? "destructive" : "default"}><AlertDescription>{helpState.message}</AlertDescription></Alert> : null}
-          <Button type="submit" variant="cta" className="h-11" disabled={helpPending}>
+          <Button type="submit" variant="cta" className="h-11 w-full" disabled={helpPending}>
             {helpPending ? <Spinner data-icon="inline-start" /> : null}
             Post helping request
           </Button>

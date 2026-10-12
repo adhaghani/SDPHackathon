@@ -23,7 +23,7 @@ export function HelpActionButton({ requestId, action }: { requestId: string; act
     <div className="flex flex-col gap-2">
       <form action={formAction}>
         <input type="hidden" name="requestId" value={requestId} />
-        <Button type="submit" variant={action === "accept" ? "secondary" : "outline"} className="min-h-11 font-bold" disabled={pending}>
+        <Button type="submit" variant="outline" className="min-w-28" disabled={pending}>
           {pending ? <Spinner data-icon="inline-start" /> : null}
           {action === "accept" ? "I'll help" : "Confirm completion"}
         </Button>
