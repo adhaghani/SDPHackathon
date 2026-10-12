@@ -27,7 +27,7 @@ Every new table has RLS and demo rows are labelled where seeded. Admin/sponsor a
 
 - `npm run lint --workspace web` — passed.
 - `npm run typecheck --workspace web` — passed.
-- `npm run test --workspace web` — passed, 57 tests.
+- `npm run test --workspace web` — passed, 60 tests.
 - `npm run test:db` — passed, 138 tests across 8 files.
 - `npm run build --workspace web` — passed.
 - `npm run test:e2e --workspace web` — passed, 6 tests.
