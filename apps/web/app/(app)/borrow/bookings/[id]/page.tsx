@@ -4,11 +4,13 @@ import { notFound } from "next/navigation"
 import { BookingActions } from "@/components/borrow/booking-actions"
 import { BookingChat } from "@/components/borrow/booking-chat"
 import { BlockUserButton } from "@/components/reports/block-user-button"
+import { PageBand } from "@/components/shared/page-band"
 import { RealtimeRefresh } from "@/components/shared/realtime-refresh"
 import { requireActiveMember } from "@/lib/data"
 import { formatEventDate } from "@/lib/format"
 import { createClient } from "@/lib/supabase/server"
 import { Badge } from "@workspace/ui/components/badge"
+import { Button } from "@workspace/ui/components/button"
 
 const timeline = [
   { key: "requested", label: "Requested" },
@@ -48,21 +50,20 @@ export default async function BookingPage({
   return (
     <div className="mx-auto max-w-3xl">
       <RealtimeRefresh table="booking_messages" filter={`booking_id=eq.${id}`} />
-      <Link href="/borrow/mine" className="text-sm text-muted-foreground underline underline-offset-4">Back to my borrowing</Link>
-      <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-sm font-medium text-line-borrow">Booking</p>
-          <h1 className="mt-1 font-heading text-3xl font-semibold">{booking.items?.title ?? "Borrowing request"}</h1>
-        </div>
-        <Badge variant="outline">{booking.status.replace("_", " ")}</Badge>
-      </div>
-      <p className="mt-2 text-muted-foreground">{formatEventDate(booking.start_date)} – {formatEventDate(booking.end_date)} · {booking.handover_method}</p>
+      <PageBand
+        eyebrow="Booking"
+        title={booking.items?.title ?? "Borrowing request"}
+        description={`${formatEventDate(booking.start_date)} – ${formatEventDate(booking.end_date)} · ${booking.handover_method}`}
+        actions={<Button render={<Link href="/borrow/mine" />} variant="outline">Back to my borrowing</Button>}
+      >
+        <Badge variant="secondary" className="w-fit bg-sun text-ink">{booking.status.replace("_", " ")}</Badge>
+      </PageBand>
       {booking.handover_note ? <p className="mt-2 rounded-lg border border-border bg-muted/30 p-3 text-sm"><strong>Handover note:</strong> {booking.handover_note}</p> : null}
       {booking.return_note ? <p className="mt-2 rounded-lg border border-border bg-muted/30 p-3 text-sm"><strong>Return note:</strong> {booking.return_note}</p> : null}
 
       <section className="mt-8 border-y border-border py-6">
-        <h2 className="font-heading text-lg font-semibold">Timeline</h2>
-        <ol className="mt-5 border-l-4 border-line-borrow pl-5">
+        <h2 className="font-display text-lg">Timeline</h2>
+        <ol className="mt-5 border-l-4 border-lilac pl-5">
           {timeline.map((step, index) => {
             const complete = booking.status === "completed" || index <= currentIndex || (step.key === "returned" && returned)
             return (
@@ -70,7 +71,7 @@ export default async function BookingPage({
                 <span aria-hidden="true" className={`absolute -left-[27px] top-6 size-3 rounded-full border-4 border-card ${complete ? "bg-line-borrow" : "bg-border"}`} />
                 <div className="flex items-center justify-between gap-3">
                   <p className={complete ? "font-medium" : "text-muted-foreground"}>{step.label}</p>
-                  {complete ? <span className="text-xs text-rimba-ink">Done</span> : <span className="text-xs text-muted-foreground">Next</span>}
+                  {complete ? <span className="text-xs font-bold text-ink">Done</span> : <span className="text-xs text-muted-foreground">Next</span>}
                 </div>
               </li>
             )
@@ -79,7 +80,7 @@ export default async function BookingPage({
       </section>
 
       <section className="mt-7">
-        <h2 className="font-heading text-lg font-semibold">Actions</h2>
+        <h2 className="font-display text-lg">Actions</h2>
         <div className="mt-4">
           <BookingActions bookingId={booking.id} status={booking.status} actor={actor} borrowerWouldHaveBought={booking.borrower_would_have_bought} />
         </div>
@@ -94,7 +95,7 @@ export default async function BookingPage({
       <div className="mt-5"><BlockUserButton blockedId={otherUserId} name="other participant" /></div>
 
       <section className="mt-8 border-t border-border pt-6">
-        <h2 className="font-heading text-lg font-semibold">Safety</h2>
+        <h2 className="font-display text-lg">Safety</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           Meet in shared spaces. Never share bank or ID details. Report an issue from the booking if something feels wrong.
         </p>

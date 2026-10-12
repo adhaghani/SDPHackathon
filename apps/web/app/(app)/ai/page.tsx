@@ -1,4 +1,5 @@
 import { generateAdminSummary } from "@/lib/ai"
+import { PageBand } from "@/components/shared/page-band"
 import { requireActiveMember } from "@/lib/data"
 import { isFeatureEnabled } from "@/lib/env"
 import { createClient } from "@/lib/supabase/server"
@@ -20,14 +21,14 @@ export default async function AiPage() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <p className="text-sm font-medium text-line-impact">AI-assisted planning</p>
-      <h1 className="mt-1 font-heading text-3xl font-semibold">Weekly admin summary</h1>
-      <p className="mt-2 text-muted-foreground">
-        Generated from aggregate metrics only. Resident-level data is never sent to the model.
-      </p>
-      <section className="mt-6 rounded-xl border border-border bg-card p-5">
+      <PageBand
+        eyebrow="AI-assisted planning"
+        title="Weekly admin summary"
+        description="Generated from aggregate metrics only. Resident-level data is never sent to the model."
+      />
+      <section className="bb-card p-5">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="font-heading text-lg font-semibold">Summary</h2>
+          <h2 className="font-display text-lg">Summary</h2>
           <Badge variant="outline">{summary.source === "ai" ? "AI generated" : "Deterministic fallback"}</Badge>
         </div>
         <p className="mt-4 leading-7">{summary.text}</p>

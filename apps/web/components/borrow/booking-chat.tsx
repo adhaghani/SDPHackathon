@@ -23,7 +23,7 @@ export function BookingChat({
 
   return (
     <section className="mt-8 border-t border-border pt-6">
-      <h2 className="font-heading text-lg font-semibold">Booking chat</h2>
+      <h2 className="font-display text-lg font-bold">Booking chat</h2>
       <p className="mt-1 text-sm text-muted-foreground">Visible only to the borrower and lender.</p>
       <ul className="mt-4 flex max-h-72 flex-col gap-3 overflow-y-auto rounded-lg border border-border bg-muted/30 p-4">
         {messages.map((message) => (

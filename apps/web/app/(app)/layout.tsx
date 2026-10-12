@@ -1,4 +1,4 @@
-import { BellIcon } from "lucide-react"
+import { BellIcon, UserRoundIcon } from "lucide-react"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 
@@ -54,27 +54,32 @@ export default async function AppLayout({
         Skip to content
       </a>
       {isDemoMode() ? (
-        <div className="border-b border-line-impact/40 bg-line-impact/10 px-4 py-2 text-center text-sm font-medium text-foreground">
+        <div className="bg-sun-tint px-4 py-2 text-center text-sm font-bold text-ink">
           {localized.demoData}
         </div>
       ) : null}
       <div className="flex">
         <ResidentNav isAdmin={context.membership?.role === "township_admin"} locale={locale} />
         <div className="min-w-0 flex-1">
-          <header className="flex min-h-16 items-center justify-between border-b border-border px-4 sm:px-6">
-            <p className="font-heading font-semibold">{localized.brand}</p>
-            <div className="flex items-center gap-2">
-              {isFeatureEnabled("bm_ui") ? <LanguageSwitcher current={locale} next={locale === "en" ? "ms" : "en"} label={localized.switchLanguage} nextPath="/home" /> : null}
-              <Link href="/notifications" className="relative flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-medium hover:bg-muted" aria-label={`Notifications, ${unread.count ?? 0} unread`}>
-                <BellIcon aria-hidden="true" className="size-5" />
-                {unread.count ? <span className="rounded-full bg-line-borrow px-1.5 text-xs font-semibold text-white">{unread.count}</span> : null}
+          <header className="bb-band bb-safe-top flex min-h-16 items-center justify-between rounded-none px-4 py-3 sm:px-6">
+            <Link href="/home" className="font-display text-lg text-white lg:hidden">
+              {localized.brand}
+            </Link>
+            <div className="ml-auto flex items-center gap-1 text-white">
+              {isFeatureEnabled("bm_ui") ? <LanguageSwitcher current={locale} next={locale === "en" ? "ms" : "en"} label={localized.switchLanguage} nextPath="/home" className="text-white hover:bg-white/10 hover:text-white" /> : null}
+              <Link href="/profile" className="flex min-h-11 items-center rounded-sm px-3 hover:bg-white/10" aria-label="Profile">
+                <UserRoundIcon aria-hidden="true" className="size-5" />
               </Link>
-              <SignOutButton />
+              <Link href="/notifications" className="relative flex min-h-11 items-center gap-2 rounded-sm px-3 text-sm font-bold hover:bg-white/10" aria-label={`Notifications, ${unread.count ?? 0} unread`}>
+                <BellIcon aria-hidden="true" className="size-5" />
+                {unread.count ? <span className="rounded-full bg-sun px-1.5 text-xs font-bold text-ink">{unread.count}</span> : null}
+              </Link>
+              <SignOutButton className="text-white hover:bg-white/10 hover:text-white" />
             </div>
           </header>
           <main
             id="main-content"
-            className="mx-auto max-w-5xl px-4 py-6 pb-24 sm:px-6 lg:pb-10"
+            className="mx-auto max-w-5xl px-4 pt-6 pb-28 sm:px-6 lg:pb-12"
           >
             {children}
           </main>

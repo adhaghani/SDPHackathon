@@ -14,7 +14,7 @@ export function AccountControls() {
 
   return (
     <section className="mt-8 border-t border-border pt-6">
-      <h2 className="font-heading text-lg font-semibold">Account controls</h2>
+      <h2 className="font-display text-lg font-bold">Account controls</h2>
       <p className="mt-1 text-sm text-muted-foreground">Download your own rows or permanently delete your account.</p>
       <div className="mt-4 flex flex-col gap-3 sm:flex-row">
         <a href="/api/profile/export" download className="inline-flex h-11 items-center rounded-lg border border-input px-4 text-sm font-medium hover:bg-muted">

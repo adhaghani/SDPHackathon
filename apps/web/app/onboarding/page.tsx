@@ -21,18 +21,22 @@ export default async function OnboardingPage({
   }
 
   return (
-    <main className="min-h-svh bg-background px-4 py-10 sm:px-6">
-      <div className="mx-auto max-w-2xl">
-        <p className="text-sm font-medium text-rimba-ink">Join your township</p>
-        <h1 className="mt-1 font-heading text-3xl font-semibold">
-          Start with a verified join code
-        </h1>
-        <p className="mt-2 text-muted-foreground">
-          BorrowBetter keeps your unit label private and only uses it for
-          township verification.
-        </p>
+    <main className="min-h-svh bg-background">
+      <div className="bb-band bb-safe-top rounded-b-[28px]">
+        <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
+          <p className="text-[13px] font-bold text-band-eyebrow">Join your township</p>
+          <h1 className="mt-1 font-display text-3xl text-white">
+            Start with a verified join code
+          </h1>
+          <p className="mt-2 text-band-eyebrow">
+            BorrowBetter keeps your unit label private and only uses it for
+            township verification.
+          </p>
+        </div>
+      </div>
+      <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
         {context.membership?.status === "pending" ? (
-          <Alert className="mt-6">
+          <Alert className="mt-0">
             <AlertDescription>
               Your request is waiting for township approval. You can check the
               code again below or return later.
@@ -40,7 +44,7 @@ export default async function OnboardingPage({
           </Alert>
         ) : null}
         {params.error ? (
-          <Alert variant="destructive" className="mt-6">
+          <Alert variant="destructive" className="mt-0">
             <AlertDescription>
               {params.error === "check_fields"
                 ? "Check the highlighted fields."
@@ -49,13 +53,13 @@ export default async function OnboardingPage({
           </Alert>
         ) : null}
         {params.joined ? (
-          <Alert className="mt-6">
+          <Alert className="mt-0">
             <AlertDescription>
               You joined the demo township. Your active route is ready.
             </AlertDescription>
           </Alert>
         ) : null}
-        <div className="mt-7 rounded-2xl border border-border bg-card p-5 sm:p-7">
+        <div className="bb-card mt-7 p-5 sm:p-7">
           <JoinForm />
         </div>
       </div>

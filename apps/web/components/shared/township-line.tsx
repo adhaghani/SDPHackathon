@@ -9,22 +9,22 @@ const lineStyles: Record<
   Pinjam: {
     line: "bg-line-borrow",
     dot: "bg-line-borrow",
-    text: "text-line-borrow",
+    text: "text-primary",
   },
   Jom: {
     line: "bg-line-event",
     dot: "bg-line-event",
-    text: "text-jom-ink",
+    text: "text-ink-muted",
   },
   Tolong: {
     line: "bg-line-help",
     dot: "bg-line-help",
-    text: "text-line-help",
+    text: "text-ink-muted",
   },
   Rimba: {
     line: "bg-line-impact",
     dot: "bg-line-impact",
-    text: "text-rimba-ink",
+    text: "text-ink-muted",
   },
 }
 
@@ -38,7 +38,7 @@ export function TownshipLine({
   return (
     <ol
       className={cn(
-        "grid gap-0 border-l-4 border-line-event bg-card p-5 sm:p-6",
+        "bb-card grid gap-0 border-l-4 border-l-coral p-5 text-ink sm:p-6",
         className
       )}
     >
@@ -56,7 +56,7 @@ export function TownshipLine({
             />
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <span className="text-sm font-medium">{label}</span>
-              <span className={cn("text-xs font-semibold", styles.text)}>
+              <span className={cn("text-xs font-bold", styles.text)}>
                 {line}
               </span>
             </div>

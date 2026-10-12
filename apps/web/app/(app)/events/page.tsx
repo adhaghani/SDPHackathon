@@ -1,10 +1,13 @@
 import Link from "next/link"
+import { CalendarDaysIcon, SearchIcon } from "lucide-react"
 
+import { PageBand } from "@/components/shared/page-band"
 import { requireActiveMember } from "@/lib/data"
 import { createClient } from "@/lib/supabase/server"
 import { formatEventRange } from "@/lib/format"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
+import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@workspace/ui/components/empty"
 
 export default async function EventsPage({
   searchParams,
@@ -36,80 +39,70 @@ export default async function EventsPage({
   if (eventsResult.error) throw new Error(eventsResult.error.message)
 
   return (
-    <div className="flex flex-col gap-6">
-      <section className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-sm font-medium text-jom-ink">Jom · Events</p>
-          <h1 className="mt-1 font-heading text-3xl font-semibold">Things to do nearby</h1>
-          <p className="mt-2 max-w-2xl text-muted-foreground">
-            Join a verified activity, or host one for your neighbours.
-          </p>
-        </div>
-        <Button render={<Link href="/events/new" />} className="h-11">
-          Host an event
-        </Button>
-      </section>
+    <div className="flex flex-col gap-4">
+      <PageBand
+        eyebrow="Jom · Events"
+        title="Things to do nearby"
+        description="Join a verified activity, or host one for your neighbours."
+        actions={<Button render={<Link href="/events/new" />} variant="cta" size="cta">Host an event</Button>}
+      >
+        <form className="flex flex-col gap-3 sm:flex-row" action="/events" method="get">
+          <label className="sr-only" htmlFor="q">Search events</label>
+          <div className="flex h-[52px] min-w-0 flex-1 items-center gap-3 rounded-lg border border-border bg-surface px-4 shadow-card focus-within:border-ring">
+            <SearchIcon aria-hidden="true" className="size-5 shrink-0 text-ink-muted" strokeWidth={1.8} />
+            <input
+              id="q"
+              name="q"
+              type="search"
+              defaultValue={params.q ?? ""}
+              placeholder="Search events"
+              className="h-full min-w-0 flex-1 bg-transparent text-base text-ink outline-none placeholder:text-ink-muted/70"
+            />
+          </div>
+          <label className="sr-only" htmlFor="category">Category</label>
+          <select
+            id="category"
+            name="category"
+            defaultValue={params.category ?? ""}
+            className="h-[52px] rounded-lg border border-border bg-surface px-3 text-base text-ink outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+          >
+            <option value="">All categories</option>
+            {(categoriesResult.data ?? []).map((category) => (
+              <option key={category.id} value={category.slug}>{category.name}</option>
+            ))}
+          </select>
+          <Button type="submit" variant="outline" className="h-[52px]">Filter</Button>
+        </form>
+      </PageBand>
 
-      <form className="flex flex-col gap-3 border-y border-border py-4 sm:flex-row" action="/events" method="get">
-        <label className="sr-only" htmlFor="q">
-          Search events
-        </label>
-        <input
-          id="q"
-          name="q"
-          defaultValue={params.q ?? ""}
-          placeholder="Search events"
-          className="h-10 min-w-0 flex-1 rounded-lg border border-input bg-background px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-        />
-        <label className="sr-only" htmlFor="category">
-          Category
-        </label>
-        <select
-          id="category"
-          name="category"
-          defaultValue={params.category ?? ""}
-          className="h-10 rounded-lg border border-input bg-background px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-        >
-          <option value="">All categories</option>
-          {(categoriesResult.data ?? []).map((category) => (
-            <option key={category.id} value={category.slug}>
-              {category.name}
-            </option>
-          ))}
-        </select>
-        <Button type="submit" variant="outline" className="h-10">
-          Filter
-        </Button>
-      </form>
-
-      <ul className="divide-y divide-border border-y border-border">
-        {(eventsResult.data ?? []).map((event) => (
-          <li key={event.id}>
-            <Link
-              href={`/events/${event.id}`}
-              className="flex flex-col gap-3 py-5 hover:bg-muted/40 sm:flex-row sm:items-center sm:justify-between"
-            >
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="outline" className={event.event_categories?.counts_as_sustainability ? "text-rimba-ink" : "text-jom-ink"}>
+      {(eventsResult.data ?? []).length ? (
+        <ul className="grid gap-3.5 sm:grid-cols-2">
+          {eventsResult.data?.map((event) => (
+            <li key={event.id}>
+              <Link href={`/events/${event.id}`} className="bb-card flex h-full flex-col p-4 hover:bg-lilac-tint">
+                <div className="flex items-start justify-between gap-3">
+                  <CalendarDaysIcon aria-hidden="true" className="size-6 text-ink" strokeWidth={1.8} />
+                  <Badge variant={event.event_categories?.counts_as_sustainability ? "secondary" : "outline"}>
                     {event.event_categories?.name ?? "Event"}
                   </Badge>
-                  {event.capacity ? <span className="text-xs text-muted-foreground">Capacity {event.capacity}</span> : null}
                 </div>
-                <h2 className="mt-2 font-heading text-lg font-semibold">{event.title}</h2>
+                <h2 className="mt-4 font-display text-lg text-ink">{event.title}</h2>
                 <p className="mt-1 text-sm text-muted-foreground">{formatEventRange(event.starts_at, event.ends_at)}</p>
                 <p className="mt-1 text-sm text-muted-foreground">{event.location_text}</p>
-              </div>
-              <span className="shrink-0 text-sm font-medium text-line-borrow">View event</span>
-            </Link>
-          </li>
-        ))}
-        {eventsResult.data?.length === 0 ? (
-          <li className="py-10 text-center text-muted-foreground">
-            No events match this search. Host one or browse next week.
-          </li>
-        ) : null}
-      </ul>
+                {event.capacity ? <p className="mt-3 text-xs font-bold text-ink-muted">Capacity {event.capacity}</p> : null}
+                <span className="mt-4 text-sm font-bold text-ink">View event</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <Empty className="bb-card">
+          <EmptyHeader>
+            <EmptyTitle>No events match this search.</EmptyTitle>
+            <EmptyDescription>Host one or browse next week.</EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      )}
     </div>
   )
 }

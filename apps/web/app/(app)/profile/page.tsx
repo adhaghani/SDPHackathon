@@ -1,5 +1,6 @@
 import Link from "next/link"
 
+import { PageBand } from "@/components/shared/page-band"
 import { requireActiveMember } from "@/lib/data"
 import { isFeatureEnabled } from "@/lib/env"
 import { createClient } from "@/lib/supabase/server"
@@ -20,25 +21,26 @@ export default async function ProfilePage() {
 
   return (
     <div className="flex flex-col gap-7">
-      <section className="border-y border-border py-6">
-        <p className="text-sm font-medium text-line-borrow">Profile</p>
-        <h1 className="mt-1 font-heading text-3xl font-semibold">{active.profile?.display_name ?? "Neighbour"}</h1>
-        <p className="mt-2 text-muted-foreground">Your route, recognition and comfort preferences.</p>
-        <div className="mt-6 grid gap-3 sm:grid-cols-3">
-          <div className="rounded-xl border border-border bg-card p-4"><p className="text-sm text-muted-foreground">Balance</p><p className="mt-1 font-heading text-2xl font-semibold text-points-ink tabular-nums">{active.points?.balance ?? 0} BP</p></div>
-          <div className="rounded-xl border border-border bg-card p-4"><p className="text-sm text-muted-foreground">Items lent</p><p className="mt-1 font-heading text-2xl font-semibold tabular-nums">{lentResult.data?.length ?? 0}</p></div>
-          <div className="rounded-xl border border-border bg-card p-4"><p className="text-sm text-muted-foreground">Borrows completed</p><p className="mt-1 font-heading text-2xl font-semibold tabular-nums">{borrowedResult.data?.length ?? 0}</p></div>
+      <PageBand
+        eyebrow="Profile"
+        title={active.profile?.display_name ?? "Neighbour"}
+        description="Your route, recognition and comfort preferences."
+        actions={<Button render={<Link href="/profile/settings" />} variant="outline">Edit profile</Button>}
+      >
+        <div className="mt-2 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-md bg-white/10 p-4 text-white"><p className="text-sm text-band-eyebrow">Balance</p><p className="mt-1 font-display text-2xl tabular-nums">{active.points?.balance ?? 0} BP</p></div>
+          <div className="rounded-md bg-white/10 p-4 text-white"><p className="text-sm text-band-eyebrow">Items lent</p><p className="mt-1 font-display text-2xl tabular-nums">{lentResult.data?.length ?? 0}</p></div>
+          <div className="rounded-md bg-white/10 p-4 text-white"><p className="text-sm text-band-eyebrow">Borrows completed</p><p className="mt-1 font-display text-2xl tabular-nums">{borrowedResult.data?.length ?? 0}</p></div>
         </div>
-        <Button render={<Link href="/profile/settings" />} variant="outline" className="mt-6 h-11">Edit profile</Button>
-      </section>
+      </PageBand>
 
       {isFeatureEnabled("multi_township") ? (
       <section>
-        <h2 className="font-heading text-xl font-semibold">Townships</h2>
+        <h2 className="font-display text-lg">Townships</h2>
         <p className="mt-1 text-sm text-muted-foreground">Switch between your active memberships.</p>
         <ul className="mt-4 flex flex-col gap-3">
           {(active.memberships ?? []).filter((row) => row.status === "active").map((row) => (
-            <li key={row.township_id} className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
+            <li key={row.township_id} className="bb-card flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="font-medium">{townshipNames.get(row.township_id) ?? "Township"}</p>
                 <p className="mt-1 text-sm text-muted-foreground">{row.role.replace("_", " ")}</p>
@@ -51,14 +53,14 @@ export default async function ProfilePage() {
       ) : null}
 
       <section>
-        <h2 className="font-heading text-xl font-semibold">Badges</h2>
+        <h2 className="font-display text-lg">Badges</h2>
         {(badgesResult.data ?? []).length ? (
           <ul className="mt-4 grid gap-3 sm:grid-cols-2">
             {badgesResult.data?.map((badge) => (
-              <li key={badge.id} className="rounded-xl border border-border bg-card p-4">
+              <li key={badge.id} className="bb-card p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div><p className="font-medium">{badge.badges?.name}</p><p className="mt-1 text-sm text-muted-foreground">{badge.badges?.description}</p></div>
-                  <Badge variant="secondary" className="text-rimba-ink">Earned</Badge>
+                  <Badge variant="secondary" className="text-ink">Earned</Badge>
                 </div>
               </li>
             ))}

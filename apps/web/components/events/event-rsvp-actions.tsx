@@ -25,7 +25,7 @@ export function EventRsvpActions({
   if (rsvpStatus === "going" || rsvpStatus === "checked_in") {
     return (
       <div className="flex flex-col gap-2">
-        <p className="text-sm font-medium text-rimba-ink">
+        <p className="text-sm font-medium text-ink-muted">
           {rsvpStatus === "checked_in" ? "Checked in" : "You are going"}
         </p>
         <form action={cancelAction}>
@@ -43,7 +43,7 @@ export function EventRsvpActions({
   if (rsvpStatus === "waitlisted") {
     return (
       <div className="flex flex-col gap-2">
-        <p className="text-sm font-medium text-line-event">You are on the waitlist</p>
+        <p className="text-sm font-medium text-ink">You are on the waitlist</p>
         <form action={cancelAction}>
           <input type="hidden" name="eventId" value={eventId} />
           <Button type="submit" variant="outline" className="h-11" disabled={cancelPending}>

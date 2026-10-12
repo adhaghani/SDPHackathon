@@ -55,7 +55,7 @@ export function ManualCheckInList({ registrations }: { registrations: Registrati
             </div>
             <div className="flex items-center gap-3">
               {registration.status === "checked_in" ? (
-                <Badge variant="outline" className="text-rimba-ink">
+                <Badge variant="outline" className="text-ink-muted">
                   Checked in
                 </Badge>
               ) : (

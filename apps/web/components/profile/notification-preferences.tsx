@@ -26,7 +26,7 @@ export function NotificationPreferences({
 
   return (
     <section className="mt-8 border-t border-border pt-6">
-      <h2 className="font-heading text-lg font-semibold">Notification preferences</h2>
+      <h2 className="font-display text-lg font-bold">Notification preferences</h2>
       <p className="mt-1 text-sm text-muted-foreground">Choose which updates should reach your bell.</p>
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         {types.map(([type, label]) => (

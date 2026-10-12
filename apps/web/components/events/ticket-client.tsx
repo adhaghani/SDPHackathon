@@ -54,11 +54,11 @@ export function TicketClient({
   const offset = circumference - (seconds / 30) * circumference
 
   return (
-    <div className="mx-auto max-w-md rounded-2xl border border-border bg-card p-5 text-center shadow-sm sm:p-7">
+    <div className="mx-auto max-w-md bb-card p-5 text-center shadow-sm sm:p-7">
       <div className="flex items-center justify-between gap-3 text-left">
         <div>
           <p className="text-sm text-muted-foreground">Event pass</p>
-          <h1 className="font-heading text-xl font-semibold">{eventName}</h1>
+          <h1 className="font-display text-xl font-bold">{eventName}</h1>
         </div>
         <Badge variant="outline">Ready to scan</Badge>
       </div>
@@ -76,13 +76,13 @@ export function TicketClient({
             viewBox="0 0 64 64"
             className="pointer-events-none absolute -right-3 -bottom-3 size-16"
           >
-            <circle cx="32" cy="32" r="28" fill="none" stroke="#CCD9D5" strokeWidth="4" />
+            <circle cx="32" cy="32" r="28" fill="none" stroke="#E7E2F7" strokeWidth="4" />
             <circle
               cx="32"
               cy="32"
               r="28"
               fill="none"
-              stroke="#1F5FD1"
+              stroke="#1B1340"
               strokeWidth="4"
               strokeLinecap="round"
               strokeDasharray={circumference}

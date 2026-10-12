@@ -31,7 +31,7 @@ export function ReportForm({
         <input type="hidden" name="targetId" value={targetId} />
         <Field>
           <FieldLabel htmlFor={`report-reason-${targetId}`}>Reason</FieldLabel>
-          <select id={`report-reason-${targetId}`} name="reason" className="h-10 w-full rounded-lg border border-input bg-background px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50">
+          <select id={`report-reason-${targetId}`} name="reason" className="h-11 w-full rounded-lg border border-input bg-background px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50">
             <option value="safety">Safety concern</option>
             <option value="inappropriate">Inappropriate content</option>
             <option value="spam">Spam</option>

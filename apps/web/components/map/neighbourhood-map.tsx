@@ -13,10 +13,10 @@ const demoIcon = (color: string) =>
   })
 
 const locations = [
-  { name: "Anggun neighbourhood", position: [3.0738, 101.5183] as [number, number], color: "#1F5FD1" },
-  { name: "Bestari neighbourhood", position: [3.0868, 101.5213] as [number, number], color: "#E4572E" },
-  { name: "Cahaya neighbourhood", position: [3.0998, 101.5183] as [number, number], color: "#A83A8C" },
-  { name: "Damai neighbourhood", position: [3.1128, 101.5213] as [number, number], color: "#2F8F5B" },
+  { name: "Anggun neighbourhood", position: [3.0738, 101.5183] as [number, number], color: "#C9B8FF" },
+  { name: "Bestari neighbourhood", position: [3.0868, 101.5213] as [number, number], color: "#FF6B4A" },
+  { name: "Cahaya neighbourhood", position: [3.0998, 101.5183] as [number, number], color: "#C9B8FF" },
+  { name: "Damai neighbourhood", position: [3.1128, 101.5213] as [number, number], color: "#7BE0B0" },
 ]
 
 export function NeighbourhoodMap() {
@@ -25,7 +25,7 @@ export function NeighbourhoodMap() {
       center={[3.0938, 101.5183]}
       zoom={15}
       scrollWheelZoom={false}
-      className="h-[420px] w-full rounded-xl border border-border"
+      className="bb-card h-[420px] w-full overflow-hidden"
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

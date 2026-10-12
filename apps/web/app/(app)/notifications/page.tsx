@@ -1,4 +1,5 @@
 import { markNotificationRead } from "@/actions/notifications"
+import { PageBand } from "@/components/shared/page-band"
 import { requireActiveMember } from "@/lib/data"
 import { createClient } from "@/lib/supabase/server"
 import { Badge } from "@workspace/ui/components/badge"
@@ -18,9 +19,11 @@ export default async function NotificationsPage() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <p className="text-sm font-medium text-line-borrow">Updates</p>
-      <h1 className="mt-1 font-heading text-3xl font-semibold">Notifications</h1>
-      <p className="mt-2 text-muted-foreground">Verified points, booking changes and membership updates appear here.</p>
+      <PageBand
+        eyebrow="Updates"
+        title="Notifications"
+        description="Verified points, booking changes and membership updates appear here."
+      />
       {(notifications.data ?? []).length ? (
         <ul className="mt-6 divide-y divide-border border-y border-border">
           {notifications.data?.map((notification) => (
@@ -30,7 +33,7 @@ export default async function NotificationsPage() {
                   <Badge variant={notification.read_at ? "outline" : "secondary"}>{notification.read_at ? "Read" : "New"}</Badge>
                   <span className="text-sm text-muted-foreground">{new Date(notification.created_at).toLocaleString("en-MY")}</span>
                 </div>
-                <p className="mt-2 font-medium">{notification.title}</p>
+                <p className="mt-2 font-bold">{notification.title}</p>
                 <p className="mt-1 text-sm text-muted-foreground">{notification.body}</p>
               </div>
               {!notification.read_at ? (

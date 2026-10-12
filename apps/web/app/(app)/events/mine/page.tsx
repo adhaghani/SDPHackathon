@@ -1,5 +1,6 @@
 import Link from "next/link"
 
+import { PageBand } from "@/components/shared/page-band"
 import { requireActiveMember } from "@/lib/data"
 import { formatEventRange } from "@/lib/format"
 import { createClient } from "@/lib/supabase/server"
@@ -19,13 +20,11 @@ export default async function MyEventsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-sm font-medium text-jom-ink">Jom · Mine</p>
-          <h1 className="mt-1 font-heading text-3xl font-semibold">Your events</h1>
-        </div>
-        <Button render={<Link href="/events/new" />} className="h-11">Host an event</Button>
-      </div>
+      <PageBand
+        eyebrow="Jom · Mine"
+        title="Your events"
+        actions={<Button render={<Link href="/events/new" />}>Host an event</Button>}
+      />
       <Tabs defaultValue="registered">
         <TabsList>
           <TabsTrigger value="registered">Registered</TabsTrigger>

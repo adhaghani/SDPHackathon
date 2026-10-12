@@ -13,10 +13,10 @@ export default async function AdminMapPage() {
   return (
     <div className="mx-auto max-w-5xl">
       <Link href="/admin" className="text-sm text-muted-foreground underline underline-offset-4">Back to Township Pulse</Link>
-      <h1 className="mt-5 font-heading text-3xl font-semibold">Neighbourhood map</h1>
+      <h1 className="mt-5 font-display text-3xl font-bold">Neighbourhood map</h1>
       <p className="mt-2 text-muted-foreground">Approximate neighbourhood-level locations for planning. No resident addresses are stored or displayed.</p>
       <div className="mt-6"><LazyNeighbourhoodMap /></div>
-      <section className="mt-6 rounded-xl border border-border bg-muted/40 p-5 text-sm text-muted-foreground">
+      <section className="mt-6 bb-card bg-muted/40 p-5 text-sm text-muted-foreground">
         Map tiles use OpenStreetMap. This stretch view is intentionally neighbourhood-level to preserve privacy.
       </section>
     </div>

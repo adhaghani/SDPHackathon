@@ -1,3 +1,4 @@
+import { PageBand } from "@/components/shared/page-band"
 import { requireActiveMember } from "@/lib/data"
 import { RedeemButton } from "@/components/rewards/redeem-button"
 import { createClient } from "@/lib/supabase/server"
@@ -64,36 +65,33 @@ export default async function RewardsPage() {
 
   return (
     <div className="flex flex-col gap-7">
-      <section className="border-y border-border py-6">
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-sm font-medium text-points-ink">Emas · BetterPoints</p>
-            <h1 className="mt-1 font-heading text-3xl font-semibold">Your recognition route</h1>
-            <p className="mt-2 text-muted-foreground">
-              Points come from verified real-world activity, never from opening the app.
-            </p>
+      <PageBand
+        eyebrow="Emas · BetterPoints"
+        title="Your recognition route"
+        description="Points come from verified real-world activity, never from opening the app."
+      >
+        <div className="mt-2 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+          <div className="text-white">
+            <p className="font-display text-5xl leading-none tabular-nums">{pointsResult.data?.balance ?? 0}</p>
+            <p className="mt-2 text-sm text-band-eyebrow">BP available</p>
           </div>
-          <div className="text-right">
-            <p className="font-heading text-5xl font-semibold tabular-nums text-points-ink">{pointsResult.data?.balance ?? 0}</p>
-            <p className="text-sm text-muted-foreground">BP available</p>
+          <div className="w-full max-w-sm">
+            <div className="flex items-center justify-between gap-3 text-sm text-white">
+              <span className="font-bold">{currentLevel?.name ?? "Newcomer"}</span>
+              <span className="text-band-eyebrow">{nextLevel ? `${nextLevel.min_lifetime_points - lifetime} BP to ${nextLevel.name}` : "Top level reached"}</span>
+            </div>
+            <div className="mt-2 h-3 overflow-hidden rounded-full bg-white/15">
+              <div className="h-full rounded-full bg-sun transition-[width] duration-700" style={{ width: `${progress}%` }} />
+            </div>
+            <p className="mt-2 text-xs text-band-eyebrow">{lifetime.toLocaleString()} lifetime points</p>
           </div>
         </div>
-        <div className="mt-7">
-          <div className="flex items-center justify-between text-sm">
-            <span className="font-medium">{currentLevel?.name ?? "Newcomer"}</span>
-            <span className="text-muted-foreground">{nextLevel ? `${nextLevel.min_lifetime_points - lifetime} BP to ${nextLevel.name}` : "Top level reached"}</span>
-          </div>
-          <div className="mt-2 h-3 overflow-hidden rounded-full bg-muted">
-            <div className="h-full rounded-full bg-points transition-[width] duration-700" style={{ width: `${progress}%` }} />
-          </div>
-          <p className="mt-2 text-xs text-muted-foreground">{lifetime.toLocaleString()} lifetime points</p>
-        </div>
-      </section>
+      </PageBand>
 
       <section>
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h2 className="font-heading text-xl font-semibold">Badges</h2>
+            <h2 className="font-display text-lg">Badges</h2>
             <p className="mt-1 text-sm text-muted-foreground">Earned recognition and progress toward the next stop.</p>
           </div>
         </div>
@@ -103,13 +101,13 @@ export default async function RewardsPage() {
             const current = badge.actionTypes.reduce((sum, action) => sum + (actionCounts[action] ?? 0), 0)
             const badgeProgress = Math.min(100, Math.round((current / badge.target) * 100))
             return (
-              <li key={badge.slug} className="rounded-xl border border-border bg-card p-4">
+              <li key={badge.slug} className="bb-card p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-medium">{badge.name}</p>
                     <p className="mt-1 text-sm text-muted-foreground">{badge.description}</p>
                   </div>
-                  {earned ? <Badge variant="secondary" className="text-rimba-ink">Earned</Badge> : <Badge variant="outline">{current}/{badge.target}</Badge>}
+                  {earned ? <Badge variant="secondary" className="text-ink">Earned</Badge> : <Badge variant="outline">{current}/{badge.target}</Badge>}
                 </div>
                 {!earned ? (
                   <div className="mt-4 h-2 overflow-hidden rounded-full bg-muted">
@@ -123,7 +121,7 @@ export default async function RewardsPage() {
       </section>
 
       <section>
-        <h2 className="font-heading text-xl font-semibold">Recent activity</h2>
+        <h2 className="font-display text-lg">Recent activity</h2>
         {ledger.length ? (
           <ul className="mt-4 divide-y divide-border border-y border-border">
             {ledger.map((row) => (
@@ -132,7 +130,7 @@ export default async function RewardsPage() {
                   <p className="font-medium">{describeActivity(row.action_type)}</p>
                   <p className="mt-1 text-sm text-muted-foreground">{new Date(row.created_at).toLocaleDateString("en-MY")}</p>
                 </div>
-                <span className={`font-heading text-lg font-semibold tabular-nums ${row.delta > 0 ? "text-points-ink" : "text-muted-foreground"}`}>
+                <span className={`font-display text-lg tabular-nums ${row.delta > 0 ? "text-ink" : "text-muted-foreground"}`}>
                   {row.delta > 0 ? "+" : ""}{row.delta} BP
                 </span>
               </li>
@@ -149,11 +147,11 @@ export default async function RewardsPage() {
       </section>
 
       <section>
-        <h2 className="font-heading text-xl font-semibold">Reward catalogue</h2>
+        <h2 className="font-display text-lg">Reward catalogue</h2>
         <p className="mt-1 text-sm text-muted-foreground">Fictional partner vouchers and township perks.</p>
         <ul className="mt-4 grid gap-3 sm:grid-cols-3">
           {(rewardsResult.data ?? []).map((reward) => (
-            <li key={reward.id} className="rounded-xl border border-border bg-card p-4">
+            <li key={reward.id} className="bb-card p-4">
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <p className="font-medium">{reward.title}</p>
@@ -167,12 +165,12 @@ export default async function RewardsPage() {
               </div>
             </li>
           ))}
-          {rewardsResult.data?.length === 0 ? <li className="rounded-xl border border-border bg-card p-5 text-sm text-muted-foreground sm:col-span-3">No rewards are available yet.</li> : null}
+          {rewardsResult.data?.length === 0 ? <li className="bb-card p-5 text-sm text-muted-foreground sm:col-span-3">No rewards are available yet.</li> : null}
         </ul>
       </section>
 
       <section>
-        <h2 className="font-heading text-xl font-semibold">My vouchers</h2>
+        <h2 className="font-display text-lg">My vouchers</h2>
         {(redemptionsResult.data ?? []).length ? (
           <ul className="mt-4 divide-y divide-border border-y border-border">
             {redemptionsResult.data?.map((redemption) => (
@@ -182,7 +180,7 @@ export default async function RewardsPage() {
                   <p className="mt-1 text-sm text-muted-foreground">{redemption.cost_bp} BP · {new Date(redemption.created_at).toLocaleDateString("en-MY")}</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <code className="rounded bg-muted px-2 py-1 text-sm font-semibold tracking-widest">{redemption.code}</code>
+                  <code className="rounded bg-muted px-2 py-1 text-sm font-bold tracking-widest">{redemption.code}</code>
                   <Badge variant={redemption.status === "issued" ? "secondary" : "outline"}>{redemption.status}</Badge>
                 </div>
               </li>

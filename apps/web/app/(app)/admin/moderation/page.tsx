@@ -22,7 +22,7 @@ export default async function AdminModerationPage() {
   return (
     <div className="mx-auto max-w-4xl">
       <Link href="/admin" className="text-sm text-muted-foreground underline underline-offset-4">Back to Township Pulse</Link>
-      <h1 className="mt-5 font-heading text-3xl font-semibold">Moderation</h1>
+      <h1 className="mt-5 font-display text-3xl font-bold">Moderation</h1>
       <p className="mt-2 text-muted-foreground">Review reports and hide content when three open reports point to the same target.</p>
       {(reports.data ?? []).length ? (
         <ul className="mt-6 divide-y divide-border border-y border-border">

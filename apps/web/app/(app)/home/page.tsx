@@ -1,6 +1,11 @@
 import Image from "next/image"
 import Link from "next/link"
+import { PackageIcon, HandHelpingIcon, WrenchIcon } from "lucide-react"
 
+import { HelpActionButton } from "@/components/community/community-action"
+import { PageBand } from "@/components/shared/page-band"
+import { PointsChip } from "@/components/shared/points-chip"
+import { SectionHeading } from "@/components/shared/section-heading"
 import { requireActiveMember } from "@/lib/data"
 import { formatEventRange } from "@/lib/format"
 import { isFeatureEnabled } from "@/lib/env"
@@ -10,10 +15,12 @@ import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@workspace/ui/components/empty"
 
+const imageTints = ["bg-sun-tint", "bg-mint-tint", "bg-lilac-tint", "bg-coral-tint"]
+
 export default async function HomePage() {
   const active = await requireActiveMember()
   const supabase = await createClient()
-  const [bookingsResult, eventsResult, itemsResult, ledgerResult, pastEventsResult] = await Promise.all([
+  const [bookingsResult, eventsResult, itemsResult, ledgerResult, pastEventsResult, helpResult] = await Promise.all([
     supabase
       .from("bookings")
       .select("id,status,borrower_id,lender_id,items(title)")
@@ -49,7 +56,16 @@ export default async function HomePage() {
       .eq("status", "checked_in")
       .order("created_at", { ascending: false })
       .limit(30),
+    supabase
+      .from("help_requests")
+      .select("id,title,details,kind,status,needed_by,requester_id")
+      .eq("township_id", active.townshipId)
+      .eq("status", "open")
+      .neq("requester_id", active.user.id)
+      .order("created_at", { ascending: false })
+      .limit(3),
   ])
+
   const interests = active.profile?.interests ?? []
   const pastCategories = (pastEventsResult.data ?? [])
     .map((row) => row.events?.event_categories?.slug)
@@ -89,152 +105,182 @@ export default async function HomePage() {
     .filter((todo): todo is { id: string; label: string; href: string } => Boolean(todo))
     .slice(0, 3)
 
-  return (
-    <div className="flex flex-col gap-8">
-      <section>
-        <p className="text-sm font-medium text-rimba-ink">Your next stop</p>
-        <h1 className="mt-1 font-heading text-3xl font-semibold sm:text-4xl">
-          Home, {active.profile?.display_name?.split(" ")[0] ?? "neighbour"}
-        </h1>
-        <p className="mt-2 max-w-2xl text-muted-foreground">
-          A practical view of what needs you, what is happening nearby and what your township has recognised.
-        </p>
-      </section>
+  const helpRequests = helpResult.data ?? []
 
-      <section aria-labelledby="todo-heading" className="border-y border-border">
-        <div className="flex items-center justify-between py-4">
-          <h2 id="todo-heading" className="font-heading text-lg font-semibold">To do</h2>
-          <Badge variant="outline">{todos.length} waiting</Badge>
+  return (
+    <div className="flex flex-col gap-4">
+      <PageBand
+        eyebrow="Good morning"
+        title={<>Home, {active.profile?.display_name?.split(" ")[0] ?? "neighbour"}</>}
+        description="Find a useful borrow, lend a hand, or see what your township has recognised."
+        actions={<PointsChip balance={active.points?.balance ?? 0} />}
+      >
+        <div>
+          <Button render={<Link href="/borrow" />} variant="cta" size="cta">
+            Find an item
+          </Button>
         </div>
-        {todos.length ? (
-          <ul className="divide-y divide-border border-t border-border">
-            {todos.map((todo) => (
-              <li key={todo.id} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
-                <p className="font-medium">{todo.label}</p>
-                <Button render={<Link href={todo.href} />} variant="outline" className="h-11">Open</Button>
+      </PageBand>
+
+      <nav aria-label="Quick actions" className="grid grid-cols-3 gap-3">
+        {[
+          { href: "/borrow", label: "Borrow", dot: "bg-sun", icon: PackageIcon },
+          { href: "/borrow/new", label: "Lend", dot: "bg-mint", icon: WrenchIcon },
+          { href: "/community", label: "Help", dot: "bg-lilac", icon: HandHelpingIcon },
+        ].map(({ href, label, dot, icon: Icon }) => (
+          <Link
+            key={href}
+            href={href}
+            className="bb-card flex min-h-20 flex-col items-center justify-center gap-2 p-3 text-ink transition-transform hover:-translate-y-0.5"
+          >
+            <span className={`size-5 rounded-full ${dot}`} aria-hidden="true" />
+            <Icon aria-hidden="true" className="hidden size-5 text-muted-foreground sm:block" strokeWidth={1.6} />
+            <span className="font-display text-base">{label}</span>
+          </Link>
+        ))}
+      </nav>
+
+      <section aria-labelledby="needs-a-hand-heading" className="mt-2">
+        <SectionHeading
+          title={<span id="needs-a-hand-heading">Needs a hand</span>}
+          description="Small, practical requests from neighbours nearby."
+          actions={<Button render={<Link href="/community" />} variant="ghost">Open community</Button>}
+        />
+        {helpRequests.length ? (
+          <ul className="mt-4 flex flex-col gap-4">
+            {helpRequests.map((request) => (
+              <li key={request.id} className="bb-card flex flex-col gap-3 p-3.5 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
+                  <p className="text-[15px] leading-6 font-bold text-ink">{request.title}</p>
+                  <p className="mt-1 text-[13px] text-muted-foreground">
+                    {request.kind.replace("_", " ")}
+                    {request.needed_by ? ` · needed by ${new Date(request.needed_by).toLocaleDateString("en-MY")}` : ""}
+                  </p>
+                </div>
+                <HelpActionButton requestId={request.id} action="accept" />
               </li>
             ))}
           </ul>
         ) : (
-          <div className="flex items-start gap-3 border-t border-border py-6 text-muted-foreground">
-            <span className="mt-1 size-3 rounded-full bg-line-impact" aria-hidden="true" />
-            <div>
-              <p className="font-medium text-foreground">Nothing needs you right now</p>
-              <p className="mt-1 text-sm">Confirmations, handovers and help completions will appear here.</p>
-            </div>
-          </div>
+          <Empty className="bb-card mt-4">
+            <EmptyHeader>
+              <EmptyTitle>Nothing needs you right now</EmptyTitle>
+              <EmptyDescription>Confirmations, handovers and new help requests will appear here.</EmptyDescription>
+            </EmptyHeader>
+          </Empty>
         )}
       </section>
 
-      {eventRecommendations.length || itemRecommendations.length ? (
-        <section>
-          <h2 className="font-heading text-xl font-semibold">For you</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Explainable suggestions from your interests, past activity and neighbourhood.</p>
-          <ul className="mt-4 grid gap-3 sm:grid-cols-2">
-            {eventRecommendations.map((recommendation) => (
-              <li key={recommendation.item.eventId} className="rounded-xl border border-border bg-card p-4">
-                <Badge variant="outline">Event</Badge>
-                <Link href={`/events/${recommendation.item.eventId}`} className="mt-3 block font-medium underline-offset-4 hover:underline">{recommendation.item.title}</Link>
-                <p className="mt-1 text-sm text-muted-foreground">{recommendation.reason}</p>
-              </li>
-            ))}
-            {itemRecommendations.map((recommendation) => (
-              <li key={recommendation.item.itemId} className="rounded-xl border border-border bg-card p-4">
-                <Badge variant="outline">Item</Badge>
-                <Link href={`/borrow/items/${recommendation.item.itemId}`} className="mt-3 block font-medium underline-offset-4 hover:underline">{recommendation.item.title}</Link>
-                <p className="mt-1 text-sm text-muted-foreground">{recommendation.reason}</p>
+      {todos.length ? (
+        <section aria-labelledby="todo-heading" className="mt-2">
+          <SectionHeading title={<span id="todo-heading">Your next steps</span>} />
+          <ul className="mt-4 flex flex-col gap-3">
+            {todos.map((todo) => (
+              <li key={todo.id}>
+                <Link href={todo.href} className="bb-card flex min-h-14 items-center justify-between gap-3 p-3.5 hover:bg-lilac-tint">
+                  <span className="text-[15px] font-bold">{todo.label}</span>
+                  <span className="text-sm font-bold text-muted-foreground">Open</span>
+                </Link>
               </li>
             ))}
           </ul>
         </section>
       ) : null}
 
-      <section className="border-y border-border bg-card py-5">
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-sm font-medium text-points-ink">Emas · BetterPoints</p>
-            <p className="mt-1 font-heading text-4xl font-semibold tabular-nums">{active.points?.balance ?? 0} BP</p>
-          </div>
-          <Button render={<Link href="/rewards" />} variant="outline" className="h-11">Open rewards</Button>
-        </div>
-        <div className="mt-6 border-l-4 border-line-event pl-4">
-          {(ledgerResult.data ?? []).length ? (
-            <ul className="flex flex-col gap-3">
-              {ledgerResult.data?.map((row) => (
-                <li key={row.id} className="relative flex items-center justify-between gap-3 text-sm">
-                  <span className="absolute -left-[21px] size-2.5 rounded-full border-2 border-card bg-line-event" aria-hidden="true" />
-                  <span>{describeActivity(row.action_type)}</span>
-                  <span className={`font-medium tabular-nums ${row.delta > 0 ? "text-points-ink" : "text-muted-foreground"}`}>{row.delta > 0 ? "+" : ""}{row.delta}</span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-sm text-muted-foreground">Verified activity will appear here as stops on your route.</p>
-          )}
-        </div>
-      </section>
-
-      <section>
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <h2 className="font-heading text-xl font-semibold">Nearby events</h2>
-            <p className="mt-1 text-sm text-muted-foreground">Your neighbourhood first, then the rest of the township.</p>
-          </div>
-          <Button render={<Link href="/events" />} variant="ghost" className="h-11">All events</Button>
-        </div>
+      <section aria-labelledby="events-heading" className="mt-2">
+        <SectionHeading
+          title={<span id="events-heading">Nearby events</span>}
+          description="Your neighbourhood first, then the rest of the township."
+          actions={<Button render={<Link href="/events" />} variant="ghost">All events</Button>}
+        />
         {(eventsResult.data ?? []).length ? (
-          <ul className="mt-4 divide-y divide-border border-y border-border">
-            {eventsResult.data?.map((event) => (
-              <li key={event.id}>
-                <Link href={`/events/${event.id}`} className="flex flex-col gap-2 py-4 hover:bg-muted/30 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <p className="font-medium">{event.title}</p>
-                    <p className="mt-1 text-sm text-muted-foreground">{formatEventRange(event.starts_at, event.ends_at)}</p>
-                  </div>
-                  <Badge variant={event.event_categories?.counts_as_sustainability ? "secondary" : "outline"}>{event.event_categories?.name ?? "Event"}</Badge>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <Empty className="mt-4">
-            <EmptyHeader><EmptyTitle>No events this week</EmptyTitle><EmptyDescription>Host one or browse next week.</EmptyDescription></EmptyHeader>
-          </Empty>
-        )}
-      </section>
-
-      <section>
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <h2 className="font-heading text-xl font-semibold">Items to borrow</h2>
-            <p className="mt-1 text-sm text-muted-foreground">Useful things your neighbours are sharing.</p>
-          </div>
-          <Button render={<Link href="/borrow" />} variant="ghost" className="h-11">Browse borrow</Button>
-        </div>
-        {(itemsResult.data ?? []).length ? (
           <ul className="mt-4 grid gap-3 sm:grid-cols-3">
-            {itemsResult.data?.map((item) => (
-              <li key={item.id} className="overflow-hidden rounded-xl border border-border bg-card">
-                <Link href={`/borrow/items/${item.id}`} className="block p-3 hover:bg-muted/30">
-                  <Image src={item.photo_paths?.[0] ?? "/demo/item-placeholder.svg"} alt={item.title} width={320} height={180} className="h-28 w-full rounded-lg object-cover" />
-                  <p className="mt-3 font-medium">{item.title}</p>
-                  <p className="mt-1 text-sm text-muted-foreground">{item.item_categories?.name ?? "Item"} · {item.condition.replace("_", " ")}</p>
+            {eventsResult.data?.map((event, index) => {
+              const recommendation = eventRecommendations.find((entry) => entry.item.eventId === event.id)
+              return (
+              <li key={event.id}>
+                <Link href={`/events/${event.id}`} className="bb-card flex h-full flex-col p-4 hover:bg-lilac-tint">
+                  <Badge variant={index % 2 === 0 ? "secondary" : "outline"} className="w-fit">
+                    {event.event_categories?.name ?? "Event"}
+                  </Badge>
+                  <p className="mt-3 font-display text-[15px] text-ink">{event.title}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{formatEventRange(event.starts_at, event.ends_at)}</p>
+                  {recommendation ? <p className="mt-2 text-xs font-bold text-ink-muted">{recommendation.reason}</p> : null}
                 </Link>
               </li>
-            ))}
+              )
+            })}
           </ul>
         ) : (
-          <Empty className="mt-4">
-            <EmptyHeader><EmptyTitle>No items nearby yet</EmptyTitle><EmptyDescription>Check back after your neighbours list something useful.</EmptyDescription></EmptyHeader>
+          <Empty className="bb-card mt-4">
+            <EmptyHeader>
+              <EmptyTitle>No events this week</EmptyTitle>
+              <EmptyDescription>Host one or browse next week.</EmptyDescription>
+            </EmptyHeader>
           </Empty>
         )}
       </section>
 
-      <section className="rounded-xl border border-border bg-muted/40 p-5">
-        <p className="text-sm font-medium text-rimba-ink">Township update</p>
-        <p className="mt-2 font-heading text-lg font-semibold">The next announcement will appear here.</p>
-        <p className="mt-1 text-sm text-muted-foreground">Organisers and the township office can share practical updates in Phase 2.</p>
+      <section aria-labelledby="items-heading" className="mt-2">
+        <SectionHeading
+          title={<span id="items-heading">Items to borrow</span>}
+          description="Useful things your neighbours are sharing."
+          actions={<Button render={<Link href="/borrow" />} variant="ghost">Browse borrow</Button>}
+        />
+        {(itemsResult.data ?? []).length ? (
+          <ul className="mt-4 grid gap-3.5 sm:grid-cols-3">
+            {itemsResult.data?.map((item, index) => {
+              const recommendation = itemRecommendations.find((entry) => entry.item.itemId === item.id)
+              return (
+                <li key={item.id} className="bb-card overflow-hidden">
+                  <Link href={`/borrow/items/${item.id}`} className="flex h-full flex-col">
+                    <div className={`flex h-24 items-center justify-center ${imageTints[index % imageTints.length]}`}>
+                      {item.photo_paths?.[0] ? (
+                        <Image src={item.photo_paths[0]} alt="" width={320} height={180} className="h-full w-full object-cover" />
+                      ) : (
+                        <PackageIcon aria-hidden="true" className="size-10 text-ink" strokeWidth={1.6} />
+                      )}
+                    </div>
+                    <div className="flex flex-1 flex-col p-3">
+                      <p className="font-display text-[15px] text-ink">{item.title}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {item.item_categories?.name ?? "Item"} · {item.condition.replace("_", " ")}
+                      </p>
+                      {recommendation ? <p className="mt-2 text-xs font-bold text-ink-muted">Matches your interests</p> : null}
+                    </div>
+                  </Link>
+                </li>
+              )
+            })}
+          </ul>
+        ) : (
+          <Empty className="bb-card mt-4">
+            <EmptyHeader>
+              <EmptyTitle>No items nearby yet</EmptyTitle>
+              <EmptyDescription>Check back after your neighbours list something useful.</EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+        )}
       </section>
+
+      {ledgerResult.data?.length ? (
+        <section aria-labelledby="activity-heading" className="mt-2">
+          <SectionHeading
+            title={<span id="activity-heading">Recent activity</span>}
+            actions={<Button render={<Link href="/rewards" />} variant="ghost">Open impact</Button>}
+          />
+          <ul className="mt-4 divide-y divide-border overflow-hidden rounded-lg border border-border bg-card shadow-card">
+            {ledgerResult.data.map((row) => (
+              <li key={row.id} className="flex items-center justify-between gap-3 px-4 py-3 text-sm">
+                <span>{describeActivity(row.action_type)}</span>
+                <span className={`font-bold tabular-nums ${row.delta > 0 ? "text-ink" : "text-muted-foreground"}`}>
+                  {row.delta > 0 ? "+" : ""}{row.delta}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
     </div>
   )
 }

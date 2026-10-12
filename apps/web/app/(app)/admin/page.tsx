@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
 
+import { PageBand } from "@/components/shared/page-band"
 import { requireActiveMember } from "@/lib/data"
 import { isFeatureEnabled } from "@/lib/env"
 import { createClient } from "@/lib/supabase/server"
@@ -54,37 +55,34 @@ export default async function AdminPage({
 
   return (
     <div className="flex flex-col gap-7">
-      <section className="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-sm font-medium text-rimba-ink">Rimba · Township Pulse</p>
-          <h1 className="mt-1 font-heading text-3xl font-semibold">Observed activity</h1>
-          <p className="mt-2 max-w-2xl text-muted-foreground">
-            Aggregate signals for planning. Residents&apos; private activity is not exposed here.
-          </p>
-        </div>
+      <PageBand
+        eyebrow="Rimba · Township Pulse"
+        title="Observed activity"
+        description="Aggregate signals for planning. Residents' private activity is not exposed here."
+      >
         <form method="get" action="/admin" className="flex items-center gap-2">
           <label htmlFor="days" className="sr-only">Period</label>
-          <select id="days" name="days" defaultValue={String(days)} className="h-11 rounded-lg border border-input bg-background px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50">
+          <select id="days" name="days" defaultValue={String(days)} className="h-11 rounded-lg border border-border bg-surface px-3 text-base text-ink outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50">
             <option value="7">7 days</option>
             <option value="30">30 days</option>
             <option value="90">90 days</option>
           </select>
-          <Button type="submit" className="h-11">Apply</Button>
+          <Button type="submit" variant="cta">Apply</Button>
         </form>
-      </section>
+      </PageBand>
 
       <nav aria-label="Admin tools" className="flex flex-wrap gap-2">
-        <Button render={<Link href="/admin/insights" />} variant="outline" className="h-11">Insights</Button>
-        <Button render={<Link href="/admin/budget" />} variant="outline" className="h-11">Budget</Button>
-        <Button render={<Link href="/admin/members" />} variant="outline" className="h-11">Members</Button>
-        <Button render={<Link href="/admin/rewards" />} variant="outline" className="h-11">Rewards economy</Button>
-        <Button render={<Link href="/admin/moderation" />} variant="outline" className="h-11">Moderation</Button>
-        <Button render={<Link href="/admin/disputes" />} variant="outline" className="h-11">Disputes</Button>
-        {isFeatureEnabled("equipment_hubs") ? <Button render={<Link href="/admin/hubs" />} variant="outline" className="h-11">Equipment hubs</Button> : null}
-        {isFeatureEnabled("leaflet") ? <Button render={<Link href="/admin/map" />} variant="outline" className="h-11">Neighbourhood map</Button> : null}
-        <Button render={<Link href="/admin/methodology" />} variant="ghost" className="h-11">Methodology</Button>
-        <Button render={<Link href="/ai" />} variant="ghost" className="h-11">AI summary</Button>
-        <Button render={<Link href="/admin/export" />} variant="ghost" className="h-11">Export CSV</Button>
+        <Button render={<Link href="/admin/insights" />} variant="outline" className="min-h-11">Insights</Button>
+        <Button render={<Link href="/admin/budget" />} variant="outline" className="min-h-11">Budget</Button>
+        <Button render={<Link href="/admin/members" />} variant="outline" className="min-h-11">Members</Button>
+        <Button render={<Link href="/admin/rewards" />} variant="outline" className="min-h-11">Rewards economy</Button>
+        <Button render={<Link href="/admin/moderation" />} variant="outline" className="min-h-11">Moderation</Button>
+        <Button render={<Link href="/admin/disputes" />} variant="outline" className="min-h-11">Disputes</Button>
+        {isFeatureEnabled("equipment_hubs") ? <Button render={<Link href="/admin/hubs" />} variant="outline" className="min-h-11">Equipment hubs</Button> : null}
+        {isFeatureEnabled("leaflet") ? <Button render={<Link href="/admin/map" />} variant="outline" className="min-h-11">Neighbourhood map</Button> : null}
+        <Button render={<Link href="/admin/methodology" />} variant="ghost" className="min-h-11">Methodology</Button>
+        <Button render={<Link href="/ai" />} variant="ghost" className="min-h-11">AI summary</Button>
+        <Button render={<Link href="/admin/export" />} variant="ghost" className="min-h-11">Export CSV</Button>
       </nav>
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -130,7 +128,7 @@ export default async function AdminPage({
               {!pulse.attendance_by_category?.length ? <li className="text-sm text-muted-foreground">No verified attendance yet.</li> : null}
             </ul>
             <div className="mt-6 border-t border-border pt-5">
-              <h3 className="font-heading text-base font-semibold">Activity mix</h3>
+              <h3 className="font-display text-base font-bold">Activity mix</h3>
               <ul className="mt-3 flex flex-col gap-2">
                 {(pulse.activity_mix ?? []).map((row) => (
                   <li key={row.action_type} className="flex items-center justify-between text-sm">
@@ -159,10 +157,10 @@ export default async function AdminPage({
         </TabsContent>
       </Tabs>
 
-      <section className="rounded-xl border border-border bg-card p-5">
+      <section className="bb-card p-5">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h2 className="font-heading text-lg font-semibold">Methodology note</h2>
+            <h2 className="font-display text-lg">Methodology note</h2>
             <p className="mt-1 text-sm text-muted-foreground">{pulse.suppression_rule ?? "Breakdowns with fewer than 5 residents are suppressed."}</p>
           </div>
           <Badge variant="outline">Aggregate only</Badge>
@@ -184,19 +182,19 @@ function MetricTile({
   note?: string
 }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-4">
+    <div className="bb-card p-4">
       <p className="text-sm text-muted-foreground">{label}</p>
-      <p className="mt-2 font-heading text-2xl font-semibold tabular-nums">{value}</p>
+      <p className="mt-2 font-display text-2xl tabular-nums">{value}</p>
       {suffix ? <p className="mt-1 text-xs text-muted-foreground">{suffix}</p> : null}
-      {note ? <p className="mt-1 text-xs font-medium text-rimba-ink">{note}</p> : null}
+      {note ? <p className="mt-1 text-xs font-medium text-ink-muted">{note}</p> : null}
     </div>
   )
 }
 
 function ChartPanel({ title, description, children }: { title: string; description: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-border bg-card p-5">
-      <h2 className="font-heading text-lg font-semibold">{title}</h2>
+    <section className="bb-card p-5">
+      <h2 className="font-display text-lg">{title}</h2>
       <p className="mt-1 text-sm text-muted-foreground">{description}</p>
       <div className="mt-5">{children}</div>
     </section>

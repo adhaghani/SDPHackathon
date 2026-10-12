@@ -21,37 +21,36 @@ export function ResidentNav({
     label:
       item.href === "/home"
         ? localized.home
-        : item.href === "/events"
-          ? localized.events
-          : item.href === "/borrow"
-            ? localized.borrow
-            : item.href === "/rewards"
-              ? localized.rewards
-              : localized.community,
+        : item.href === "/borrow"
+          ? localized.borrow
+          : item.href === "/events"
+            ? localized.events
+            : localized.impact,
   }))
 
   return (
     <>
       <nav
         aria-label="Primary"
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 backdrop-blur-sm lg:hidden"
+        className="bb-safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface lg:hidden"
       >
-        <ul className="mx-auto grid max-w-lg grid-cols-5">
+        <ul className="mx-auto grid max-w-lg grid-cols-4 px-2.5">
           {navItems.map(({ href, label, icon: Icon }) => {
             const active = pathname === href || pathname.startsWith(`${href}/`)
 
             return (
-              <li key={href}>
+              <li key={href} className="flex justify-center py-3">
                 <Link
                   href={href}
+                  aria-label={label}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "flex min-h-16 flex-col items-center justify-center gap-1 px-1 text-xs font-medium text-muted-foreground",
-                    active && "text-foreground"
+                    "flex size-12 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-lilac-tint hover:text-ink",
+                    active && "bg-lilac-tint text-ink"
                   )}
                 >
-                  <Icon aria-hidden="true" className="size-5" />
-                  <span>{label}</span>
+                  <Icon aria-hidden="true" className="size-6" strokeWidth={1.8} />
+                  <span className="sr-only">{label}</span>
                 </Link>
               </li>
             )
@@ -61,10 +60,10 @@ export function ResidentNav({
 
       <nav
         aria-label="Primary"
-        className="sticky top-0 hidden h-svh w-60 shrink-0 border-r border-border bg-card lg:flex lg:flex-col"
+        className="sticky top-0 hidden h-svh w-60 shrink-0 flex-col border-r border-border bg-surface lg:flex"
       >
-        <div className="flex min-h-16 items-center border-b border-border px-5">
-          <Link href="/home" className="font-heading text-lg font-semibold">
+        <div className="bb-safe-top flex min-h-16 items-center border-b border-border px-5">
+          <Link href="/home" className="font-display text-lg text-ink">
             BorrowBetter
           </Link>
         </div>
@@ -78,11 +77,11 @@ export function ResidentNav({
                   href={href}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground",
-                    active && "bg-muted text-foreground"
+                    "flex min-h-12 items-center gap-3 rounded-sm px-3 text-sm font-bold text-muted-foreground transition-colors hover:bg-lilac-tint hover:text-ink",
+                    active && "bg-lilac-tint text-ink"
                   )}
                 >
-                  <Icon aria-hidden="true" className="size-5" />
+                  <Icon aria-hidden="true" className="size-5" strokeWidth={1.8} />
                   {label}
                 </Link>
               </li>
@@ -94,8 +93,8 @@ export function ResidentNav({
                 href="/admin"
                 aria-current={pathname === "/admin" ? "page" : undefined}
                 className={cn(
-                  "flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground",
-                  pathname === "/admin" && "bg-muted text-foreground"
+                  "flex min-h-12 items-center gap-3 rounded-sm px-3 text-sm font-bold text-muted-foreground transition-colors hover:bg-lilac-tint hover:text-ink",
+                  pathname === "/admin" && "bg-lilac-tint text-ink"
                 )}
               >
                 Township Pulse
@@ -106,7 +105,7 @@ export function ResidentNav({
         <div className="border-t border-border p-3">
           <Link
             href="/profile"
-            className="flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium hover:bg-muted"
+            className="flex min-h-12 items-center gap-3 rounded-sm px-3 text-sm font-bold hover:bg-lilac-tint"
           >
             {localized.profile}
           </Link>

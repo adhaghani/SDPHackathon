@@ -4,10 +4,12 @@ import { notFound } from "next/navigation"
 import { CompleteEventButton } from "@/components/events/complete-event-button"
 import { ManualCheckInList } from "@/components/events/manual-check-in-list"
 import { QrCheckIn } from "@/components/events/qr-check-in"
+import { PageBand } from "@/components/shared/page-band"
 import { VolunteerHoursForm } from "@/components/events/volunteer-hours-form"
 import { requireActiveMember } from "@/lib/data"
 import { createClient } from "@/lib/supabase/server"
 import { Badge } from "@workspace/ui/components/badge"
+import { Button } from "@workspace/ui/components/button"
 import { Alert, AlertDescription } from "@workspace/ui/components/alert"
 
 export default async function EventManagePage({
@@ -47,28 +49,21 @@ export default async function EventManagePage({
 
   return (
     <div className="mx-auto max-w-3xl">
-      <Link href={`/events/${id}`} className="text-sm text-muted-foreground underline underline-offset-4">
-        Back to event
-      </Link>
-      <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-sm font-medium text-jom-ink">Check-in desk</p>
-          <h1 className="mt-1 font-heading text-3xl font-semibold">{eventResult.data.title}</h1>
-        </div>
-        <Badge variant={eventResult.data.status === "completed" ? "outline" : "secondary"}>
-          {eventResult.data.status}
-        </Badge>
-      </div>
-      <p className="mt-2 text-muted-foreground">
-        Use the camera path when available, or search registrations for an accessible manual check-in.
-      </p>
+      <PageBand
+        eyebrow="Check-in desk"
+        title={eventResult.data.title}
+        description="Use the camera path when available, or search registrations for an accessible manual check-in."
+        actions={<Button render={<Link href={`/events/${id}`} />} variant="outline">Back to event</Button>}
+      >
+        <Badge variant="secondary" className="w-fit bg-sun text-ink">{eventResult.data.status}</Badge>
+      </PageBand>
       <div className="mt-7">
         <QrCheckIn eventId={id} />
         <ManualCheckInList registrations={registrations} />
       </div>
       {registrations.some((registration) => registration.role === "volunteer" && registration.status === "checked_in") ? (
         <section className="mt-7 border-t border-border pt-6">
-          <h2 className="font-heading text-lg font-semibold">Volunteer hours</h2>
+          <h2 className="font-display text-lg">Volunteer hours</h2>
           <p className="mt-1 text-sm text-muted-foreground">Verify up to four hours per volunteer after check-in.</p>
           <div className="mt-4 flex flex-col gap-4">
             {registrations

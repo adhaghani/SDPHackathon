@@ -1,5 +1,6 @@
 import Link from "next/link"
 
+import { PageBand } from "@/components/shared/page-band"
 import { requireActiveMember } from "@/lib/data"
 import { createClient } from "@/lib/supabase/server"
 import { formatEventDate } from "@/lib/format"
@@ -18,10 +19,11 @@ export default async function BorrowMinePage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <p className="text-sm font-medium text-line-borrow">Pinjam · Mine</p>
-        <h1 className="mt-1 font-heading text-3xl font-semibold">Your borrowing and lending</h1>
-      </div>
+      <PageBand
+        eyebrow="Pinjam · Mine"
+        title="Your borrowing and lending"
+        actions={<Button render={<Link href="/borrow/new" />}>List an item</Button>}
+      />
       <Tabs defaultValue="borrowing">
         <TabsList>
           <TabsTrigger value="borrowing">I'm borrowing</TabsTrigger>
@@ -36,7 +38,6 @@ export default async function BorrowMinePage() {
         </TabsContent>
         <TabsContent value="items">
           <div className="flex flex-col gap-4">
-            <div className="flex justify-end"><Button render={<Link href="/borrow/new" />} className="h-11">List an item</Button></div>
             <ul className="divide-y divide-border border-y border-border">
               {(itemsResult.data ?? []).map((item) => (
                 <li key={item.id} className="flex items-center justify-between gap-3 py-4">

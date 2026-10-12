@@ -31,7 +31,7 @@ export function InventoryForm({ hubId, items }: { hubId: string; items: Array<{ 
     <form action={action} className="flex flex-col gap-4">
       <input type="hidden" name="hubId" value={hubId} />
       <FieldGroup>
-        <Field><FieldLabel htmlFor={`inventory-item-${hubId}`}>Item</FieldLabel><select id={`inventory-item-${hubId}`} name="itemId" className="h-10 w-full rounded-lg border border-input bg-background px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"><option value="">Choose an item</option>{items.map((item) => <option key={item.id} value={item.id}>{item.title}</option>)}</select></Field>
+        <Field><FieldLabel htmlFor={`inventory-item-${hubId}`}>Item</FieldLabel><select id={`inventory-item-${hubId}`} name="itemId" className="h-11 w-full rounded-lg border border-input bg-background px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"><option value="">Choose an item</option>{items.map((item) => <option key={item.id} value={item.id}>{item.title}</option>)}</select></Field>
         <Field><FieldLabel htmlFor={`inventory-quantity-${hubId}`}>Quantity</FieldLabel><Input id={`inventory-quantity-${hubId}`} name="quantity" type="number" min="1" defaultValue="1" required /></Field>
       </FieldGroup>
       {state.message ? <p className="text-sm text-muted-foreground">{state.message}</p> : null}

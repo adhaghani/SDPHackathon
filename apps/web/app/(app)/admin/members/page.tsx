@@ -27,7 +27,7 @@ export default async function AdminMembersPage() {
   return (
     <div className="mx-auto max-w-4xl">
       <Link href="/admin" className="text-sm text-muted-foreground underline underline-offset-4">Back to Township Pulse</Link>
-      <h1 className="mt-5 font-heading text-3xl font-semibold">Members</h1>
+      <h1 className="mt-5 font-display text-3xl font-bold">Members</h1>
       <p className="mt-2 text-muted-foreground">Approve or reject pending township membership requests.</p>
       {(members.data ?? []).length ? (
         <ul className="mt-6 divide-y divide-border border-y border-border">

@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Share more. Connect more. Live better.",
     start_url: "/home",
     display: "standalone",
-    background_color: "#F4F7F5",
-    theme_color: "#0F3B45",
+    background_color: "#F6F4FB",
+    theme_color: "#1B1340",
     icons: [
       {
         src: "/icons/icon.svg",

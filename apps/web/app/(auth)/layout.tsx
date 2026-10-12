@@ -1,7 +1,6 @@
 import Link from "next/link"
 
 import { authContent } from "@/content/auth"
-import { Badge } from "@workspace/ui/components/badge"
 
 export default function AuthLayout({
   children,
@@ -10,16 +9,16 @@ export default function AuthLayout({
     <div className="min-h-svh bg-background">
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-50 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-50 focus:rounded-sm focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground"
       >
         Skip to content
       </a>
-      <header className="border-b border-border">
-        <div className="mx-auto flex min-h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-          <Link href="/" className="font-heading text-lg font-semibold">
+      <header className="bb-band bb-safe-top rounded-b-[28px]">
+        <div className="mx-auto flex min-h-16 max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
+          <Link href="/" className="font-display text-lg text-white">
             {authContent.brand}
           </Link>
-          <Badge variant="outline">Demo-friendly</Badge>
+          <span className="rounded-full bg-sun px-3 py-1 text-xs font-bold text-ink">Demo-friendly</span>
         </div>
       </header>
       <main
@@ -27,12 +26,12 @@ export default function AuthLayout({
         className="mx-auto grid max-w-6xl gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[1fr_440px] lg:items-center lg:py-16"
       >
         <section className="max-w-xl">
-          <p className="font-heading text-sm font-medium text-rimba-ink">
+          <p className="font-display text-lg text-ink">
             {authContent.tagline}
           </p>
           <div
             aria-hidden="true"
-            className="mt-6 grid gap-4 border-l-4 border-line-event pl-5"
+            className="mt-6 grid gap-4 border-l-4 border-l-coral pl-5"
           >
             {[
               {
@@ -60,7 +59,7 @@ export default function AuthLayout({
                 <span
                   className={`absolute -left-[29px] size-3 rounded-full border-4 border-background ${dot}`}
                 />
-                <span className="w-14 text-xs font-medium text-muted-foreground">
+                <span className="w-14 text-xs font-bold text-muted-foreground">
                   {label}
                 </span>
                 <span className="text-sm">{text}</span>
@@ -68,7 +67,7 @@ export default function AuthLayout({
             ))}
           </div>
         </section>
-        <section className="rounded-2xl border border-border bg-card p-5 sm:p-7">
+        <section className="bb-card p-5 sm:p-7">
           {children}
         </section>
       </main>

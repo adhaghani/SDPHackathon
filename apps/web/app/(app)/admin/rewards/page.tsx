@@ -35,22 +35,22 @@ export default async function AdminRewardsPage() {
   return (
     <div className="mx-auto max-w-4xl">
       <Link href="/admin" className="text-sm text-muted-foreground underline underline-offset-4">Back to Township Pulse</Link>
-      <h1 className="mt-5 font-heading text-3xl font-semibold">Rewards economy</h1>
+      <h1 className="mt-5 font-display text-3xl font-bold">Rewards economy</h1>
       <p className="mt-2 text-muted-foreground">Verify voucher codes and review aggregate redemption activity.</p>
-      <section className="mt-6 rounded-xl border border-border bg-card p-5">
-        <h2 className="font-heading text-lg font-semibold">Mark a voucher used</h2>
+      <section className="mt-6 bb-card p-5">
+        <h2 className="font-display text-lg font-bold">Mark a voucher used</h2>
         <div className="mt-4"><RedemptionVerificationForm /></div>
       </section>
       <section className="mt-6 grid gap-3 sm:grid-cols-3">
-        <div className="rounded-xl border border-border bg-card p-4"><p className="text-sm text-muted-foreground">Points issued</p><p className="mt-1 font-heading text-2xl font-semibold tabular-nums">{economy.points_issued ?? 0}</p></div>
-        <div className="rounded-xl border border-border bg-card p-4"><p className="text-sm text-muted-foreground">Points redeemed</p><p className="mt-1 font-heading text-2xl font-semibold tabular-nums">{economy.points_redeemed ?? 0}</p></div>
-        <div className="rounded-xl border border-border bg-card p-4"><p className="text-sm text-muted-foreground">Redemption rate</p><p className="mt-1 font-heading text-2xl font-semibold tabular-nums">{Math.round(Number(economy.redemption_rate ?? 0) * 100)}%</p></div>
-        <div className="rounded-xl border border-border bg-card p-4"><p className="text-sm text-muted-foreground">Outstanding points</p><p className="mt-1 font-heading text-2xl font-semibold tabular-nums">{economy.points_outstanding ?? 0}</p></div>
-        <div className="rounded-xl border border-border bg-card p-4"><p className="text-sm text-muted-foreground">Manual check-in share</p><p className="mt-1 font-heading text-2xl font-semibold tabular-nums">{Math.round(Number(economy.manual_checkin_share ?? 0) * 100)}%</p></div>
-        <div className="rounded-xl border border-border bg-card p-4"><p className="text-sm text-muted-foreground">Repeated pair loans</p><p className="mt-1 font-heading text-2xl font-semibold tabular-nums">{economy.repeated_pair_loans ?? 0}</p></div>
+        <div className="bb-card p-4"><p className="text-sm text-muted-foreground">Points issued</p><p className="mt-1 font-display text-2xl font-bold tabular-nums">{economy.points_issued ?? 0}</p></div>
+        <div className="bb-card p-4"><p className="text-sm text-muted-foreground">Points redeemed</p><p className="mt-1 font-display text-2xl font-bold tabular-nums">{economy.points_redeemed ?? 0}</p></div>
+        <div className="bb-card p-4"><p className="text-sm text-muted-foreground">Redemption rate</p><p className="mt-1 font-display text-2xl font-bold tabular-nums">{Math.round(Number(economy.redemption_rate ?? 0) * 100)}%</p></div>
+        <div className="bb-card p-4"><p className="text-sm text-muted-foreground">Outstanding points</p><p className="mt-1 font-display text-2xl font-bold tabular-nums">{economy.points_outstanding ?? 0}</p></div>
+        <div className="bb-card p-4"><p className="text-sm text-muted-foreground">Manual check-in share</p><p className="mt-1 font-display text-2xl font-bold tabular-nums">{Math.round(Number(economy.manual_checkin_share ?? 0) * 100)}%</p></div>
+        <div className="bb-card p-4"><p className="text-sm text-muted-foreground">Repeated pair loans</p><p className="mt-1 font-display text-2xl font-bold tabular-nums">{economy.repeated_pair_loans ?? 0}</p></div>
       </section>
-      <section className="mt-6 rounded-xl border border-border bg-card p-5">
-        <h2 className="font-heading text-lg font-semibold">Suspicious-activity review</h2>
+      <section className="mt-6 bb-card p-5">
+        <h2 className="font-display text-lg font-bold">Suspicious-activity review</h2>
         <p className="mt-1 text-sm text-muted-foreground">Raw ledger access for this review is audit-logged. Reversals create a negative reversal row, never edit history.</p>
         {candidates.length ? (
           <ul className="mt-4 divide-y divide-border border-y border-border">
@@ -66,13 +66,13 @@ export default async function AdminRewardsPage() {
         )}
       </section>
       <section className="mt-7">
-        <h2 className="font-heading text-lg font-semibold">Recent redemptions</h2>
+        <h2 className="font-display text-lg font-bold">Recent redemptions</h2>
         {(redemptions.data ?? []).length ? (
           <ul className="mt-4 divide-y divide-border border-y border-border">
             {redemptions.data?.map((redemption) => (
               <li key={redemption.id} className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center sm:justify-between">
                 <div><p className="font-medium">{redemption.rewards?.title}</p><p className="mt-1 text-sm text-muted-foreground">{redemption.cost_bp} BP · {new Date(redemption.created_at).toLocaleDateString("en-MY")}</p></div>
-                <div className="flex items-center gap-3"><code className="rounded bg-muted px-2 py-1 text-sm font-semibold tracking-widest">{redemption.code}</code><Badge variant={redemption.status === "issued" ? "secondary" : "outline"}>{redemption.status}</Badge></div>
+                <div className="flex items-center gap-3"><code className="rounded bg-muted px-2 py-1 text-sm font-bold tracking-widest">{redemption.code}</code><Badge variant={redemption.status === "issued" ? "secondary" : "outline"}>{redemption.status}</Badge></div>
               </li>
             ))}
           </ul>

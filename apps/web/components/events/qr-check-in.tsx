@@ -52,10 +52,10 @@ export function QrCheckIn({ eventId }: { eventId: string }) {
   }
 
   return (
-    <section className="rounded-xl border border-border bg-card p-5">
+    <section className="bb-card p-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="font-heading text-lg font-semibold">QR check-in</h2>
+          <h2 className="font-display text-lg font-bold">QR check-in</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Scan a fresh event pass, or paste the token for an accessible fallback.
           </p>

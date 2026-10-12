@@ -46,7 +46,7 @@ export function BookingRequestForm({
             id="handover-method"
             name="handoverMethod"
             required
-            className="h-10 w-full rounded-lg border border-input bg-background px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+            className="h-11 w-full rounded-lg border border-input bg-background px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
           >
             {handoverOptions.map((option) => (
               <option key={option} value={option}>

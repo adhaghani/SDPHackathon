@@ -4,6 +4,7 @@ import { useActionState } from "react"
 
 import { setPreferredLocale } from "@/actions/i18n"
 import { Button } from "@workspace/ui/components/button"
+import { cn } from "@workspace/ui/lib/utils"
 
 const idleState = { status: "idle" } as const
 
@@ -12,11 +13,13 @@ export function LanguageSwitcher({
   next,
   label,
   nextPath = "/",
+  className,
 }: {
   current: "en" | "ms"
   next: "en" | "ms"
   label: string
   nextPath?: string
+  className?: string
 }) {
   const [, action, pending] = useActionState(setPreferredLocale, idleState)
 
@@ -24,7 +27,7 @@ export function LanguageSwitcher({
     <form action={action} className="inline-flex">
       <input type="hidden" name="locale" value={next} />
       <input type="hidden" name="next" value={nextPath} />
-      <Button type="submit" variant="ghost" size="sm" className="h-9" disabled={pending} aria-label={`${label}. Current language: ${current}`}>
+      <Button type="submit" variant="ghost" size="sm" className={cn("min-h-11", className)} disabled={pending} aria-label={`${label}. Current language: ${current}`}>
         {label}
       </Button>
     </form>

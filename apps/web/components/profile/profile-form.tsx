@@ -40,7 +40,7 @@ export function ProfileForm({
       </FieldGroup>
 
       <fieldset className="flex flex-col gap-3">
-        <legend className="font-heading text-base font-semibold">Comfort settings</legend>
+        <legend className="font-display text-base font-bold">Comfort settings</legend>
         <Field orientation="horizontal">
           <Checkbox id="largeText" name="largeText" defaultChecked={Boolean(prefs.large_text)} aria-label="Larger text" />
           <FieldLabel htmlFor="largeText">Larger text</FieldLabel>

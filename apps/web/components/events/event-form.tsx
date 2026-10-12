@@ -88,7 +88,7 @@ export function EventForm({
       </FieldGroup>
 
       <FieldSet aria-label="Accessibility and language">
-        <legend className="font-heading text-base font-semibold">Access and language</legend>
+        <legend className="font-display text-base font-bold">Access and language</legend>
         <div className="grid gap-3 sm:grid-cols-2">
           {accessibilityOptions.map((option) => (
             <Field key={option} orientation="horizontal">

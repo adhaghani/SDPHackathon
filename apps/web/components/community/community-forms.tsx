@@ -20,8 +20,8 @@ export function CommunityForms({ role }: { role: string }) {
   return (
     <div className="grid gap-5 lg:grid-cols-2">
       {role === "organiser" || role === "township_admin" ? (
-        <section className="rounded-xl border border-border bg-card p-5">
-          <h2 className="font-heading text-lg font-semibold">Post an announcement</h2>
+        <section className="bb-card p-5">
+          <h2 className="font-display text-lg font-bold">Post an announcement</h2>
           <form action={announcementAction} className="mt-4 flex flex-col gap-4">
             <FieldGroup>
               <Field data-invalid={Boolean(announcementState.fieldErrors?.title)}>
@@ -47,8 +47,8 @@ export function CommunityForms({ role }: { role: string }) {
         </section>
       ) : null}
 
-      <section className="rounded-xl border border-border bg-card p-5">
-        <h2 className="font-heading text-lg font-semibold">Ask for help</h2>
+      <section className="bb-card p-5">
+        <h2 className="font-display text-lg font-bold">Ask for help</h2>
         <form action={helpAction} className="mt-4 flex flex-col gap-4">
           <FieldGroup>
             <Field data-invalid={Boolean(helpState.fieldErrors?.title)}>
@@ -62,7 +62,7 @@ export function CommunityForms({ role }: { role: string }) {
             </Field>
             <Field>
               <FieldLabel htmlFor="help-kind">Kind</FieldLabel>
-              <select id="help-kind" name="kind" defaultValue="errand" className="h-10 w-full rounded-lg border border-input bg-background px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50">
+              <select id="help-kind" name="kind" defaultValue="errand" className="h-11 w-full rounded-lg border border-input bg-background px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50">
                 <option value="errand">Errand</option>
                 <option value="tech_help">Tech help</option>
                 <option value="transport">Transport</option>

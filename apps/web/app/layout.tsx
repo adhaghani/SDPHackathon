@@ -1,4 +1,5 @@
-import { Atkinson_Hyperlegible, Bricolage_Grotesque } from "next/font/google"
+import type { Viewport } from "next"
+import { DM_Sans, Syne } from "next/font/google"
 
 import "@workspace/ui/globals.css"
 import { Toaster } from "@workspace/ui/components/sonner"
@@ -14,16 +15,26 @@ export const metadata = {
   description: "Share more. Connect more. Live better.",
 }
 
-const atkinson = Atkinson_Hyperlegible({
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#1B1340" },
+    { media: "(prefers-color-scheme: dark)", color: "#120D2E" },
+  ],
+  colorScheme: "light",
+  viewportFit: "cover",
+}
+
+const dmSans = DM_Sans({
   weight: ["400", "700"],
   subsets: ["latin"],
-  variable: "--font-atkinson",
+  variable: "--font-dm-sans",
   display: "swap",
 })
 
-const bricolage = Bricolage_Grotesque({
+const syne = Syne({
+  weight: "700",
   subsets: ["latin"],
-  variable: "--font-bricolage",
+  variable: "--font-syne",
   display: "swap",
 })
 
@@ -38,8 +49,8 @@ export default function RootLayout({
       suppressHydrationWarning
       className={cn(
         "antialiased",
-        atkinson.variable,
-        bricolage.variable,
+        dmSans.variable,
+        syne.variable,
         "font-sans"
       )}
     >

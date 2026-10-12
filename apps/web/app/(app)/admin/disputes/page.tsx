@@ -21,7 +21,7 @@ export default async function AdminDisputesPage() {
   return (
     <div className="mx-auto max-w-4xl">
       <Link href="/admin" className="text-sm text-muted-foreground underline underline-offset-4">Back to Township Pulse</Link>
-      <h1 className="mt-5 font-heading text-3xl font-semibold">Disputes</h1>
+      <h1 className="mt-5 font-display text-3xl font-bold">Disputes</h1>
       <p className="mt-2 text-muted-foreground">Review both sides and record a resolution. Resolutions are audit-logged.</p>
       {(disputes.data ?? []).length ? (
         <ul className="mt-6 divide-y divide-border border-y border-border">
@@ -33,7 +33,7 @@ export default async function AdminDisputesPage() {
               </div>
               <p className="mt-2 font-medium">{dispute.reason}</p>
               <p className="mt-1 text-sm text-muted-foreground">{dispute.details || "No extra details provided."}</p>
-              <Link href={`/borrow/bookings/${dispute.booking_id}`} className="mt-2 inline-block text-sm text-line-borrow underline underline-offset-4">Open booking</Link>
+              <Link href={`/borrow/bookings/${dispute.booking_id}`} className="mt-2 inline-block text-sm text-primary underline underline-offset-4">Open booking</Link>
               {dispute.status === "open" ? <div className="mt-4"><ResolveDisputeForm disputeId={dispute.id} /></div> : null}
             </li>
           ))}

@@ -1,3 +1,4 @@
+import { PageBand } from "@/components/shared/page-band"
 import { requireActiveMember } from "@/lib/data"
 import { CommunityForms } from "@/components/community/community-forms"
 import { GroupActionButton, HelpActionButton } from "@/components/community/community-action"
@@ -21,11 +22,11 @@ export default async function CommunityPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <p className="text-sm font-medium text-line-help">Tolong · Community</p>
-        <h1 className="mt-1 font-heading text-3xl font-semibold">Neighbourhood help</h1>
-        <p className="mt-2 text-muted-foreground">Meet in shared spaces. Never share bank or ID details.</p>
-      </div>
+      <PageBand
+        eyebrow="Tolong · Community"
+        title="Neighbourhood help"
+        description="Meet in shared spaces. Never share bank or ID details."
+      />
 
       <CommunityForms role={active.membership?.role ?? "resident"} />
 
@@ -44,7 +45,7 @@ export default async function CommunityPage() {
                     {announcement.pinned ? <Badge variant="secondary">Pinned</Badge> : null}
                     <span className="text-sm text-muted-foreground">{new Date(announcement.published_at).toLocaleDateString("en-MY")}</span>
                   </div>
-                  <h2 className="mt-2 font-heading text-lg font-semibold">{announcement.title}</h2>
+                  <h2 className="mt-2 font-display text-lg">{announcement.title}</h2>
                   <p className="mt-2 max-w-3xl leading-7">{announcement.body}</p>
                 </li>
               ))}
@@ -63,7 +64,7 @@ export default async function CommunityPage() {
                       <Badge variant="outline">{request.kind.replace("_", " ")}</Badge>
                       <Badge variant={request.status === "open" ? "secondary" : "outline"}>{request.status}</Badge>
                     </div>
-                    <h2 className="mt-2 font-heading text-lg font-semibold">{request.title}</h2>
+                    <h2 className="mt-2 font-display text-lg">{request.title}</h2>
                     <p className="mt-2 text-sm leading-6 text-muted-foreground">{request.details}</p>
                     {request.needed_by ? <p className="mt-2 text-sm text-muted-foreground">Needed by {new Date(request.needed_by).toLocaleDateString("en-MY")}</p> : null}
                   </div>
@@ -80,15 +81,15 @@ export default async function CommunityPage() {
         <TabsContent value="groups">
           <ul className="grid gap-3 sm:grid-cols-2">
             {(groupsResult.data ?? []).map((group) => (
-              <li key={group.id} className="rounded-xl border border-border bg-card p-5">
+              <li key={group.id} className="bb-card p-5">
                 <div className="flex items-start justify-between gap-3">
-                  <div><h2 className="font-heading text-lg font-semibold">{group.name}</h2><p className="mt-1 text-sm text-muted-foreground">{group.description}</p></div>
+                  <div><h2 className="font-display text-lg">{group.name}</h2><p className="mt-1 text-sm text-muted-foreground">{group.description}</p></div>
                   <Badge variant="outline">{joined.has(group.id) ? "Joined" : "Open"}</Badge>
                 </div>
                 <div className="mt-4"><GroupActionButton groupId={group.id} joined={joined.has(group.id)} /></div>
               </li>
             ))}
-            {groupsResult.data?.length === 0 ? <li className="rounded-xl border border-border bg-card p-5 text-sm text-muted-foreground sm:col-span-2">No interest groups yet.</li> : null}
+            {groupsResult.data?.length === 0 ? <li className="bb-card p-5 text-sm text-muted-foreground sm:col-span-2">No interest groups yet.</li> : null}
           </ul>
         </TabsContent>
       </Tabs>

@@ -17,7 +17,7 @@ export default async function SignInPage({
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="font-heading text-3xl font-semibold">
+        <h1 className="font-display text-3xl">
           {authContent.signIn.title}
         </h1>
         <p className="mt-2 text-muted-foreground">
@@ -25,7 +25,7 @@ export default async function SignInPage({
         </p>
       </div>
       {params.message ? (
-        <p className="rounded-lg border border-line-impact/40 bg-line-impact/10 p-3 text-sm">
+        <p className="rounded-lg border border-mint-tint bg-mint-tint p-3 text-sm font-bold text-ink">
           {params.message}
         </p>
       ) : null}

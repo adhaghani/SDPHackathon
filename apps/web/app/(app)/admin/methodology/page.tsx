@@ -15,14 +15,14 @@ export default function MethodologyPage() {
   return (
     <div className="mx-auto max-w-4xl">
       <Link href="/admin" className="text-sm text-muted-foreground underline underline-offset-4">Back to Township Pulse</Link>
-      <h1 className="mt-5 font-heading text-3xl font-semibold">Methodology</h1>
+      <h1 className="mt-5 font-display text-3xl font-bold">Methodology</h1>
       <p className="mt-2 text-muted-foreground">Every dashboard number uses the definitions below. Observed change is not proof of causation.</p>
       <ul className="mt-7 divide-y divide-border border-y border-border">
         {definitions.map(([term, definition]) => (
-          <li key={term} className="py-5"><h2 className="font-heading text-lg font-semibold">{term}</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">{definition}</p></li>
+          <li key={term} className="py-5"><h2 className="font-display text-lg font-bold">{term}</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">{definition}</p></li>
         ))}
       </ul>
-      <div className="mt-7 rounded-xl border border-border bg-muted/40 p-5 text-sm text-muted-foreground">
+      <div className="mt-7 bb-card bg-muted/40 p-5 text-sm text-muted-foreground">
         Breakdowns with fewer than five residents are suppressed. No CO2e figure is shown without a documented, cited emissions factor.
       </div>
     </div>
