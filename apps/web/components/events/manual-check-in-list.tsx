@@ -62,7 +62,7 @@ export function ManualCheckInList({ registrations }: { registrations: Registrati
                 <form action={action}>
                   <input type="hidden" name="rsvpId" value={registration.id} />
                   <input type="hidden" name="method" value="manual" />
-                  <Button type="submit" className="h-11" disabled={pending}>
+                  <Button type="submit" variant="outline" className="h-11" disabled={pending}>
                     {pending ? <Spinner data-icon="inline-start" /> : null}
                     Check in
                   </Button>

@@ -20,18 +20,19 @@ export default async function AiPage() {
   const summary = await generateAdminSummary((result.data as { metrics?: Record<string, number | string> })?.metrics ?? {})
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="mx-auto w-full max-w-3xl">
       <PageBand
+        back={{ href: "/admin", label: "Township Pulse" }}
         eyebrow="AI-assisted planning"
         title="Weekly admin summary"
         description="Generated from aggregate metrics only. Resident-level data is never sent to the model."
       />
       <section className="bb-card p-5">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="font-display text-lg">Summary</h2>
+          <h2 className="text-title text-ink">Summary</h2>
           <Badge variant="outline">{summary.source === "ai" ? "AI generated" : "Deterministic fallback"}</Badge>
         </div>
-        <p className="mt-4 leading-7">{summary.text}</p>
+        <p className="mt-4 max-w-[70ch] leading-7 whitespace-pre-line text-ink">{summary.text}</p>
       </section>
     </div>
   )

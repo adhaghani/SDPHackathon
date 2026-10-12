@@ -108,7 +108,7 @@ export function SignUpForm() {
         </Alert>
       ) : null}
 
-      <Button type="submit" className="h-11 w-full" disabled={pending}>
+      <Button type="submit" variant="cta" className="h-11 w-full" disabled={pending}>
         {pending ? <Spinner data-icon="inline-start" /> : null}
         {authContent.signUp.submit}
       </Button>

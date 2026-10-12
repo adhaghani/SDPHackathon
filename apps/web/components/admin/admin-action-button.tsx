@@ -52,7 +52,7 @@ export function RedemptionVerificationForm() {
         <label htmlFor="redemption-code" className="text-sm font-medium">Voucher code</label>
         <input id="redemption-code" name="code" required maxLength={8} className="mt-2 h-11 w-full rounded-lg border border-input bg-background px-3 font-mono uppercase tracking-widest outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50" />
       </div>
-      <Button type="submit" className="h-11" disabled={pending}>
+      <Button type="submit" variant="cta" className="h-11" disabled={pending}>
         {pending ? <Spinner data-icon="inline-start" /> : null}
         Mark used
       </Button>

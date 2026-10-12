@@ -10,8 +10,9 @@ export default async function NewEventPage() {
   if (categories.error) throw new Error(categories.error.message)
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="mx-auto w-full max-w-3xl">
       <PageBand
+        back={{ href: "/events", label: "Events" }}
         eyebrow="Jom · Host"
         title="Create an event"
         description="Keep the location shared and welcoming. Your event will be reviewed if your township requires approval."

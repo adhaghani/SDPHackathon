@@ -619,7 +619,8 @@ begin
     volunteer_slots,
     accessibility_tags,
     languages,
-    status
+    status,
+    cover_path
   )
   values (
     v_township_id,
@@ -642,7 +643,8 @@ begin
       array(select jsonb_array_elements_text(p_payload->'languages')),
       array['English']
     ),
-    v_status
+    v_status,
+    nullif(p_payload->>'cover_path', '')
   )
   returning id into v_event_id;
 

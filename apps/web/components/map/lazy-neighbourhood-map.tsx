@@ -6,7 +6,7 @@ const NeighbourhoodMap = dynamic(
   () => import("@/components/map/neighbourhood-map").then((module) => module.NeighbourhoodMap),
   {
     ssr: false,
-    loading: () => <div className="h-[420px] animate-pulse rounded-xl bg-muted" />,
+    loading: () => <div className="h-[28rem] animate-pulse rounded-lg bg-lilac-tint" />,
   }
 )
 

@@ -1,10 +1,11 @@
 import { redirect } from "next/navigation"
 
 import { SponsorChallengeForm, SponsorRewardForm } from "@/components/sponsor/sponsor-forms"
+import { StatTile } from "@/components/admin/stat-tile"
 import { PageBand } from "@/components/shared/page-band"
+import { StatusPill } from "@/components/shared/status-pill"
 import { isFeatureEnabled } from "@/lib/env"
 import { createClient } from "@/lib/supabase/server"
-import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@workspace/ui/components/empty"
 
 export default async function SponsorPortalPage() {
   if (!isFeatureEnabled("sponsor_portal")) redirect("/home")
@@ -20,46 +21,76 @@ export default async function SponsorPortalPage() {
   if (statsResult.error) throw new Error(statsResult.error.message)
   const stats = statsResult.data as Record<string, number | string>
 
+  const rewards = rewardsResult.data ?? []
+  const challenges = challengesResult.data ?? []
+
   return (
-    <div className="flex flex-col gap-7">
+    <div className="flex flex-col gap-8">
       <PageBand
+        className="mb-0"
         eyebrow="Sponsor portal"
         title={context.partner_name}
-        description="Create sponsor-funded rewards and challenges. Aggregate stats only; no resident-level activity is exposed."
+        description="Fund rewards and challenges for residents. You see aggregate figures only, never an individual resident's activity."
       />
-      <section className="grid gap-3 sm:grid-cols-3">
-        <div className="bb-card p-4"><p className="text-sm text-muted-foreground">Active rewards</p><p className="mt-1 font-display text-2xl tabular-nums">{stats.active_rewards ?? 0}</p></div>
-        <div className="bb-card p-4"><p className="text-sm text-muted-foreground">Redemptions</p><p className="mt-1 font-display text-2xl tabular-nums">{stats.redemptions ?? 0}</p></div>
-        <div className="bb-card p-4"><p className="text-sm text-muted-foreground">Challenges</p><p className="mt-1 font-display text-2xl tabular-nums">{stats.challenges ?? 0}</p></div>
+      <section aria-label="Key figures" className="grid gap-3 sm:grid-cols-3">
+        <StatTile label="Active rewards" value={String(stats.active_rewards ?? 0)} detail="In the resident catalogue" />
+        <StatTile label="Redemptions" value={String(stats.redemptions ?? 0)} detail="Claims recorded" />
+        <StatTile label="Challenges" value={String(stats.challenges ?? 0)} detail="Campaigns created" />
       </section>
-      <section className="grid gap-5 lg:grid-cols-2">
-        <div className="bb-card p-5"><h2 className="font-display text-lg">Create a reward</h2><div className="mt-4"><SponsorRewardForm /></div></div>
-        <div className="bb-card p-5"><h2 className="font-display text-lg">Create a challenge</h2><div className="mt-4"><SponsorChallengeForm /></div></div>
-      </section>
-      <section>
-        <h2 className="font-display text-lg">Your rewards</h2>
-        {(rewardsResult.data ?? []).length ? <ul className="mt-4 divide-y divide-border border-y border-border">{rewardsResult.data?.map((reward) => <li key={reward.id} className="flex items-center justify-between gap-3 py-4"><span className="font-medium">{reward.title}</span><span className="text-sm text-muted-foreground">{reward.cost_bp} BP · {reward.stock} left</span></li>)}</ul> : <Empty className="mt-4"><EmptyHeader><EmptyTitle>No rewards yet</EmptyTitle><EmptyDescription>Create a sponsor-funded reward above.</EmptyDescription></EmptyHeader></Empty>}
-      </section>
-      <section>
-        <h2 className="font-display text-lg">Your challenges</h2>
-        {(challengesResult.data ?? []).length ? (
-          <ul className="mt-4 divide-y divide-border border-y border-border">
-            {challengesResult.data?.map((challenge) => (
-              <li key={challenge.id} className="flex items-center justify-between gap-3 py-4">
-                <span className="font-medium">{challenge.title}</span>
-                <span className="text-sm text-muted-foreground">{challenge.target} target · ends {new Date(challenge.ends_at).toLocaleDateString("en-MY")}</span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <Empty className="mt-4">
-            <EmptyHeader>
-              <EmptyTitle>No challenges yet</EmptyTitle>
-              <EmptyDescription>Create a sponsor challenge above.</EmptyDescription>
-            </EmptyHeader>
-          </Empty>
-        )}
-      </section>
+
+      <div className="grid gap-8 lg:grid-cols-2">
+        <section aria-labelledby="rewards-heading" className="flex flex-col gap-4">
+          <h2 id="rewards-heading" className="text-heading text-ink">Rewards</h2>
+          {rewards.length ? (
+            <ul className="bb-card divide-y divide-hairline">
+              {rewards.map((reward) => (
+                <li key={reward.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3.5">
+                  <div className="min-w-0">
+                    <p className="font-bold text-ink">{reward.title}</p>
+                    <p className="text-sm text-ink-muted tabular-nums">{reward.cost_bp.toLocaleString("en-MY")} BP · {reward.stock} left</p>
+                  </div>
+                  <StatusPill status={reward.active ? "active" : "paused"} />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="rounded-lg border border-hairline bg-surface p-4 text-sm text-ink-muted">No rewards yet. Create your first one below.</p>
+          )}
+          <div className="bb-card p-5">
+            <h3 className="text-title text-ink">Create a reward</h3>
+            <div className="mt-4"><SponsorRewardForm /></div>
+          </div>
+        </section>
+
+        <section aria-labelledby="challenges-heading" className="flex flex-col gap-4">
+          <h2 id="challenges-heading" className="text-heading text-ink">Challenges</h2>
+          {challenges.length ? (
+            <ul className="bb-card divide-y divide-hairline">
+              {challenges.map((challenge) => (
+                <li key={challenge.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3.5">
+                  <div className="min-w-0">
+                    <p className="font-bold text-ink">{challenge.title}</p>
+                    <p className="text-sm text-ink-muted tabular-nums">
+                      Target {challenge.target.toLocaleString("en-MY")} · ends {new Date(challenge.ends_at).toLocaleDateString("en-MY")}
+                    </p>
+                  </div>
+                  <StatusPill status={challenge.status} />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="rounded-lg border border-hairline bg-surface p-4 text-sm text-ink-muted">No challenges yet. Create one below.</p>
+          )}
+          <div className="bb-card p-5">
+            <h3 className="text-title text-ink">Create a challenge</h3>
+            <div className="mt-4"><SponsorChallengeForm /></div>
+          </div>
+        </section>
+      </div>
+
+      <p className="rounded-lg bg-ink p-4 text-sm text-surface">
+        <strong>Privacy safeguard.</strong> Redemption counts are aggregated across the township. Names, units and messages are never shared with sponsors.
+      </p>
     </div>
   )
 }

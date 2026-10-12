@@ -4,7 +4,7 @@ import { PageBand } from "@/components/shared/page-band"
 import { requireActiveMember } from "@/lib/data"
 import { createClient } from "@/lib/supabase/server"
 import { formatEventDate } from "@/lib/format"
-import { Badge } from "@workspace/ui/components/badge"
+import { StatusPill } from "@/components/shared/status-pill"
 import { Button } from "@workspace/ui/components/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 
@@ -20,9 +20,10 @@ export default async function BorrowMinePage() {
   return (
     <div className="flex flex-col gap-6">
       <PageBand
+        back={{ href: "/borrow", label: "Borrow" }}
         eyebrow="Pinjam · Mine"
-        title="Your borrowing and lending"
-        actions={<Button render={<Link href="/borrow/new" />}>List an item</Button>}
+        title="Borrowing and lending"
+        actions={<Button render={<Link href="/borrow/new" />} variant="cta" size="cta">List an item</Button>}
       />
       <Tabs defaultValue="borrowing">
         <TabsList>
@@ -38,17 +39,17 @@ export default async function BorrowMinePage() {
         </TabsContent>
         <TabsContent value="items">
           <div className="flex flex-col gap-4">
-            <ul className="divide-y divide-border border-y border-border">
+            <ul className="bb-card mt-4 divide-y divide-hairline">
               {(itemsResult.data ?? []).map((item) => (
-                <li key={item.id} className="flex items-center justify-between gap-3 py-4">
+                <li key={item.id} className="flex items-center justify-between gap-3 px-4 py-3.5">
                   <div>
-                    <Link href={`/borrow/items/${item.id}`} className="font-medium underline-offset-4 hover:underline">{item.title}</Link>
+                    <Link href={`/borrow/items/${item.id}`} className="font-bold text-ink underline-offset-4 hover:underline">{item.title}</Link>
                     <p className="mt-1 text-sm text-muted-foreground">{item.item_categories?.name ?? "Item"} · {item.condition.replace("_", " ")}</p>
                   </div>
-                  <Badge variant="outline">{item.status}</Badge>
+                  <StatusPill status={item.status} />
                 </li>
               ))}
-              {itemsResult.data?.length === 0 ? <li className="py-6 text-sm text-muted-foreground">You have not listed an item yet.</li> : null}
+              {itemsResult.data?.length === 0 ? <li className="px-4 py-6 text-sm text-ink-muted">You have not listed an item yet.</li> : null}
             </ul>
           </div>
         </TabsContent>
@@ -64,16 +65,16 @@ function BookingRows({
   bookings: Array<{ id: string; status: string; start_date: string; end_date: string; items: { title: string } | null }>
   empty: string
 }) {
-  if (!bookings.length) return <p className="py-6 text-sm text-muted-foreground">{empty}</p>
+  if (!bookings.length) return <p className="px-4 py-6 text-sm text-ink-muted">{empty}</p>
   return (
-    <ul className="divide-y divide-border border-y border-border">
+    <ul className="bb-card mt-4 divide-y divide-hairline">
       {bookings.map((booking) => (
-        <li key={booking.id} className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <Link href={`/borrow/bookings/${booking.id}`} className="font-medium underline-offset-4 hover:underline">{booking.items?.title ?? "Borrowing request"}</Link>
+        <li key={booking.id} className="flex items-center justify-between gap-3 px-4 py-3.5">
+          <div className="min-w-0">
+            <Link href={`/borrow/bookings/${booking.id}`} className="font-bold text-ink underline-offset-4 hover:underline">{booking.items?.title ?? "Borrowing request"}</Link>
             <p className="mt-1 text-sm text-muted-foreground">{formatEventDate(booking.start_date)} – {formatEventDate(booking.end_date)}</p>
           </div>
-          <Badge variant="outline">{booking.status.replace("_", " ")}</Badge>
+          <StatusPill status={booking.status} />
         </li>
       ))}
     </ul>

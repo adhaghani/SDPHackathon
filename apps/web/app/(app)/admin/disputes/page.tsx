@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
+import { PageBand } from "@/components/shared/page-band"
 
 import { ResolveDisputeForm } from "@/components/admin/admin-forms"
 import { requireActiveMember } from "@/lib/data"
@@ -19,10 +20,13 @@ export default async function AdminDisputesPage() {
   if (disputes.error) throw new Error(disputes.error.message)
 
   return (
-    <div className="mx-auto max-w-4xl">
-      <Link href="/admin" className="text-sm text-muted-foreground underline underline-offset-4">Back to Township Pulse</Link>
-      <h1 className="mt-5 font-display text-3xl font-bold">Disputes</h1>
-      <p className="mt-2 text-muted-foreground">Review both sides and record a resolution. Resolutions are audit-logged.</p>
+    <div className="w-full">
+      <PageBand
+        back={{ href: "/admin", label: "Township Pulse" }}
+        eyebrow="Township office"
+        title="Disputes"
+        description="Review both sides and record a resolution. Resolutions are audit-logged."
+      />
       {(disputes.data ?? []).length ? (
         <ul className="mt-6 divide-y divide-border border-y border-border">
           {disputes.data?.map((dispute) => (

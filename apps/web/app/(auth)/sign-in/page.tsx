@@ -17,10 +17,10 @@ export default async function SignInPage({
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="font-display text-3xl">
+        <h1 className="text-display-lg text-ink">
           {authContent.signIn.title}
         </h1>
-        <p className="mt-2 text-muted-foreground">
+        <p className="mt-2 text-ink-muted">
           {authContent.signIn.description}
         </p>
       </div>

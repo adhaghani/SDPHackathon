@@ -1,65 +1,69 @@
 import { cn } from "@workspace/ui/lib/utils"
 
-type LineName = "Pinjam" | "Jom" | "Tolong" | "Rimba"
+export const townshipStations = [
+  { name: "Pinjam", english: "Borrow" },
+  { name: "Jom", english: "Events" },
+  { name: "Tolong", english: "Help" },
+  { name: "Rimba", english: "Impact" },
+] as const
 
-const lineStyles: Record<
-  LineName,
-  { line: string; dot: string; text: string }
-> = {
-  Pinjam: {
-    line: "bg-line-borrow",
-    dot: "bg-line-borrow",
-    text: "text-primary",
-  },
-  Jom: {
-    line: "bg-line-event",
-    dot: "bg-line-event",
-    text: "text-ink-muted",
-  },
-  Tolong: {
-    line: "bg-line-help",
-    dot: "bg-line-help",
-    text: "text-ink-muted",
-  },
-  Rimba: {
-    line: "bg-line-impact",
-    dot: "bg-line-impact",
-    text: "text-ink-muted",
-  },
-}
+export type StationName = (typeof townshipStations)[number]["name"]
 
+/**
+ * The signature route motif. Stations before `current` are done, `current` is coral,
+ * the rest are upcoming. The lilac line is decorative; state is carried by the stations.
+ */
 export function TownshipLine({
-  stops,
+  current,
+  details,
+  tone = "light",
   className,
 }: {
-  stops: ReadonlyArray<{ label: string; line: LineName }>
+  current?: StationName
+  details?: Partial<Record<StationName, string>>
+  tone?: "light" | "ink"
   className?: string
 }) {
-  return (
-    <ol
-      className={cn(
-        "bb-card grid gap-0 border-l-4 border-l-coral p-5 text-ink sm:p-6",
-        className
-      )}
-    >
-      {stops.map(({ label, line }) => {
-        const styles = lineStyles[line]
+  const currentIndex = current ? townshipStations.findIndex((station) => station.name === current) : -1
+  const onInk = tone === "ink"
 
+  return (
+    <ol aria-label="Township line" className={cn("relative grid grid-cols-4", className)}>
+      <span
+        aria-hidden="true"
+        className="absolute top-[11px] right-[12.5%] left-[12.5%] h-1.5 rounded-full bg-lilac"
+      />
+      {townshipStations.map((station, index) => {
+        const state = index === currentIndex ? "current" : index < currentIndex ? "done" : "upcoming"
         return (
-          <li key={`${line}-${label}`} className="relative py-4 pl-5">
+          <li
+            key={station.name}
+            aria-current={state === "current" ? "step" : undefined}
+            className="relative flex min-w-0 flex-col items-center text-center"
+          >
             <span
               aria-hidden="true"
               className={cn(
-                "absolute top-6 -left-[31px] size-3.5 rounded-full border-4 border-card",
-                styles.dot
+                "size-7 rounded-full border-[3px]",
+                state === "current" && "border-ink bg-coral",
+                state === "done" && (onInk ? "border-surface bg-surface" : "border-ink bg-ink"),
+                state === "upcoming" && (onInk ? "border-lilac bg-ink" : "border-ink bg-surface")
               )}
             />
-            <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <span className="text-sm font-medium">{label}</span>
-              <span className={cn("text-xs font-bold", styles.text)}>
-                {line}
-              </span>
-            </div>
+            <span
+              className={cn(
+                "mt-2 max-w-full truncate font-display text-sm font-bold sm:text-base",
+                state === "current" && onInk ? "text-coral" : onInk ? "text-surface" : "text-ink"
+              )}
+            >
+              {station.name}
+            </span>
+            <span className={cn("text-xs", onInk ? "text-band-eyebrow" : "text-ink-muted")}>
+              {details?.[station.name] ?? station.english}
+            </span>
+            <span className="sr-only">
+              {state === "done" ? ", done" : state === "current" ? ", current stop" : ", upcoming"}
+            </span>
           </li>
         )
       })}

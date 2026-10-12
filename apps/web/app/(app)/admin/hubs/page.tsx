@@ -1,5 +1,5 @@
-import Link from "next/link"
 import { redirect } from "next/navigation"
+import { PageBand } from "@/components/shared/page-band"
 
 import { HubForm, InventoryForm, CheckoutButton } from "@/components/hubs/hub-forms"
 import { isFeatureEnabled } from "@/lib/env"
@@ -23,10 +23,13 @@ export default async function AdminHubsPage() {
   if (inventory.error) throw new Error(inventory.error.message)
 
   return (
-    <div className="mx-auto max-w-4xl">
-      <Link href="/admin" className="text-sm text-muted-foreground underline underline-offset-4">Back to Township Pulse</Link>
-      <h1 className="mt-5 font-display text-3xl font-bold">Equipment hubs</h1>
-      <p className="mt-2 text-muted-foreground">Township-owned inventory with staff checkout. This stretch feature is behind a feature flag.</p>
+    <div className="w-full">
+      <PageBand
+        back={{ href: "/admin", label: "Township Pulse" }}
+        eyebrow="Township office"
+        title="Equipment hubs"
+        description="Township-owned inventory with staff checkout. This stretch feature is behind a feature flag."
+      />
       <section className="mt-6 bb-card p-5"><h2 className="font-display text-lg font-bold">Create a hub</h2><div className="mt-4"><HubForm /></div></section>
       {(hubsResult.data ?? []).length ? (
         <ul className="mt-6 flex flex-col gap-4">

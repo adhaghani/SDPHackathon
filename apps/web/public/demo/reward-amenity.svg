@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Township amenity reward illustration">
+  <rect width="800" height="600" fill="#CFF0E0"/>
+  <path d="M100 440h600" stroke="#E7E2F7" stroke-width="10" stroke-linecap="round"/>
+  <rect x="210" y="210" width="380" height="230" rx="24" fill="#FFFFFF" stroke="#1B1340" stroke-width="9"/>
+  <path d="M270 210v-58h260v58" fill="none" stroke="#1B1340" stroke-width="10" stroke-linecap="round"/>
+  <path d="M300 300h200M300 350h130" stroke="#7BE0B0" stroke-width="16" stroke-linecap="round"/>
+  <circle cx="520" cy="350" r="20" fill="#FFD23F"/>
+</svg>

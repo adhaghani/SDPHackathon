@@ -5,6 +5,7 @@ export const sponsorRewardSchema = z.object({
   description: z.string().trim().max(600).default(""),
   costBp: z.coerce.number().int().min(1).max(10000),
   stock: z.coerce.number().int().min(1).max(1000),
+  imagePath: z.string().trim().max(500).optional(),
 })
 
 export const sponsorChallengeSchema = z.object({

@@ -2,6 +2,7 @@
 
 import { useEffect } from "react"
 
+import { StatusPage } from "@/components/shared/status-page"
 import { Button } from "@workspace/ui/components/button"
 
 export default function GlobalError({
@@ -16,11 +17,19 @@ export default function GlobalError({
   }, [error])
 
   return (
-    <main className="mx-auto flex min-h-svh max-w-xl flex-col justify-center px-4">
-      <p className="text-sm font-medium text-ink-muted">Something went wrong</p>
-      <h1 className="mt-2 font-display text-3xl font-bold">This page could not load</h1>
-      <p className="mt-3 text-muted-foreground">Try again, or return to Home. Your data is not lost.</p>
-      <Button type="button" className="mt-6 h-11" onClick={reset}>Try again</Button>
-    </main>
+    <StatusPage
+      code="Error"
+      title="Something went wrong."
+      description="Try again, or return to Home. Your data is not lost."
+      action={
+        <Button
+          type="button"
+          onClick={reset}
+          className="min-h-12 rounded-full bg-white px-6 text-ink hover:bg-white/90"
+        >
+          Try again
+        </Button>
+      }
+    />
   )
 }

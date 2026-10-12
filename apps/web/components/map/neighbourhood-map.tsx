@@ -1,45 +1,57 @@
 "use client"
 
-import "leaflet/dist/leaflet.css"
-import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet"
-import L from "leaflet"
+import { ShieldCheckIcon } from "lucide-react"
 
-const demoIcon = (color: string) =>
-  L.divIcon({
-    className: "inline-flex size-4 items-center justify-center rounded-full border-2 border-white shadow",
-    html: `<span style="display:block;width:12px;height:12px;border-radius:9999px;background:${color}"></span>`,
-    iconSize: [16, 16],
-    iconAnchor: [8, 8],
-  })
-
-const locations = [
-  { name: "Anggun neighbourhood", position: [3.0738, 101.5183] as [number, number], color: "#C9B8FF" },
-  { name: "Bestari neighbourhood", position: [3.0868, 101.5213] as [number, number], color: "#FF6B4A" },
-  { name: "Cahaya neighbourhood", position: [3.0998, 101.5183] as [number, number], color: "#C9B8FF" },
-  { name: "Damai neighbourhood", position: [3.1128, 101.5213] as [number, number], color: "#7BE0B0" },
-]
+import { neighbourhoodCenters, townshipCenter } from "@/components/map/geo"
+import { MapCard } from "@/components/map/map-parts"
+import {
+  Map,
+  MapCircle,
+  MapControlContainer,
+  MapFullscreenControl,
+  MapPopup,
+  MapTileLayer,
+  MapTooltip,
+  MapZoomControl,
+} from "@workspace/ui/components/map"
 
 export function NeighbourhoodMap() {
+  const areas = Object.entries(neighbourhoodCenters)
+
   return (
-    <MapContainer
-      center={[3.0938, 101.5183]}
-      zoom={15}
-      scrollWheelZoom={false}
-      className="bb-card h-[420px] w-full overflow-hidden"
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-      {locations.map((location) => (
-        <Marker key={location.name} position={location.position} icon={demoIcon(location.color)}>
-          <Popup>
-            <strong>{location.name}</strong>
-            <br />
-            Neighbourhood-level demo location only.
-          </Popup>
-        </Marker>
-      ))}
-    </MapContainer>
+    <div className="relative isolate overflow-hidden rounded-lg border border-hairline bg-lilac-tint">
+      <Map center={townshipCenter} zoom={14} scrollWheelZoom={false} className="h-[28rem] min-h-0 rounded-none">
+        <MapTileLayer />
+        <MapZoomControl position="top-3 left-3" />
+        <MapFullscreenControl position="top-3 right-3" />
+        {areas.map(([name, center]) => (
+          <MapCircle
+            key={name}
+            center={center}
+            radius={480}
+            className="fill-lilac stroke-ink stroke-[1.5]"
+          >
+            <MapTooltip permanent direction="center">
+              <span className="px-1 text-xs font-bold">{name}</span>
+            </MapTooltip>
+            <MapPopup>
+              <MapCard>
+                <p className="font-bold">{name}</p>
+                <p className="mt-0.5 text-sm text-ink-muted">Neighbourhood area, approximate. Use Insights for participation by neighbourhood.</p>
+              </MapCard>
+            </MapPopup>
+          </MapCircle>
+        ))}
+        <MapControlContainer className="bottom-3 left-3 max-w-[calc(100%-1.5rem)]">
+          <div className="flex items-start gap-2 rounded-lg bg-surface px-3 py-2 text-ink shadow-raised">
+            <ShieldCheckIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
+            <div>
+              <p className="text-sm font-bold">{areas.length} neighbourhoods</p>
+              <p className="text-xs text-ink-muted">Area-level only. No resident addresses.</p>
+            </div>
+          </div>
+        </MapControlContainer>
+      </Map>
+    </div>
   )
 }

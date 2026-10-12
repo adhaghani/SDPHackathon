@@ -1,9 +1,10 @@
 "use client"
 
-import { useActionState } from "react"
+import { useActionState, useState } from "react"
 import { useRouter } from "next/navigation"
 
 import { createEvent } from "@/actions/events"
+import { getBrowserClient } from "@/lib/supabase/browser"
 import { Alert, AlertDescription } from "@workspace/ui/components/alert"
 import { Button } from "@workspace/ui/components/button"
 import { Checkbox } from "@workspace/ui/components/checkbox"
@@ -31,10 +32,49 @@ export function EventForm({
 }) {
   const router = useRouter()
   const [state, action, pending] = useActionState(createEvent, idleState)
+  const [coverPath, setCoverPath] = useState("/demo/event-placeholder.svg")
+  const [coverMessage, setCoverMessage] = useState<string | null>(null)
+
+  async function handleCover(file: File | undefined) {
+    if (!file) return
+    setCoverMessage(null)
+    try {
+      const bitmap = await createImageBitmap(file)
+      const scale = Math.min(1, 1200 / Math.max(bitmap.width, bitmap.height))
+      const canvas = document.createElement("canvas")
+      canvas.width = Math.round(bitmap.width * scale)
+      canvas.height = Math.round(bitmap.height * scale)
+      canvas.getContext("2d")?.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
+      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/webp", 0.82))
+      if (!blob) throw new Error("compression_failed")
+      const path = `event-${crypto.randomUUID()}.webp`
+      const { error } = await getBrowserClient().storage.from("item-photos").upload(path, blob, { upsert: true })
+      if (error) throw error
+      const { data } = getBrowserClient().storage.from("item-photos").getPublicUrl(path)
+      setCoverPath(data.publicUrl)
+      setCoverMessage("Cover image compressed and uploaded.")
+    } catch {
+      setCoverPath("/demo/event-placeholder.svg")
+      setCoverMessage("Cover upload is unavailable here, so the demo poster will be used.")
+    }
+  }
 
   return (
     <form action={action} className="flex flex-col gap-6">
+      <input type="hidden" name="coverPath" value={coverPath} />
       <FieldGroup>
+        <Field>
+          <FieldLabel htmlFor="event-cover">Cover image</FieldLabel>
+          <Input
+            id="event-cover"
+            name="cover"
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            onChange={(event) => void handleCover(event.target.files?.[0])}
+          />
+          <FieldDescription>Optional. Images are compressed before upload; a themed demo poster is used as a fallback.</FieldDescription>
+          {coverMessage ? <p className="text-sm text-muted-foreground">{coverMessage}</p> : null}
+        </Field>
         <Field data-invalid={Boolean(state.fieldErrors?.title)}>
           <FieldLabel htmlFor="title">Event title</FieldLabel>
           <Input id="title" name="title" required aria-invalid={Boolean(state.fieldErrors?.title)} />
@@ -129,7 +169,7 @@ export function EventForm({
         </Alert>
       ) : null}
 
-      <Button type="submit" className="h-11" disabled={pending}>
+      <Button type="submit" variant="cta" className="h-11" disabled={pending}>
         {pending ? <Spinner data-icon="inline-start" /> : null}
         Create event
       </Button>

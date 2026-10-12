@@ -56,19 +56,17 @@ export function EventRsvpActions({
 
   return (
     <div className="flex flex-col gap-3">
-      <form action={rsvpAction} className="flex flex-col gap-2 sm:flex-row">
+      <form action={rsvpAction} className="flex gap-3">
         <input type="hidden" name="eventId" value={eventId} />
-        <Button type="submit" name="role" value="attendee" className="h-11 flex-1" disabled={rsvpPending}>
-          {rsvpPending ? <Spinner data-icon="inline-start" /> : null}
-          RSVP as attendee
-        </Button>
         {canVolunteer ? (
-          <>
-            <Button type="submit" name="role" value="volunteer" variant="outline" className="h-11 flex-1" disabled={rsvpPending}>
-              Volunteer
-            </Button>
-          </>
+          <Button type="submit" name="role" value="volunteer" variant="outline" size="cta" className="min-w-0 flex-1" disabled={rsvpPending}>
+            Volunteer
+          </Button>
         ) : null}
+        <Button type="submit" name="role" value="attendee" variant="cta" size="cta" className="min-w-0 flex-[1.4]" disabled={rsvpPending}>
+          {rsvpPending ? <Spinner data-icon="inline-start" /> : null}
+          Register to attend
+        </Button>
       </form>
       {rsvpState.message ? <p className="text-sm text-muted-foreground">{rsvpState.message}</p> : null}
       {rsvpState.status === "success" && rsvpState.eventId ? (

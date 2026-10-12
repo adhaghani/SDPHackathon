@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
 
+import { SignOutButton } from "@/components/navigation/sign-out-button"
 import { createClient } from "@/lib/supabase/server"
 
 export default async function SponsorLayout({ children }: { children: React.ReactNode }) {
@@ -10,13 +11,16 @@ export default async function SponsorLayout({ children }: { children: React.Reac
 
   return (
     <div className="min-h-svh bg-background">
-      <header className="bb-band bb-safe-top rounded-none">
-        <div className="mx-auto flex min-h-16 max-w-5xl items-center justify-between px-4 py-3 sm:px-6">
-          <Link href="/sponsor/portal" className="font-display text-lg text-white">BorrowBetter sponsors</Link>
-          <span className="rounded-full bg-sun px-3 py-1 text-xs font-bold text-ink">Partner portal</span>
+      <header className="bb-safe-top sticky top-0 z-30 border-b border-hairline bg-surface">
+        <div className="mx-auto flex min-h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+          <Link href="/sponsor/portal" className="flex min-w-0 items-baseline gap-2">
+            <span className="font-display text-lg font-extrabold text-ink">BorrowBetter</span>
+            <span className="text-eyebrow truncate text-ink-muted">Partner portal</span>
+          </Link>
+          <SignOutButton compact className="text-ink" />
         </div>
       </header>
-      <main className="mx-auto max-w-5xl px-4 pt-0 pb-8 sm:px-6">{children}</main>
+      <main id="main-content" className="mx-auto w-full max-w-6xl px-4 pt-6 pb-12 sm:px-6 lg:px-8 lg:pt-8">{children}</main>
     </div>
   )
 }

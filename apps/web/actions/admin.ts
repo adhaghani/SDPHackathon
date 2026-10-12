@@ -3,17 +3,52 @@
 import { revalidatePath } from "next/cache"
 
 import { createClient } from "@/lib/supabase/server"
+import { requireActiveMember } from "@/lib/data"
 import {
   memberActionSchema,
   moderationSchema,
   programmeCostSchema,
   resolveDisputeSchema,
   reversePointsSchema,
+  badgeSchema,
 } from "@/lib/validation/admin"
 
 export type AdminActionState = {
   status: "idle" | "error" | "success"
   message?: string
+}
+
+export async function saveBadge(
+  _state: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  const parsed = badgeSchema.safeParse({
+    slug: formData.get("slug"),
+    name: formData.get("name"),
+    description: formData.get("description"),
+    icon: formData.get("icon"),
+  })
+  if (!parsed.success) return { status: "error", message: "Check the badge fields." }
+
+  const active = await requireActiveMember()
+  if (active.membership?.role !== "township_admin") return { status: "error", message: "Only the township office can manage awards." }
+  const { getAdminClient } = await import("@/lib/supabase/admin")
+  const admin = getAdminClient()
+  const { error } = await admin.from("badges").upsert(
+    {
+      slug: parsed.data.slug,
+      name: parsed.data.name,
+      description: parsed.data.description,
+      icon: parsed.data.icon,
+      criteria: { type: "count", action_types: ["event_attendance"], threshold: 1 },
+    },
+    { onConflict: "slug" }
+  )
+  if (error) return { status: "error", message: "The award could not be saved." }
+
+  revalidatePath("/admin/badges")
+  revalidatePath("/rewards")
+  return { status: "success", message: "Award saved." }
 }
 
 export async function memberAction(

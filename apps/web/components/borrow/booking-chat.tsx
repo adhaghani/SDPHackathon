@@ -22,14 +22,14 @@ export function BookingChat({
   const [state, action, pending] = useActionState(sendBookingMessage, idleState)
 
   return (
-    <section className="mt-8 border-t border-border pt-6">
-      <h2 className="font-display text-lg font-bold">Booking chat</h2>
-      <p className="mt-1 text-sm text-muted-foreground">Visible only to the borrower and lender.</p>
-      <ul className="mt-4 flex max-h-72 flex-col gap-3 overflow-y-auto rounded-lg border border-border bg-muted/30 p-4">
+    <section className="bb-card p-5">
+      <h2 className="text-title text-ink">Booking chat</h2>
+      <p className="mt-1 text-sm text-ink-muted">Visible only to the borrower and lender.</p>
+      <ul className="mt-4 flex max-h-72 flex-col gap-3 overflow-y-auto rounded-lg bg-ground p-3">
         {messages.map((message) => (
-          <li key={message.id} className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${message.sender_id === currentUserId ? "self-end bg-line-borrow text-white" : "self-start bg-card"}`}>
+          <li key={message.id} className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${message.sender_id === currentUserId ? "self-end bg-lilac-tint text-ink" : "self-start border border-hairline bg-surface text-ink"}`}>
             <p>{message.body}</p>
-            <p className={`mt-1 text-xs ${message.sender_id === currentUserId ? "text-white/70" : "text-muted-foreground"}`}>{new Date(message.created_at).toLocaleString("en-MY")}</p>
+            <p className={`mt-1 text-xs ${message.sender_id === currentUserId ? "text-ink-muted" : "text-muted-foreground"}`}>{new Date(message.created_at).toLocaleString("en-MY", { timeZone: "Asia/Kuala_Lumpur", dateStyle: "medium", timeStyle: "short" })}</p>
           </li>
         ))}
         {!messages.length ? <li className="text-sm text-muted-foreground">No messages yet.</li> : null}
@@ -40,7 +40,7 @@ export function BookingChat({
           <FieldLabel htmlFor="booking-message">Message</FieldLabel>
           <Textarea id="booking-message" name="body" rows={2} placeholder="Share a handover detail or ask a question" />
         </Field>
-        <Button type="submit" className="h-11" disabled={pending}>
+        <Button type="submit" variant="cta" className="h-11" disabled={pending}>
           {pending ? <Spinner data-icon="inline-start" /> : null}
           Send
         </Button>

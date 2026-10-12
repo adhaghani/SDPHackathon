@@ -13,18 +13,18 @@ export function DemoRoleSwitcher() {
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-sm font-medium">Continue as</p>
-      <form action={action} className="flex flex-wrap gap-2">
-        <Button type="submit" name="role" value="resident" variant="outline" className="h-11" disabled={pending}>
+      <p className="text-sm font-medium">Explore the demo as</p>
+      <form action={action} className="grid gap-2 sm:flex sm:flex-wrap">
+        <Button type="submit" name="role" value="resident" variant="outline" size="sm" className="w-full sm:w-auto" disabled={pending}>
           Aisyah · resident
         </Button>
-        <Button type="submit" name="role" value="organiser" variant="outline" className="h-11" disabled={pending}>
+        <Button type="submit" name="role" value="organiser" variant="outline" size="sm" className="w-full sm:w-auto" disabled={pending}>
           Raj · organiser
         </Button>
-        <Button type="submit" name="role" value="admin" variant="outline" className="h-11" disabled={pending}>
+        <Button type="submit" name="role" value="admin" variant="outline" size="sm" className="w-full sm:w-auto" disabled={pending}>
           Township office · admin
         </Button>
-        <Button type="submit" name="role" value="partner" variant="outline" className="h-11" disabled={pending}>
+        <Button type="submit" name="role" value="partner" variant="outline" size="sm" className="w-full sm:w-auto" disabled={pending}>
           Kopi Kita · partner
         </Button>
       </form>

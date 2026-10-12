@@ -56,6 +56,7 @@ export function BookingActions({
                 type="submit"
                 name="action"
                 value={item.action}
+                variant="cta"
                 className="h-11"
                 disabled={pending}
               >
@@ -76,7 +77,7 @@ export function BookingActions({
             </div>
           ) : item.action === "confirm_handover" ? (
             <div key={item.action} className="flex flex-col gap-2 sm:flex-row sm:items-end">
-              <Button type="submit" name="action" value={item.action} className="h-11" disabled={pending}>
+              <Button type="submit" variant="cta" name="action" value={item.action} className="h-11" disabled={pending}>
                 {pending ? <Spinner data-icon="inline-start" /> : null}
                 {item.label}
               </Button>
@@ -88,7 +89,7 @@ export function BookingActions({
               type="submit"
               name="action"
               value={item.action}
-              variant={item.variant ?? "default"}
+              variant={item.variant ?? "cta"}
               className="h-11"
               disabled={pending}
             >

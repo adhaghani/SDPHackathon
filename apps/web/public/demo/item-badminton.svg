@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Illustration of a badminton set">
+  <rect width="800" height="500" fill="#E2D9FF"/>
+  <path d="M92 386h616" stroke="#C9B8FF" stroke-width="8" stroke-linecap="round"/>
+  <ellipse cx="330" cy="212" rx="96" ry="124" transform="rotate(-28 330 212)" fill="#FFFFFF" stroke="#1B1340" stroke-width="9"/>
+  <path d="m383 300 96 74" stroke="#1B1340" stroke-width="14" stroke-linecap="round"/>
+  <path d="m252 142 142 132m-150-66 142 132m-94-180 142 132" stroke="#C9B8FF" stroke-width="7"/>
+  <path d="M534 190c28 0 42 18 42 40 0 34-42 70-42 70s-42-36-42-70c0-22 14-40 42-40Z" fill="#FFD23F" stroke="#1B1340" stroke-width="8"/>
+  <path d="M534 300v60" stroke="#1B1340" stroke-width="8" stroke-linecap="round"/>
+</svg>

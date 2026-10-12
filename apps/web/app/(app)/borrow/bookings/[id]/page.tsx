@@ -1,4 +1,3 @@
-import Link from "next/link"
 import { notFound } from "next/navigation"
 
 import { BookingActions } from "@/components/borrow/booking-actions"
@@ -9,8 +8,8 @@ import { RealtimeRefresh } from "@/components/shared/realtime-refresh"
 import { requireActiveMember } from "@/lib/data"
 import { formatEventDate } from "@/lib/format"
 import { createClient } from "@/lib/supabase/server"
-import { Badge } from "@workspace/ui/components/badge"
-import { Button } from "@workspace/ui/components/button"
+import { StatusPill } from "@/components/shared/status-pill"
+import { cn } from "@workspace/ui/lib/utils"
 
 const timeline = [
   { key: "requested", label: "Requested" },
@@ -47,59 +46,76 @@ export default async function BookingPage({
   const currentIndex = timeline.findIndex((step) => step.key === booking.status)
   const returned = Boolean(booking.borrower_return_marked_at)
 
+  const range = `${formatEventDate(booking.start_date).replace(/ \d{4}$/, "")} – ${formatEventDate(booking.end_date).replace(/ \d{4}$/, "")}`
+
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="w-full">
       <RealtimeRefresh table="booking_messages" filter={`booking_id=eq.${id}`} />
       <PageBand
-        eyebrow="Booking"
+        back={{ href: "/borrow/mine", label: "Borrowing and lending" }}
+        eyebrow={`Pinjam · ${actor === "borrower" ? "You're borrowing" : "You're lending"}`}
         title={booking.items?.title ?? "Borrowing request"}
-        description={`${formatEventDate(booking.start_date)} – ${formatEventDate(booking.end_date)} · ${booking.handover_method}`}
-        actions={<Button render={<Link href="/borrow/mine" />} variant="outline">Back to my borrowing</Button>}
-      >
-        <Badge variant="secondary" className="w-fit bg-sun text-ink">{booking.status.replace("_", " ")}</Badge>
-      </PageBand>
-      {booking.handover_note ? <p className="mt-2 rounded-lg border border-border bg-muted/30 p-3 text-sm"><strong>Handover note:</strong> {booking.handover_note}</p> : null}
-      {booking.return_note ? <p className="mt-2 rounded-lg border border-border bg-muted/30 p-3 text-sm"><strong>Return note:</strong> {booking.return_note}</p> : null}
+        description={`${range} · ${booking.handover_method}`}
+        actions={<StatusPill status={booking.status} className="px-3 py-1 text-sm" />}
+      />
 
-      <section className="mt-8 border-y border-border py-6">
-        <h2 className="font-display text-lg">Timeline</h2>
-        <ol className="mt-5 border-l-4 border-lilac pl-5">
-          {timeline.map((step, index) => {
-            const complete = booking.status === "completed" || index <= currentIndex || (step.key === "returned" && returned)
-            return (
-              <li key={step.key} className="relative py-3">
-                <span aria-hidden="true" className={`absolute -left-[27px] top-6 size-3 rounded-full border-4 border-card ${complete ? "bg-line-borrow" : "bg-border"}`} />
-                <div className="flex items-center justify-between gap-3">
-                  <p className={complete ? "font-medium" : "text-muted-foreground"}>{step.label}</p>
-                  {complete ? <span className="text-xs font-bold text-ink">Done</span> : <span className="text-xs text-muted-foreground">Next</span>}
-                </div>
-              </li>
-            )
-          })}
-        </ol>
-      </section>
+      <div className="grid gap-7 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-10">
+        <div className="flex min-w-0 flex-col gap-6">
+          <section aria-labelledby="progress-heading" className="bb-card p-5">
+            <h2 id="progress-heading" className="text-title text-ink">Progress</h2>
+            <ol className="mt-4 flex flex-col">
+              {timeline.map((step, index) => {
+                const complete = booking.status === "completed" || index <= currentIndex || (step.key === "returned" && returned)
+                const current = !complete && (index === currentIndex + 1)
+                return (
+                  <li key={step.key} aria-current={current ? "step" : undefined} className="relative flex items-center gap-3 pb-4 last:pb-0">
+                    {index < timeline.length - 1 ? (
+                      <span aria-hidden="true" className="absolute top-6 left-[11px] h-[calc(100%-1rem)] w-1 rounded-full bg-lilac" />
+                    ) : null}
+                    <span
+                      aria-hidden="true"
+                      className={cn(
+                        "relative size-6 shrink-0 rounded-full border-[3px]",
+                        complete ? "border-ink bg-ink" : current ? "border-ink bg-coral" : "border-ink bg-surface"
+                      )}
+                    />
+                    <span className={cn("flex-1", complete || current ? "font-bold text-ink" : "text-ink-muted")}>{step.label}</span>
+                    <span className="text-xs font-bold text-ink-muted">{complete ? "Done" : current ? "Next" : ""}</span>
+                  </li>
+                )
+              })}
+            </ol>
+          </section>
 
-      <section className="mt-7">
-        <h2 className="font-display text-lg">Actions</h2>
-        <div className="mt-4">
-          <BookingActions bookingId={booking.id} status={booking.status} actor={actor} borrowerWouldHaveBought={booking.borrower_would_have_bought} />
+          <section aria-labelledby="actions-heading" className="bb-card p-5">
+            <h2 id="actions-heading" className="text-title text-ink">What happens next</h2>
+            <div className="mt-4">
+              <BookingActions bookingId={booking.id} status={booking.status} actor={actor} borrowerWouldHaveBought={booking.borrower_would_have_bought} />
+            </div>
+            {returned && booking.borrower_would_have_bought ? (
+              <p className="mt-4 text-sm text-ink-muted">
+                Would have bought or rented it otherwise: <strong className="text-ink capitalize">{booking.borrower_would_have_bought}</strong>
+              </p>
+            ) : null}
+          </section>
+
+          {booking.handover_note || booking.return_note ? (
+            <section className="flex flex-col gap-2">
+              {booking.handover_note ? <p className="rounded-lg bg-lilac-tint p-3 text-sm text-ink"><strong>Handover note:</strong> {booking.handover_note}</p> : null}
+              {booking.return_note ? <p className="rounded-lg bg-lilac-tint p-3 text-sm text-ink"><strong>Return note:</strong> {booking.return_note}</p> : null}
+            </section>
+          ) : null}
         </div>
-        {returned ? (
-          <p className="mt-4 text-sm text-muted-foreground">
-            Without BorrowBetter, would you have bought or rented this? <strong>{booking.borrower_would_have_bought}</strong>
-          </p>
-        ) : null}
-      </section>
 
-      <BookingChat bookingId={booking.id} messages={messagesResult.data ?? []} currentUserId={active.user.id} />
-      <div className="mt-5"><BlockUserButton blockedId={otherUserId} name="other participant" /></div>
-
-      <section className="mt-8 border-t border-border pt-6">
-        <h2 className="font-display text-lg">Safety</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Meet in shared spaces. Never share bank or ID details. Report an issue from the booking if something feels wrong.
-        </p>
-      </section>
+        <div className="flex min-w-0 flex-col gap-4">
+          <BookingChat bookingId={booking.id} messages={messagesResult.data ?? []} currentUserId={active.user.id} />
+          <div className="rounded-lg bg-mint-tint p-4 text-sm text-ink">
+            <p className="font-bold">Stay safe</p>
+            <p className="mt-1">Meet in shared spaces. Never share bank or ID details. Report an issue from this booking if something feels wrong.</p>
+          </div>
+          <BlockUserButton blockedId={otherUserId} name="other participant" />
+        </div>
+      </div>
     </div>
   )
 }

@@ -26,3 +26,10 @@ export const resolveDisputeSchema = z.object({
   resolution: z.enum(["completed", "closed"]),
   note: z.string().trim().max(600).default(""),
 })
+
+export const badgeSchema = z.object({
+  slug: z.string().trim().min(3).max(80).regex(/^[a-z0-9-]+$/, { error: "Use lowercase letters, numbers and hyphens." }),
+  name: z.string().trim().min(3).max(80),
+  description: z.string().trim().min(3).max(240),
+  icon: z.enum(["award", "hand-heart", "leaf", "recycle", "shield", "sparkles", "users-round"]),
+})

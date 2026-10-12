@@ -61,7 +61,7 @@ export function BookingRequestForm({
           <AlertDescription>{state.message}</AlertDescription>
         </Alert>
       ) : null}
-      <Button type="submit" className="h-11" disabled={pending}>
+      <Button type="submit" variant="cta" className="h-11" disabled={pending}>
         {pending ? <Spinner data-icon="inline-start" /> : null}
         Request to borrow
       </Button>

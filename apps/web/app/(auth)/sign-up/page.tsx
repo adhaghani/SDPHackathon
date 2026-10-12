@@ -5,10 +5,10 @@ export default function SignUpPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="font-display text-3xl">
+        <h1 className="text-display-lg text-ink">
           {authContent.signUp.title}
         </h1>
-        <p className="mt-2 text-muted-foreground">
+        <p className="mt-2 text-ink-muted">
           {authContent.signUp.description}
         </p>
       </div>

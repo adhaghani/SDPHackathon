@@ -20,7 +20,7 @@ export function HubForm() {
         <Field data-invalid={Boolean(state.fieldErrors?.locationText)}><FieldLabel htmlFor="hub-location">Shared location</FieldLabel><Input id="hub-location" name="locationText" required /><FieldError>{state.fieldErrors?.locationText?.[0]}</FieldError></Field>
       </FieldGroup>
       {state.message ? <Alert variant={state.status === "error" ? "destructive" : "default"}><AlertDescription>{state.message}</AlertDescription></Alert> : null}
-      <Button type="submit" className="h-11" disabled={pending}>{pending ? <Spinner data-icon="inline-start" /> : null}Create hub</Button>
+      <Button type="submit" variant="cta" className="h-11" disabled={pending}>{pending ? <Spinner data-icon="inline-start" /> : null}Create hub</Button>
     </form>
   )
 }
@@ -35,7 +35,7 @@ export function InventoryForm({ hubId, items }: { hubId: string; items: Array<{ 
         <Field><FieldLabel htmlFor={`inventory-quantity-${hubId}`}>Quantity</FieldLabel><Input id={`inventory-quantity-${hubId}`} name="quantity" type="number" min="1" defaultValue="1" required /></Field>
       </FieldGroup>
       {state.message ? <p className="text-sm text-muted-foreground">{state.message}</p> : null}
-      <Button type="submit" className="h-11" disabled={pending}>{pending ? <Spinner data-icon="inline-start" /> : null}Add inventory</Button>
+      <Button type="submit" variant="cta" className="h-11" disabled={pending}>{pending ? <Spinner data-icon="inline-start" /> : null}Add inventory</Button>
     </form>
   )
 }

@@ -9,16 +9,26 @@ import { Spinner } from "@workspace/ui/components/spinner"
 
 const idleState = { status: "idle" } as const
 
-export function RedeemButton({ rewardId, costBp }: { rewardId: string; costBp: number }) {
+export function RedeemButton({
+  rewardId,
+  costBp,
+  missingBp = 0,
+  soldOut = false,
+}: {
+  rewardId: string
+  costBp: number
+  missingBp?: number
+  soldOut?: boolean
+}) {
   const [state, action, pending] = useActionState(redeemReward, idleState)
 
   return (
     <div className="flex flex-col gap-2">
       <form action={action}>
         <input type="hidden" name="rewardId" value={rewardId} />
-        <Button type="submit" className="h-11 w-full" disabled={pending}>
+        <Button type="submit" variant="cta" className="w-full" disabled={pending || missingBp > 0 || soldOut}>
           {pending ? <Spinner data-icon="inline-start" /> : null}
-          Redeem for {costBp} BP
+          {soldOut ? "Fully redeemed" : missingBp > 0 ? `${missingBp.toLocaleString("en-MY")} BP to go` : `Redeem for ${costBp.toLocaleString("en-MY")} BP`}
         </Button>
       </form>
       {state.message ? (

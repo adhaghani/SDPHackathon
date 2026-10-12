@@ -1,5 +1,5 @@
-import Link from "next/link"
 import { redirect } from "next/navigation"
+import { PageBand } from "@/components/shared/page-band"
 
 import { ModerationActionButton } from "@/components/admin/admin-action-button"
 import { requireActiveMember } from "@/lib/data"
@@ -20,10 +20,13 @@ export default async function AdminModerationPage() {
   if (reports.error) throw new Error(reports.error.message)
 
   return (
-    <div className="mx-auto max-w-4xl">
-      <Link href="/admin" className="text-sm text-muted-foreground underline underline-offset-4">Back to Township Pulse</Link>
-      <h1 className="mt-5 font-display text-3xl font-bold">Moderation</h1>
-      <p className="mt-2 text-muted-foreground">Review reports and hide content when three open reports point to the same target.</p>
+    <div className="w-full">
+      <PageBand
+        back={{ href: "/admin", label: "Township Pulse" }}
+        eyebrow="Township office"
+        title="Moderation"
+        description="Review reports and hide content when three open reports point to the same target."
+      />
       {(reports.data ?? []).length ? (
         <ul className="mt-6 divide-y divide-border border-y border-border">
           {reports.data?.map((report) => (

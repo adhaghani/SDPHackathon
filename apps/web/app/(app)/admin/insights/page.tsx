@@ -1,5 +1,5 @@
-import Link from "next/link"
 import { redirect } from "next/navigation"
+import { PageBand } from "@/components/shared/page-band"
 
 import { requireActiveMember } from "@/lib/data"
 import { createClient } from "@/lib/supabase/server"
@@ -34,14 +34,15 @@ export default async function AdminInsightsPage({
   const maxGrid = Math.max(1, ...(insights.attendance_grid ?? []).map((row) => row.count))
 
   return (
-    <div className="mx-auto max-w-5xl">
-      <Link href="/admin" className="text-sm text-muted-foreground underline underline-offset-4">Back to Township Pulse</Link>
-      <div className="mt-5 flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-sm font-medium text-ink-muted">Planning signals</p>
-          <h1 className="mt-1 font-display text-3xl font-bold">Insights</h1>
-          <p className="mt-2 text-muted-foreground">Cohorts, timing, neighbourhood participation and facility use.</p>
-        </div>
+    <div className="w-full">
+      <div className="flex flex-col gap-4 border-b border-hairline pb-6 sm:flex-row sm:items-end sm:justify-between">
+        <PageBand
+          className="mb-0"
+          back={{ href: "/admin", label: "Township Pulse" }}
+          eyebrow="Township office · Planning signals"
+          title="Insights"
+          description="Cohorts, timing, neighbourhood participation and facility use."
+        />
         <form method="get" action="/admin/insights" className="flex items-center gap-2">
           <label htmlFor="insight-days" className="sr-only">Period</label>
           <select id="insight-days" name="days" defaultValue={String(days)} className="h-11 rounded-lg border border-input bg-background px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50">

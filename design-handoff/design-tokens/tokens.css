@@ -1,0 +1,84 @@
+/*
+ * BorrowBetter design tokens — merge into packages/ui/src/styles/globals.css.
+ *
+ * CONFIRMED values (from the system context doc): ink, ink-muted, ground, surface,
+ * border, band-eyebrow, sun, mint, lilac, coral, Syne + DM Sans.
+ * PLACEHOLDER values (designer's guess — if globals.css already defines these,
+ * KEEP THE EXISTING VALUES): the four tints, radii, shadows, type sizes.
+ */
+
+:root {
+  /* Core palette */
+  --bb-ink: #1b1340;
+  --bb-ink-muted: #4a4570;
+  --bb-ground: #f6f4fb;
+  --bb-surface: #ffffff;
+  --bb-border: #e7e2f7;
+  --bb-band-eyebrow: #cfc8f0;
+  --bb-sun: #ffd23f;
+  --bb-mint: #7be0b0;
+  --bb-lilac: #c9b8ff;
+  --bb-coral: #ff6b4a;
+
+  /* Tints (placeholder) */
+  --bb-sun-tint: #fff4c7;
+  --bb-mint-tint: #ddf7ea;
+  --bb-lilac-tint: #eee8ff;
+  --bb-coral-tint: #ffe3db;
+
+  /* Semantic aliases */
+  --bb-on-accent: var(--bb-ink);   /* text on sun / mint / lilac / coral — never white */
+  --bb-focus-ring: var(--bb-ink);  /* 2px solid, 2px offset; use surface on ink bands */
+
+  /* Radius (placeholder) */
+  --bb-radius-sm: 8px;
+  --bb-radius-md: 12px;
+  --bb-radius-lg: 16px;   /* cards, posters */
+  --bb-radius-band: 32px; /* bottom corners of hero / dark bands */
+
+  /* Shadow (placeholder) */
+  --bb-shadow-card: 0 1px 2px rgba(27, 19, 64, 0.06), 0 4px 12px rgba(27, 19, 64, 0.05);
+  --bb-shadow-raised: 0 2px 4px rgba(27, 19, 64, 0.08), 0 10px 24px rgba(27, 19, 64, 0.08);
+
+  /* Type */
+  --bb-font-display: "Syne", "DM Sans", system-ui, sans-serif;
+  --bb-font-sans: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/*
+ * Tailwind v4 mapping (shadcn setup). If the project is on Tailwind v3, put the same
+ * keys under theme.extend.colors / borderRadius / boxShadow / fontFamily instead.
+ */
+@theme inline {
+  --color-ink: var(--bb-ink);
+  --color-ink-muted: var(--bb-ink-muted);
+  --color-ground: var(--bb-ground);
+  --color-surface: var(--bb-surface);
+  --color-hairline: var(--bb-border);
+  --color-band-eyebrow: var(--bb-band-eyebrow);
+  --color-sun: var(--bb-sun);
+  --color-mint: var(--bb-mint);
+  --color-lilac: var(--bb-lilac);
+  --color-coral: var(--bb-coral);
+  --color-sun-tint: var(--bb-sun-tint);
+  --color-mint-tint: var(--bb-mint-tint);
+  --color-lilac-tint: var(--bb-lilac-tint);
+  --color-coral-tint: var(--bb-coral-tint);
+  --radius-band: var(--bb-radius-band);
+  --shadow-card: var(--bb-shadow-card);
+  --shadow-raised: var(--bb-shadow-raised);
+  --font-display: var(--bb-font-display);
+  --font-sans: var(--bb-font-sans);
+}
+
+/* Type scale (placeholder sizes) */
+.text-display-xl { font: 800 48px/52px var(--bb-font-display); letter-spacing: -0.02em; }
+.text-display-lg { font: 700 32px/36px var(--bb-font-display); letter-spacing: -0.01em; }
+.text-heading    { font: 700 22px/28px var(--bb-font-display); }
+.text-title      { font: 700 17px/22px var(--bb-font-display); }
+.text-eyebrow    { font: 600 12px/16px var(--bb-font-sans); letter-spacing: 0.08em; text-transform: uppercase; }
+.tabular         { font-variant-numeric: tabular-nums; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}

@@ -7,6 +7,21 @@ type Database = Record<string, never>
 
 const DAY = 24 * 60 * 60 * 1000
 
+const itemMockImages: Record<string, string> = {
+  "Pressure washer": "/demo/item-pressure-washer.svg",
+  "Folding ladder": "/demo/item-ladder.svg",
+  "Camping tent": "/demo/item-tent.svg",
+  "Badminton set": "/demo/item-badminton.svg",
+  "Sewing machine": "/demo/item-sewing-machine.svg",
+  Projector: "/demo/item-projector.svg",
+  "Cordless drill": "/demo/item-drill.svg",
+  "Cooler box": "/demo/item-cooler.svg",
+  "Board game bundle": "/demo/item-board-games.svg",
+  "Kids scooter": "/demo/item-scooter.svg",
+  "Garden cart": "/demo/item-garden-cart.svg",
+  "Pressure washer for the next clean-up": "/demo/item-pressure-washer.svg",
+}
+
 const demoUsers = [
   {
     email: "aisyah@borrowbetter.demo",
@@ -360,10 +375,17 @@ async function ensureEvent(
     description?: string
     location?: string
     capacity?: number
+    coverPath?: string
   } = {}
 ) {
   const existing = await findOne(admin, "events", { township_id: townshipId, title })
-  if (existing) return existing.id as string
+  if (existing) {
+    if (options.coverPath) {
+      const { error } = await admin.from("events").update({ cover_path: options.coverPath }).eq("id", existing.id as string)
+      if (error) throw new Error(`Could not add the demo cover for ${title}: ${error.message}`)
+    }
+    return existing.id as string
+  }
 
   const { data, error } = await admin
     .from("events")
@@ -382,6 +404,7 @@ async function ensureEvent(
       languages: ["English", "Bahasa Malaysia"],
       status: "published",
       hidden: false,
+      cover_path: options.coverPath ?? "/demo/event-placeholder.svg",
     })
     .select("id")
     .single()
@@ -432,10 +455,17 @@ async function ensureItem(
   townshipId: string,
   ownerId: string,
   categoryId: string,
-  title: string
+  title: string,
+  photoPath?: string
 ) {
   const existing = await findOne(admin, "items", { township_id: townshipId, title, owner_id: ownerId })
-  if (existing) return existing.id as string
+  if (existing) {
+    if (photoPath) {
+      const { error } = await admin.from("items").update({ photo_paths: [photoPath] }).eq("id", existing.id as string)
+      if (error) throw new Error(`Could not add the demo image for ${title}: ${error.message}`)
+    }
+    return existing.id as string
+  }
 
   const { data, error } = await admin
     .from("items")
@@ -450,6 +480,7 @@ async function ensureItem(
       deposit_rm: 0,
       max_loan_days: 4,
       handover_options: [" clubhouse lobby", "community garden gate"],
+      photo_paths: photoPath ? [photoPath] : [],
       status: "active",
       hidden: false,
     })
@@ -636,7 +667,8 @@ export async function seedDemo(): Promise<void> {
       index % 2 === 0 ? raj : office,
       categoryId(index === 0 ? "gotong-royong" : index % 2 === 0 ? "social" : "repair"),
       futureTitles[index] ?? "Demo event",
-      startsAt
+      startsAt,
+      { coverPath: "/demo/event-placeholder.svg" }
     )
   }
 
@@ -660,7 +692,8 @@ export async function seedDemo(): Promise<void> {
       townshipId,
       aisyah,
       itemCategoryId(index % 2 === 0 ? "home-tools" : "events"),
-      itemTitles[index] ?? "Demo item"
+      itemTitles[index] ?? "Demo item",
+      itemMockImages[itemTitles[index] ?? ""]
     )
     const startDate = new Date(now - (index + 10) * 6 * DAY).toISOString().slice(0, 10)
     const endDate = new Date(now - (index + 10) * 6 * DAY + 3 * DAY).toISOString().slice(0, 10)
@@ -686,7 +719,8 @@ export async function seedDemo(): Promise<void> {
     townshipId,
     raj,
     itemCategoryId("cleaning"),
-    "Pressure washer for the next clean-up"
+    "Pressure washer for the next clean-up",
+    itemMockImages["Pressure washer for the next clean-up"]
   )
   await ensureBooking(
     admin,

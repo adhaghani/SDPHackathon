@@ -18,7 +18,7 @@ export function CommunityForms({ role }: { role: string }) {
   const [helpState, helpAction, helpPending] = useActionState(createHelpRequest, idleState)
 
   return (
-    <div className="grid gap-5 lg:grid-cols-2">
+    <div className="grid gap-5">
       {role === "organiser" || role === "township_admin" ? (
         <section className="bb-card p-5">
           <h2 className="font-display text-lg font-bold">Post an announcement</h2>
@@ -39,7 +39,7 @@ export function CommunityForms({ role }: { role: string }) {
               </Field>
             </FieldGroup>
             {announcementState.message ? <Alert variant={announcementState.status === "error" ? "destructive" : "default"}><AlertDescription>{announcementState.message}</AlertDescription></Alert> : null}
-            <Button type="submit" className="h-11" disabled={announcementPending}>
+            <Button type="submit" variant="cta" className="h-11" disabled={announcementPending}>
               {announcementPending ? <Spinner data-icon="inline-start" /> : null}
               Post announcement
             </Button>
@@ -77,7 +77,7 @@ export function CommunityForms({ role }: { role: string }) {
             </Field>
           </FieldGroup>
           {helpState.message ? <Alert variant={helpState.status === "error" ? "destructive" : "default"}><AlertDescription>{helpState.message}</AlertDescription></Alert> : null}
-          <Button type="submit" className="h-11" disabled={helpPending}>
+          <Button type="submit" variant="cta" className="h-11" disabled={helpPending}>
             {helpPending ? <Spinner data-icon="inline-start" /> : null}
             Post helping request
           </Button>

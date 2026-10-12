@@ -1,4 +1,3 @@
-import Link from "next/link"
 import { notFound } from "next/navigation"
 
 import { CompleteEventButton } from "@/components/events/complete-event-button"
@@ -6,11 +5,10 @@ import { ManualCheckInList } from "@/components/events/manual-check-in-list"
 import { QrCheckIn } from "@/components/events/qr-check-in"
 import { PageBand } from "@/components/shared/page-band"
 import { VolunteerHoursForm } from "@/components/events/volunteer-hours-form"
+import { StatusPill } from "@/components/shared/status-pill"
 import { requireActiveMember } from "@/lib/data"
+import { formatEventRange } from "@/lib/format"
 import { createClient } from "@/lib/supabase/server"
-import { Badge } from "@workspace/ui/components/badge"
-import { Button } from "@workspace/ui/components/button"
-import { Alert, AlertDescription } from "@workspace/ui/components/alert"
 
 export default async function EventManagePage({
   params,
@@ -21,7 +19,7 @@ export default async function EventManagePage({
   const { id } = await params
   const supabase = await createClient()
   const [eventResult, staffResult, registrationsResult] = await Promise.all([
-    supabase.from("events").select("id,title,starts_at,ends_at,status").eq("id", id).maybeSingle(),
+    supabase.from("events").select("id,title,starts_at,ends_at,status,location_text").eq("id", id).maybeSingle(),
     supabase.from("event_staff").select("user_id").eq("event_id", id).eq("user_id", active.user.id).maybeSingle(),
     supabase
       .from("event_rsvps")
@@ -47,41 +45,62 @@ export default async function EventManagePage({
       : null,
   }))
 
+  const event = eventResult.data
+  const going = registrations.filter((row) => row.status === "going" || row.status === "checked_in").length
+  const checkedIn = registrations.filter((row) => row.status === "checked_in").length
+  const volunteers = registrations.filter((row) => row.role === "volunteer" && row.status === "checked_in")
+
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="w-full">
       <PageBand
-        eyebrow="Check-in desk"
-        title={eventResult.data.title}
-        description="Use the camera path when available, or search registrations for an accessible manual check-in."
-        actions={<Button render={<Link href={`/events/${id}`} />} variant="outline">Back to event</Button>}
-      >
-        <Badge variant="secondary" className="w-fit bg-sun text-ink">{eventResult.data.status}</Badge>
-      </PageBand>
-      <div className="mt-7">
+        back={{ href: `/events/${id}`, label: "Event" }}
+        eyebrow="Jom · Check-in desk"
+        title={event.title}
+        description={`${formatEventRange(event.starts_at, event.ends_at)} · ${event.location_text}`}
+        actions={<StatusPill status={event.status} className="px-3 py-1 text-sm" />}
+      />
+
+      <dl className="grid grid-cols-3 gap-3">
+        {[
+          ["Registered", going],
+          ["Checked in", checkedIn],
+          ["Volunteers in", volunteers.length],
+        ].map(([label, value]) => (
+          <div key={label} className="bb-card p-4">
+            <dt className="text-sm text-ink-muted">{label}</dt>
+            <dd className="mt-1 font-display text-3xl font-extrabold text-ink tabular-nums">{value}</dd>
+          </div>
+        ))}
+      </dl>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)]">
         <QrCheckIn eventId={id} />
-        <ManualCheckInList registrations={registrations} />
+        <section aria-label="Manual check-in" className="bb-card p-5">
+          <ManualCheckInList registrations={registrations} />
+        </section>
       </div>
-      {registrations.some((registration) => registration.role === "volunteer" && registration.status === "checked_in") ? (
-        <section className="mt-7 border-t border-border pt-6">
-          <h2 className="font-display text-lg">Volunteer hours</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Verify up to four hours per volunteer after check-in.</p>
+
+      {volunteers.length ? (
+        <section aria-labelledby="hours-heading" className="bb-card mt-6 p-5">
+          <h2 id="hours-heading" className="text-title text-ink">Volunteer hours</h2>
+          <p className="mt-1 text-sm text-ink-muted">Verify up to four hours per volunteer after check-in.</p>
           <div className="mt-4 flex flex-col gap-4">
-            {registrations
-              .filter((registration) => registration.role === "volunteer" && registration.status === "checked_in")
-              .map((registration) => (
-                <VolunteerHoursForm key={registration.id} rsvpId={registration.id} name={registration.profiles?.display_name ?? "Neighbour"} />
-              ))}
+            {volunteers.map((registration) => (
+              <VolunteerHoursForm key={registration.id} rsvpId={registration.id} name={registration.profiles?.display_name ?? "Neighbour"} />
+            ))}
           </div>
         </section>
       ) : null}
-      <div className="mt-7 border-t border-border pt-5">
-        <CompleteEventButton eventId={id} disabled={eventResult.data.status === "completed"} />
-        <Alert className="mt-4">
-          <AlertDescription>
-            Host points are awarded only after at least three staff-verified attendees.
-          </AlertDescription>
-        </Alert>
-      </div>
+
+      <section aria-labelledby="complete-heading" className="mt-6 rounded-lg bg-lilac-tint p-5">
+        <h2 id="complete-heading" className="text-title text-ink">Close the event</h2>
+        <p className="mt-1 max-w-[60ch] text-sm text-ink">
+          Mark it complete once check-ins are done. Host points are awarded only after at least three staff-verified attendees.
+        </p>
+        <div className="mt-4">
+          <CompleteEventButton eventId={id} disabled={event.status === "completed"} />
+        </div>
+      </section>
     </div>
   )
 }

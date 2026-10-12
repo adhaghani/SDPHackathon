@@ -1,64 +1,76 @@
-import Image from "next/image"
 import Link from "next/link"
-import { PackageIcon, HandHelpingIcon, WrenchIcon } from "lucide-react"
+import { CalendarDaysIcon, HandHelpingIcon, PackageIcon, PlusIcon } from "lucide-react"
 
 import { HelpActionButton } from "@/components/community/community-action"
-import { PageBand } from "@/components/shared/page-band"
-import { PointsChip } from "@/components/shared/points-chip"
-import { SectionHeading } from "@/components/shared/section-heading"
+import { ActivityRow } from "@/components/home/activity-row"
+import { QuickActionCard } from "@/components/home/quick-action-card"
+import { TodoRow } from "@/components/home/todo-row"
+import { DemoLabel } from "@/components/shared/demo-label"
+import { MediaPoster } from "@/components/shared/media-poster"
+import { TownshipLine, type StationName } from "@/components/shared/township-line"
+import { activityLine, describeActivity, formatRelativeDay, levelProgress, malayGreeting } from "@/lib/activity"
 import { requireActiveMember } from "@/lib/data"
-import { formatEventRange } from "@/lib/format"
-import { isFeatureEnabled } from "@/lib/env"
-import { recommendEvents, recommendItems } from "@/lib/recommendations"
+import { isDemoMode, isFeatureEnabled } from "@/lib/env"
+import { formatEventDate, formatEventTime } from "@/lib/format"
+import { recommendEvents } from "@/lib/recommendations"
 import { createClient } from "@/lib/supabase/server"
-import { Badge } from "@workspace/ui/components/badge"
-import { Button } from "@workspace/ui/components/button"
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@workspace/ui/components/empty"
 
-const imageTints = ["bg-sun-tint", "bg-mint-tint", "bg-lilac-tint", "bg-coral-tint"]
+type Todo = { id: string; title: string; detail: string; href: string; actionLabel: string; urgent: boolean }
+
+const dueFormat = new Intl.DateTimeFormat("en-MY", { timeZone: "Asia/Kuala_Lumpur", weekday: "short", day: "numeric", month: "short" })
 
 export default async function HomePage() {
   const active = await requireActiveMember()
   const supabase = await createClient()
-  const [bookingsResult, eventsResult, itemsResult, ledgerResult, pastEventsResult, helpResult] = await Promise.all([
+  const now = new Date()
+  const [bookingsResult, rsvpsResult, eventsResult, ledgerResult, actionsResult, levelsResult, pastEventsResult, helpResult] = await Promise.all([
     supabase
       .from("bookings")
-      .select("id,status,borrower_id,lender_id,items(title)")
+      .select("id,status,borrower_id,lender_id,start_date,end_date,handover_method,items(title)")
       .or(`borrower_id.eq.${active.user.id},lender_id.eq.${active.user.id}`)
-      .order("updated_at", { ascending: false })
+      .in("status", ["requested", "approved", "handed_over"])
+      .order("end_date")
       .limit(10),
     supabase
-      .from("events")
-      .select("id,title,starts_at,ends_at,location_text,neighbourhood_id,event_categories(slug,name,counts_as_sustainability)")
-      .eq("township_id", active.townshipId)
-      .eq("status", "published")
-      .gte("starts_at", new Date().toISOString())
-      .order("starts_at")
+      .from("event_rsvps")
+      .select("id,status,events!inner(id,title,starts_at,location_text)")
+      .eq("user_id", active.user.id)
+      .eq("status", "going")
+      .gte("events.starts_at", now.toISOString())
       .limit(3),
     supabase
-      .from("items")
-      .select("id,title,condition,photo_paths,item_categories(slug,name)")
+      .from("events")
+      .select("id,title,cover_path,starts_at,ends_at,location_text,neighbourhood_id,event_categories(slug,name)")
       .eq("township_id", active.townshipId)
-      .eq("status", "active")
-      .neq("owner_id", active.user.id)
-      .order("created_at", { ascending: false })
-      .limit(3),
+      .eq("status", "published")
+      .gte("starts_at", now.toISOString())
+      .order("starts_at")
+      .limit(6),
     supabase
       .from("points_ledger")
       .select("id,delta,action_type,created_at")
       .eq("user_id", active.user.id)
+      .eq("township_id", active.townshipId)
       .order("created_at", { ascending: false })
-      .limit(4),
+      .limit(3),
+    supabase
+      .from("points_ledger")
+      .select("action_type")
+      .eq("user_id", active.user.id)
+      .eq("township_id", active.townshipId)
+      .gt("delta", 0)
+      .limit(1000),
+    supabase.from("levels").select("level,name,min_lifetime_points").order("level"),
     supabase
       .from("event_rsvps")
       .select("event_id,events(event_categories(slug))")
       .eq("user_id", active.user.id)
       .eq("status", "checked_in")
-      .order("created_at", { ascending: false })
       .limit(30),
     supabase
       .from("help_requests")
-      .select("id,title,details,kind,status,needed_by,requester_id")
+      .select("id,title,kind,needed_by")
       .eq("township_id", active.townshipId)
       .eq("status", "open")
       .neq("requester_id", active.user.id)
@@ -66,231 +78,218 @@ export default async function HomePage() {
       .limit(3),
   ])
 
+  const firstName = active.profile?.display_name?.split(" ")[0] ?? "neighbour"
+  const townshipName = active.membership.townships?.name ?? "Your township"
+  const lifetime = active.points?.lifetime_points ?? 0
+  const level = levelProgress(lifetime, levelsResult.data ?? [])
+
+  const lineCounts = (actionsResult.data ?? []).reduce<Record<string, number>>((counts, row) => {
+    const line = activityLine(row.action_type)
+    counts[line] = (counts[line] ?? 0) + 1
+    return counts
+  }, {})
+  const stationOrder: StationName[] = ["Pinjam", "Jom", "Tolong", "Rimba"]
+  const currentStation = stationOrder.find((line) => !lineCounts[line]) ?? "Rimba"
+  const plural = (count: number, word: string) => `${count} ${word}${count === 1 ? "" : "s"}`
+  const stationDetails: Partial<Record<StationName, string>> = {
+    Pinjam: plural(lineCounts.Pinjam ?? 0, "loan"),
+    Jom: plural(lineCounts.Jom ?? 0, "event"),
+    Tolong: plural(lineCounts.Tolong ?? 0, "help"),
+    Rimba: plural(lineCounts.Rimba ?? 0, "challenge"),
+    [currentStation]: "Next stop",
+  }
+
+  const todos: Todo[] = []
+  for (const booking of bookingsResult.data ?? []) {
+    const title = booking.items?.title ?? "item"
+    const href = `/borrow/bookings/${booking.id}`
+    const isBorrower = booking.borrower_id === active.user.id
+    const due = dueFormat.format(new Date(`${booking.end_date}T12:00:00+08:00`))
+    if (isBorrower && booking.status === "handed_over") {
+      todos.push({ id: booking.id, title: `Return the ${title.toLowerCase()}`, detail: `By ${due} · ${booking.handover_method}`, href, actionLabel: "Mark returned", urgent: true })
+    } else if (isBorrower && booking.status === "approved") {
+      todos.push({ id: booking.id, title: `Collect the ${title.toLowerCase()}`, detail: `From ${dueFormat.format(new Date(`${booking.start_date}T12:00:00+08:00`))} · ${booking.handover_method}`, href, actionLabel: "Confirm handover", urgent: false })
+    } else if (!isBorrower && booking.status === "requested") {
+      todos.push({ id: booking.id, title: `Confirm a booking request`, detail: `${title} · until ${due}`, href, actionLabel: "Review request", urgent: false })
+    } else if (!isBorrower && booking.status === "handed_over") {
+      todos.push({ id: booking.id, title: `Confirm your ${title.toLowerCase()} came back`, detail: `Due ${due}`, href, actionLabel: "Confirm return", urgent: false })
+    }
+  }
+  for (const rsvp of rsvpsResult.data ?? []) {
+    if (!rsvp.events) continue
+    todos.push({
+      id: rsvp.id,
+      title: `Check in at ${rsvp.events.title}`,
+      detail: `${formatEventDate(rsvp.events.starts_at)} ${formatEventTime(rsvp.events.starts_at)} · ${rsvp.events.location_text}`,
+      href: `/events/${rsvp.events.id}/ticket`,
+      actionLabel: "Open QR ticket",
+      urgent: false,
+    })
+  }
+  const visibleTodos = todos.sort((a, b) => Number(b.urgent) - Number(a.urgent)).slice(0, 3)
+
+  const events = eventsResult.data ?? []
   const interests = active.profile?.interests ?? []
   const pastCategories = (pastEventsResult.data ?? [])
     .map((row) => row.events?.event_categories?.slug)
     .filter((slug): slug is string => Boolean(slug))
-  const eventRecommendations = isFeatureEnabled("recommendations")
-    ? recommendEvents((eventsResult.data ?? []).map((event) => ({
-        eventId: event.id,
-        title: event.title,
-        categorySlug: event.event_categories?.slug ?? "social",
-        neighbourhoodId: event.neighbourhood_id,
-        startsAt: event.starts_at,
-        interests,
-        pastCategories,
-        userNeighbourhoodId: active.membership?.neighbourhood_id,
-      })))
+  const recommendations = isFeatureEnabled("recommendations")
+    ? recommendEvents(
+        events.map((event) => ({
+          eventId: event.id,
+          title: event.title,
+          categorySlug: event.event_categories?.slug ?? "social",
+          neighbourhoodId: event.neighbourhood_id,
+          startsAt: event.starts_at,
+          interests,
+          pastCategories,
+          userNeighbourhoodId: active.membership?.neighbourhood_id,
+        })),
+        events.length
+      )
     : []
-  const itemRecommendations = isFeatureEnabled("recommendations")
-    ? recommendItems((itemsResult.data ?? []).map((item) => ({
-        itemId: item.id,
-        title: item.title,
-        categorySlug: item.item_categories?.slug ?? "events",
-        neighbourhoodId: null,
-        interests,
-        pastCategories,
-        userNeighbourhoodId: active.membership?.neighbourhood_id,
-      })))
-    : []
-
-  const todos = (bookingsResult.data ?? [])
-    .map((booking) => {
-      if (booking.borrower_id === active.user.id && booking.status === "approved") return { id: booking.id, label: `Confirm handover for ${booking.items?.title ?? "your borrow"}`, href: `/borrow/bookings/${booking.id}` }
-      if (booking.borrower_id === active.user.id && booking.status === "handed_over") return { id: booking.id, label: `Mark ${booking.items?.title ?? "your borrow"} returned`, href: `/borrow/bookings/${booking.id}` }
-      if (booking.lender_id === active.user.id && booking.status === "requested") return { id: booking.id, label: `Review request for ${booking.items?.title ?? "your item"}`, href: `/borrow/bookings/${booking.id}` }
-      if (booking.lender_id === active.user.id && booking.status === "handed_over") return { id: booking.id, label: `Confirm return of ${booking.items?.title ?? "your item"}`, href: `/borrow/bookings/${booking.id}` }
-      return null
-    })
-    .filter((todo): todo is { id: string; label: string; href: string } => Boolean(todo))
-    .slice(0, 3)
-
+  const orderedEvents = (recommendations.length
+    ? recommendations.map((entry) => events.find((event) => event.id === entry.item.eventId)).filter((event) => event !== undefined)
+    : events
+  ).slice(0, 3)
   const helpRequests = helpResult.data ?? []
+  const demo = isDemoMode()
 
   return (
-    <div className="flex flex-col gap-4">
-      <PageBand
-        eyebrow="Good morning"
-        title={<>Home, {active.profile?.display_name?.split(" ")[0] ?? "neighbour"}</>}
-        description="Find a useful borrow, lend a hand, or see what your township has recognised."
-        actions={<PointsChip balance={active.points?.balance ?? 0} />}
-      >
-        <div>
-          <Button render={<Link href="/borrow" />} variant="cta" size="cta">
-            Find an item
-          </Button>
+    <div className="flex flex-col gap-8">
+      <section className="bb-band -mx-4 -mt-6 rounded-b-band px-4 pt-7 pb-8 sm:-mx-6 sm:px-6 md:mx-0 md:mt-0 md:rounded-band md:p-8">
+        <div className="grid gap-7 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] lg:items-center">
+          <div className="min-w-0">
+            <div className="flex items-center justify-between gap-3 sm:justify-start">
+              <p className="text-eyebrow text-band-eyebrow">{townshipName}</p>
+              {demo ? <DemoLabel tone="ink" /> : null}
+            </div>
+            <h1 className="mt-3 font-display text-[34px] leading-[1.05] font-extrabold text-balance text-surface sm:text-5xl">
+              {malayGreeting(now)}, {firstName}
+            </h1>
+            <p className="mt-4 max-w-[60ch] text-base text-band-eyebrow sm:text-lg">
+              {level.next ? (
+                <>
+                  You&apos;re <span className="tabular-nums">{level.toNext.toLocaleString("en-MY")}</span> BP from{" "}
+                  <strong className="text-sun">Level {level.next.level} · {level.next.name}</strong>.{" "}
+                </>
+              ) : (
+                <>You&apos;ve reached <strong className="text-sun">{level.current?.name ?? "the top level"}</strong>. </>
+              )}
+              Points come from verified borrows, events and help.
+            </p>
+          </div>
+          <TownshipLine tone="ink" current={currentStation} details={stationDetails} />
         </div>
-      </PageBand>
-
-      <nav aria-label="Quick actions" className="grid grid-cols-3 gap-3">
-        {[
-          { href: "/borrow", label: "Borrow", dot: "bg-sun", icon: PackageIcon },
-          { href: "/borrow/new", label: "Lend", dot: "bg-mint", icon: WrenchIcon },
-          { href: "/community", label: "Help", dot: "bg-lilac", icon: HandHelpingIcon },
-        ].map(({ href, label, dot, icon: Icon }) => (
-          <Link
-            key={href}
-            href={href}
-            className="bb-card flex min-h-20 flex-col items-center justify-center gap-2 p-3 text-ink transition-transform hover:-translate-y-0.5"
-          >
-            <span className={`size-5 rounded-full ${dot}`} aria-hidden="true" />
-            <Icon aria-hidden="true" className="hidden size-5 text-muted-foreground sm:block" strokeWidth={1.6} />
-            <span className="font-display text-base">{label}</span>
-          </Link>
-        ))}
-      </nav>
-
-      <section aria-labelledby="needs-a-hand-heading" className="mt-2">
-        <SectionHeading
-          title={<span id="needs-a-hand-heading">Needs a hand</span>}
-          description="Small, practical requests from neighbours nearby."
-          actions={<Button render={<Link href="/community" />} variant="ghost">Open community</Button>}
-        />
-        {helpRequests.length ? (
-          <ul className="mt-4 flex flex-col gap-4">
-            {helpRequests.map((request) => (
-              <li key={request.id} className="bb-card flex flex-col gap-3 p-3.5 sm:flex-row sm:items-center sm:justify-between">
-                <div className="min-w-0">
-                  <p className="text-[15px] leading-6 font-bold text-ink">{request.title}</p>
-                  <p className="mt-1 text-[13px] text-muted-foreground">
-                    {request.kind.replace("_", " ")}
-                    {request.needed_by ? ` · needed by ${new Date(request.needed_by).toLocaleDateString("en-MY")}` : ""}
-                  </p>
-                </div>
-                <HelpActionButton requestId={request.id} action="accept" />
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <Empty className="bb-card mt-4">
-            <EmptyHeader>
-              <EmptyTitle>Nothing needs you right now</EmptyTitle>
-              <EmptyDescription>Confirmations, handovers and new help requests will appear here.</EmptyDescription>
-            </EmptyHeader>
-          </Empty>
-        )}
       </section>
 
-      {todos.length ? (
-        <section aria-labelledby="todo-heading" className="mt-2">
-          <SectionHeading title={<span id="todo-heading">Your next steps</span>} />
-          <ul className="mt-4 flex flex-col gap-3">
-            {todos.map((todo) => (
-              <li key={todo.id}>
-                <Link href={todo.href} className="bb-card flex min-h-14 items-center justify-between gap-3 p-3.5 hover:bg-lilac-tint">
-                  <span className="text-[15px] font-bold">{todo.label}</span>
-                  <span className="text-sm font-bold text-muted-foreground">Open</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] xl:grid-cols-[minmax(0,1fr)_24rem]">
+        <nav aria-label="Quick actions" className="grid grid-cols-2 gap-3 lg:col-start-1 lg:row-start-1 xl:grid-cols-4">
+          <QuickActionCard href="/borrow" label="Borrow an item" icon={PackageIcon} tint="coral" />
+          <QuickActionCard href="/borrow/new" label="Lend an item" icon={PlusIcon} tint="sun" />
+          <QuickActionCard href="/events" label="Join an event" icon={CalendarDaysIcon} tint="lilac" />
+          <QuickActionCard href="/community" label="Ask for help" icon={HandHelpingIcon} tint="mint" />
+        </nav>
 
-      <section aria-labelledby="events-heading" className="mt-2">
-        <SectionHeading
-          title={<span id="events-heading">Nearby events</span>}
-          description="Your neighbourhood first, then the rest of the township."
-          actions={<Button render={<Link href="/events" />} variant="ghost">All events</Button>}
-        />
-        {(eventsResult.data ?? []).length ? (
-          <ul className="mt-4 grid gap-3 sm:grid-cols-3">
-            {eventsResult.data?.map((event, index) => {
-              const recommendation = eventRecommendations.find((entry) => entry.item.eventId === event.id)
-              return (
-              <li key={event.id}>
-                <Link href={`/events/${event.id}`} className="bb-card flex h-full flex-col p-4 hover:bg-lilac-tint">
-                  <Badge variant={index % 2 === 0 ? "secondary" : "outline"} className="w-fit">
-                    {event.event_categories?.name ?? "Event"}
-                  </Badge>
-                  <p className="mt-3 font-display text-[15px] text-ink">{event.title}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{formatEventRange(event.starts_at, event.ends_at)}</p>
-                  {recommendation ? <p className="mt-2 text-xs font-bold text-ink-muted">{recommendation.reason}</p> : null}
-                </Link>
-              </li>
-              )
-            })}
-          </ul>
-        ) : (
-          <Empty className="bb-card mt-4">
-            <EmptyHeader>
-              <EmptyTitle>No events this week</EmptyTitle>
-              <EmptyDescription>Host one or browse next week.</EmptyDescription>
-            </EmptyHeader>
-          </Empty>
-        )}
-      </section>
+        <aside className="flex flex-col gap-8 lg:col-start-2 lg:row-span-3 lg:row-start-1">
+          <section aria-labelledby="todo-heading">
+            <h2 id="todo-heading" className="text-heading text-ink">To do</h2>
+            {visibleTodos.length ? (
+              <ul className="mt-4 flex flex-col gap-3">
+                {visibleTodos.map((todo) => (
+                  <TodoRow key={todo.id} {...todo} />
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-4 rounded-lg border border-hairline bg-surface p-4 text-sm text-ink-muted">
+                Nothing waiting on you. Returns, booking requests and event check-ins will show up here.
+              </p>
+            )}
+          </section>
 
-      <section aria-labelledby="items-heading" className="mt-2">
-        <SectionHeading
-          title={<span id="items-heading">Items to borrow</span>}
-          description="Useful things your neighbours are sharing."
-          actions={<Button render={<Link href="/borrow" />} variant="ghost">Browse borrow</Button>}
-        />
-        {(itemsResult.data ?? []).length ? (
-          <ul className="mt-4 grid gap-3.5 sm:grid-cols-3">
-            {itemsResult.data?.map((item, index) => {
-              const recommendation = itemRecommendations.find((entry) => entry.item.itemId === item.id)
-              return (
-                <li key={item.id} className="bb-card overflow-hidden">
-                  <Link href={`/borrow/items/${item.id}`} className="flex h-full flex-col">
-                    <div className={`flex h-24 items-center justify-center ${imageTints[index % imageTints.length]}`}>
-                      {item.photo_paths?.[0] ? (
-                        <Image src={item.photo_paths[0]} alt="" width={320} height={180} className="h-full w-full object-cover" />
-                      ) : (
-                        <PackageIcon aria-hidden="true" className="size-10 text-ink" strokeWidth={1.6} />
-                      )}
-                    </div>
-                    <div className="flex flex-1 flex-col p-3">
-                      <p className="font-display text-[15px] text-ink">{item.title}</p>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {item.item_categories?.name ?? "Item"} · {item.condition.replace("_", " ")}
-                      </p>
-                      {recommendation ? <p className="mt-2 text-xs font-bold text-ink-muted">Matches your interests</p> : null}
-                    </div>
+          <section aria-labelledby="activity-heading">
+            <div className="flex items-baseline justify-between gap-3">
+              <h2 id="activity-heading" className="text-heading text-ink">Recent activity</h2>
+              <Link href="/rewards/activity" className="text-sm font-bold text-ink underline underline-offset-4">All activity</Link>
+            </div>
+            {ledgerResult.data?.length ? (
+              <ul className="bb-card mt-4 divide-y divide-hairline">
+                {ledgerResult.data.map((row) => (
+                  <ActivityRow
+                    key={row.id}
+                    title={describeActivity(row.action_type)}
+                    detail={`${activityLine(row.action_type)} · ${formatRelativeDay(row.created_at, now)}`}
+                    delta={row.delta}
+                  />
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-4 rounded-lg border border-hairline bg-surface p-4 text-sm text-ink-muted">
+                Your first verified borrow, event or helping hand will appear here with its BetterPoints.
+              </p>
+            )}
+          </section>
+        </aside>
+
+        <section aria-labelledby="events-heading" className="lg:col-start-1">
+          <div className="flex items-baseline justify-between gap-3">
+            <h2 id="events-heading" className="text-heading text-ink">Nearby events</h2>
+            <Link href="/events" className="text-sm font-bold text-ink underline underline-offset-4">All events</Link>
+          </div>
+          {orderedEvents.length ? (
+            <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {orderedEvents.map((event, index) => (
+                <li key={event.id} className={index === 2 ? "max-sm:hidden" : undefined}>
+                  <Link href={`/events/${event.id}`} className="block rounded-lg transition-shadow duration-150 ease-out hover:shadow-raised">
+                    <MediaPoster
+                      src={event.cover_path ?? "/demo/event-placeholder.svg"}
+                      alt=""
+                      eyebrow={`Jom · ${event.event_categories?.name ?? "Event"}`}
+                      title={event.title}
+                      meta={`${formatEventDate(event.starts_at).replace(/ \d{4}$/, "")} · ${event.location_text}`}
+                      sizes="(min-width: 1024px) 20vw, 50vw"
+                    />
                   </Link>
                 </li>
-              )
-            })}
-          </ul>
-        ) : (
-          <Empty className="bb-card mt-4">
-            <EmptyHeader>
-              <EmptyTitle>No items nearby yet</EmptyTitle>
-              <EmptyDescription>Check back after your neighbours list something useful.</EmptyDescription>
-            </EmptyHeader>
-          </Empty>
-        )}
-      </section>
-
-      {ledgerResult.data?.length ? (
-        <section aria-labelledby="activity-heading" className="mt-2">
-          <SectionHeading
-            title={<span id="activity-heading">Recent activity</span>}
-            actions={<Button render={<Link href="/rewards" />} variant="ghost">Open impact</Button>}
-          />
-          <ul className="mt-4 divide-y divide-border overflow-hidden rounded-lg border border-border bg-card shadow-card">
-            {ledgerResult.data.map((row) => (
-              <li key={row.id} className="flex items-center justify-between gap-3 px-4 py-3 text-sm">
-                <span>{describeActivity(row.action_type)}</span>
-                <span className={`font-bold tabular-nums ${row.delta > 0 ? "text-ink" : "text-muted-foreground"}`}>
-                  {row.delta > 0 ? "+" : ""}{row.delta}
-                </span>
-              </li>
-            ))}
-          </ul>
+              ))}
+            </ul>
+          ) : (
+            <Empty className="bb-card mt-4">
+              <EmptyHeader>
+                <EmptyTitle>No events coming up</EmptyTitle>
+                <EmptyDescription>
+                  Host one at a shared space, or <Link href="/events" className="underline underline-offset-4">browse past events</Link>.
+                </EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          )}
         </section>
-      ) : null}
+
+        {helpRequests.length ? (
+          <section aria-labelledby="help-heading" className="lg:col-start-1">
+            <div className="flex items-baseline justify-between gap-3">
+              <h2 id="help-heading" className="text-heading text-ink">
+                Tolong <span className="text-ink-muted">· Needs a hand</span>
+              </h2>
+              <Link href="/community" className="text-sm font-bold text-ink underline underline-offset-4">Community</Link>
+            </div>
+            <ul className="mt-4 flex flex-col gap-3">
+              {helpRequests.map((request) => (
+                <li key={request.id} className="bb-card flex flex-wrap items-center justify-between gap-3 p-4">
+                  <div className="min-w-0 flex-1 basis-48">
+                    <p className="font-bold text-ink">{request.title}</p>
+                    <p className="mt-0.5 text-sm text-ink-muted first-letter:uppercase">
+                      {request.kind.replaceAll("_", " ")}
+                      {request.needed_by ? ` · needed by ${formatEventDate(request.needed_by)}` : ""}
+                    </p>
+                  </div>
+                  <HelpActionButton requestId={request.id} action="accept" />
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+      </div>
     </div>
   )
-}
-
-function describeActivity(actionType: string): string {
-  const labels: Record<string, string> = {
-    event_attendance: "Joined a verified event",
-    item_lent_completed: "Completed a neighbour lend",
-    item_returned_on_time: "Returned a borrow on time",
-    event_hosted: "Hosted a successful event",
-  }
-  return labels[actionType] ?? actionType.replaceAll("_", " ")
 }

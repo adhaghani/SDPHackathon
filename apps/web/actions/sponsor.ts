@@ -20,6 +20,7 @@ export async function createPartnerReward(
     description: formData.get("description"),
     costBp: formData.get("costBp"),
     stock: formData.get("stock"),
+    imagePath: formData.get("imagePath") || undefined,
   })
   if (!parsed.success) {
     return { status: "error", fieldErrors: parsed.error.flatten().fieldErrors, message: "Check the reward fields." }
@@ -33,6 +34,7 @@ export async function createPartnerReward(
       cost_bp: parsed.data.costBp,
       stock: parsed.data.stock,
       kind: "voucher",
+      image_path: parsed.data.imagePath ?? null,
     },
   })
   if (error) return { status: "error", message: "Only a signed-in partner can create rewards." }

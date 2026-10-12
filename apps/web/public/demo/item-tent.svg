@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Illustration of a camping tent">
+  <rect width="800" height="500" fill="#FFD6CB"/>
+  <path d="M92 386h616" stroke="#F2C6BC" stroke-width="8" stroke-linecap="round"/>
+  <path d="M400 116 616 364H184Z" fill="#FFFFFF" stroke="#1B1340" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M400 116v248" stroke="#FF6B4A" stroke-width="10"/>
+  <path d="M400 364V238l86 126" fill="#C9B8FF" stroke="#1B1340" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M400 116 342 364M400 116l58 248" stroke="#1B1340" stroke-width="7"/>
+  <path d="M142 364h516" stroke="#1B1340" stroke-width="8" stroke-linecap="round"/>
+</svg>

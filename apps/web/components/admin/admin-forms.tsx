@@ -29,7 +29,7 @@ export function ProgrammeCostForm({ month }: { month: string }) {
         <Input id="programme-amount" name="amountRm" type="number" min="0" step="0.01" required />
       </Field>
       {state.message ? <Alert variant={state.status === "error" ? "destructive" : "default"}><AlertDescription>{state.message}</AlertDescription></Alert> : null}
-      <Button type="submit" className="h-11" disabled={pending}>
+      <Button type="submit" variant="cta" className="h-11" disabled={pending}>
         {pending ? <Spinner data-icon="inline-start" /> : null}
         Save programme cost
       </Button>
@@ -66,7 +66,7 @@ export function ResolveDisputeForm({ disputeId }: { disputeId: string }) {
         <FieldLabel htmlFor={`dispute-note-${disputeId}`}>Resolution note</FieldLabel>
         <Input id={`dispute-note-${disputeId}`} name="note" placeholder="Reviewed with both parties" />
       </Field>
-      <Button type="submit" name="resolution" value="completed" className="h-11" disabled={pending}>
+      <Button type="submit" variant="cta" name="resolution" value="completed" className="h-11" disabled={pending}>
         {pending ? <Spinner data-icon="inline-start" /> : null}
         Complete
       </Button>

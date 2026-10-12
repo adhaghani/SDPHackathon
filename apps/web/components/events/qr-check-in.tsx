@@ -55,12 +55,12 @@ export function QrCheckIn({ eventId }: { eventId: string }) {
     <section className="bb-card p-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="font-display text-lg font-bold">QR check-in</h2>
+          <h2 className="text-title text-ink">QR check-in</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Scan a fresh event pass, or paste the token for an accessible fallback.
           </p>
         </div>
-        <Button type="button" variant="outline" className="h-11" onClick={() => setCameraOpen((value) => !value)}>
+        <Button type="button" variant="cta" className="h-11" onClick={() => setCameraOpen((value) => !value)}>
           {cameraOpen ? "Close camera" : "Open camera scanner"}
         </Button>
       </div>
@@ -88,7 +88,7 @@ export function QrCheckIn({ eventId }: { eventId: string }) {
           <FieldLabel htmlFor="qr-token">Ticket token</FieldLabel>
           <Textarea id="qr-token" value={manualToken} onChange={(event) => setManualToken(event.target.value)} rows={2} placeholder="Paste the QR token" />
         </Field>
-        <Button type="button" className="h-11" onClick={() => void submitToken(manualToken)} disabled={pending}>
+        <Button type="button" variant="outline" className="h-11" onClick={() => void submitToken(manualToken)} disabled={pending}>
           Check token
         </Button>
       </form>

@@ -71,7 +71,7 @@ export function SignInForm({ next = "/home" }: { next?: string }) {
           </Alert>
         ) : null}
 
-        <Button type="submit" className="h-11 w-full" disabled={signInPending}>
+        <Button type="submit" variant="cta" className="h-11 w-full" disabled={signInPending}>
           {signInPending ? <Spinner data-icon="inline-start" /> : null}
           {authContent.signIn.submit}
         </Button>

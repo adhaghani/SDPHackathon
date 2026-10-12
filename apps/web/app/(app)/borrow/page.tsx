@@ -1,39 +1,39 @@
-import Image from "next/image"
 import Link from "next/link"
-import { PackageIcon, SearchIcon } from "lucide-react"
+import { PlusIcon, SearchIcon } from "lucide-react"
 
-import { PageBand } from "@/components/shared/page-band"
+import { DemoLabel } from "@/components/shared/demo-label"
+import { MediaPoster } from "@/components/shared/media-poster"
+import { Pagination } from "@/components/shared/pagination"
 import { requireActiveMember } from "@/lib/data"
 import { formatMoney } from "@/lib/format"
 import { createClient } from "@/lib/supabase/server"
-import { isFeatureEnabled } from "@/lib/env"
+import { isDemoMode, isFeatureEnabled } from "@/lib/env"
 import { parseNaturalLanguageSearch } from "@/lib/ai-search"
-import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import { cn } from "@workspace/ui/lib/utils"
-
-const imageTints = ["bg-sun-tint", "bg-mint-tint", "bg-lilac-tint", "bg-coral-tint"]
-const chipTints = ["bg-sun-tint", "bg-mint-tint", "bg-lilac-tint"]
 
 export default async function BorrowPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; category?: string; free?: string; nl?: string }>
+  searchParams: Promise<{ q?: string; category?: string; free?: string; nl?: string; page?: string }>
 }) {
   const active = await requireActiveMember()
   const params = await searchParams
   const supabase = await createClient()
+  const pageSize = 12
+  const page = Math.max(1, Number(params.page ?? 1) || 1)
+  const offset = (page - 1) * pageSize
   const categories = await supabase.from("item_categories").select("id,slug,name").order("name")
   const naturalLanguage = isFeatureEnabled("ai_search") && params.nl ? parseNaturalLanguageSearch(params.nl) : null
 
   let query = supabase
     .from("items")
-    .select("id,title,description,condition,photo_paths,deposit_rm,estimated_new_price_rm,max_loan_days,item_categories(slug,name)")
+    .select("id,title,description,condition,photo_paths,deposit_rm,estimated_new_price_rm,max_loan_days,item_categories(slug,name)", { count: "exact" })
     .eq("township_id", active.townshipId)
     .eq("status", "active")
     .eq("hidden", false)
     .order("created_at", { ascending: false })
-    .limit(40)
+    .range(offset, offset + pageSize - 1)
 
   if (params.q) query = query.ilike("title", `%${params.q}%`)
   if (params.category) query = query.eq("item_categories.slug", params.category)
@@ -50,10 +50,6 @@ export default async function BorrowPage({
   if (params.free === "true") current.set("free", "true")
 
   const categoryOptions = categories.data ?? []
-  const selectedCategory = categoryOptions.find((category) => category.slug === params.category)
-  const visibleCategories = selectedCategory
-    ? [selectedCategory, ...categoryOptions.filter((category) => category.id !== selectedCategory.id).slice(0, 3)]
-    : categoryOptions.slice(0, 4)
 
   const chipHref = (category?: string) => {
     const next = new URLSearchParams(current)
@@ -62,128 +58,156 @@ export default async function BorrowPage({
     const query = next.toString()
     return query ? `/borrow?${query}` : "/borrow"
   }
+  const freeHref = params.free === "true"
+    ? chipHrefWithoutFree(current, params.category)
+    : (() => {
+        const next = new URLSearchParams(current)
+        if (params.category) next.set("category", params.category)
+        next.set("free", "true")
+        return `/borrow?${next.toString()}`
+      })()
+  const totalPages = Math.max(1, Math.ceil((items.count ?? 0) / pageSize))
+  const chipClass = (active: boolean) =>
+    cn(
+      "inline-flex min-h-11 shrink-0 items-center rounded-full px-4 text-sm font-bold transition-colors duration-150 ease-out",
+      active ? "bg-ink text-surface" : "bg-lilac-tint text-ink hover:bg-lilac"
+    )
 
   return (
-    <div className="flex flex-col gap-4">
-      <PageBand
-        eyebrow="Pinjam · Borrow"
-        title={<span aria-label="Borrow from your neighbours">What do you need today?</span>}
-        description="Find something useful, request it, and return it with two-sided confirmation."
-        actions={<Button render={<Link href="/borrow/new" />} variant="outline">List an item</Button>}
-      >
-        <form className="flex flex-col gap-3" action="/borrow" method="get">
-          {params.category ? <input type="hidden" name="category" value={params.category} /> : null}
-          {params.free === "true" ? <input type="hidden" name="free" value="true" /> : null}
-          <label className="sr-only" htmlFor="borrow-q">Search items</label>
-          <div className="flex h-[52px] w-full items-center gap-3 rounded-lg border border-border bg-surface px-4 shadow-card focus-within:border-ring">
-            <SearchIcon aria-hidden="true" className="size-5 shrink-0 text-ink-muted" strokeWidth={1.8} />
-            <input
-              id="borrow-q"
-              name="q"
-              type="search"
-              defaultValue={params.q ?? ""}
-              placeholder="Search drills, tables, tents..."
-              className="h-full min-w-0 flex-1 bg-transparent text-base text-ink outline-none placeholder:text-ink-muted/70"
-            />
-          </div>
-          {isFeatureEnabled("ai_search") ? (
-            <>
-              <label className="sr-only" htmlFor="borrow-nl">Describe what you need</label>
-              <input
-                id="borrow-nl"
-                name="nl"
-                defaultValue={params.nl ?? ""}
-                placeholder="Something for the kids this weekend"
-                className="min-h-11 w-full rounded-lg border border-white/20 bg-white/10 px-4 text-base text-white outline-none placeholder:text-band-eyebrow focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-              />
-            </>
-          ) : null}
-          <Button type="submit" variant="cta" size="cta" className="w-fit">Search items</Button>
-        </form>
-      </PageBand>
+    <div className="flex flex-col gap-5">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-eyebrow text-ink-muted">Pinjam · Borrow</p>
+          <h1 className="text-display-lg mt-1 text-ink">Borrow</h1>
+        </div>
+        <div className="flex shrink-0 flex-wrap justify-end gap-2">
+          <Button render={<Link href="/borrow/mine" />} variant="outline" className="max-sm:hidden">Your loans</Button>
+          <Button render={<Link href="/borrow/new" />} variant="cta" size="cta">
+            <PlusIcon aria-hidden="true" data-icon="inline-start" />
+            List an item
+          </Button>
+        </div>
+      </div>
 
-      <nav aria-label="Borrow filters" className="flex flex-wrap gap-2">
-        <Link
-          href={chipHref()}
-          aria-current={!params.category ? "true" : undefined}
-          className={cn(
-            "inline-flex min-h-11 items-center rounded-full px-4 text-sm font-bold transition-colors",
-            !params.category ? "bg-ink text-white" : "bg-surface text-ink hover:bg-lilac-tint"
-          )}
-        >
+      <form className="flex flex-col gap-3" action="/borrow" method="get" role="search">
+        {params.category ? <input type="hidden" name="category" value={params.category} /> : null}
+        {params.free === "true" ? <input type="hidden" name="free" value="true" /> : null}
+        <label className="sr-only" htmlFor="borrow-q">Search items</label>
+        <div className="flex h-13 w-full items-center gap-3 rounded-lg border border-ink-muted bg-surface px-4 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ink">
+          <SearchIcon aria-hidden="true" className="size-5 shrink-0 text-ink-muted" strokeWidth={1.8} />
+          <input
+            id="borrow-q"
+            name="q"
+            type="search"
+            defaultValue={params.q ?? ""}
+            placeholder="Search drills, tables, tents…"
+            className="h-full min-w-0 flex-1 bg-transparent text-base text-ink outline-none placeholder:text-ink-muted focus-visible:outline-none"
+          />
+          <Button type="submit" variant="ghost" size="sm" className="shrink-0">Search</Button>
+        </div>
+        {isFeatureEnabled("ai_search") ? (
+          <>
+            <label className="text-sm font-bold text-ink" htmlFor="borrow-nl">Or describe what you need</label>
+            <input
+              id="borrow-nl"
+              name="nl"
+              defaultValue={params.nl ?? ""}
+              placeholder="Something for the kids this weekend"
+              className="min-h-11 w-full rounded-lg border border-ink-muted bg-surface px-4 text-base text-ink outline-none placeholder:text-ink-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+            />
+          </>
+        ) : null}
+      </form>
+
+      <nav aria-label="Borrow filters" className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+        <Link href={chipHref()} aria-current={!params.category ? "true" : undefined} className={chipClass(!params.category)}>
           All
         </Link>
-        <Link
-          href={params.free === "true" ? chipHrefWithoutFree(current) : `${chipHref()}${chipHref().includes("?") ? "&" : "?"}free=true`}
-          aria-current={params.free === "true" ? "true" : undefined}
-          className={cn(
-            "inline-flex min-h-11 items-center rounded-full px-4 text-sm font-bold transition-colors",
-            params.free === "true" ? "bg-ink text-white" : "bg-sun-tint text-ink hover:bg-sun-tint/80"
-          )}
-        >
+        <Link href={freeHref} aria-current={params.free === "true" ? "true" : undefined} className={chipClass(params.free === "true")}>
           Free to borrow
         </Link>
-        {visibleCategories.map((category, index) => (
+        {categoryOptions.map((category) => (
           <Link
             key={category.id}
             href={chipHref(category.slug)}
             aria-current={params.category === category.slug ? "true" : undefined}
-            className={cn(
-              "inline-flex min-h-11 items-center rounded-full px-4 text-sm font-bold transition-colors",
-              params.category === category.slug ? "bg-ink text-white" : `${chipTints[index % chipTints.length]} text-ink hover:opacity-80`
-            )}
+            className={chipClass(params.category === category.slug)}
           >
             {category.name}
           </Link>
         ))}
       </nav>
 
-      <ul className="grid gap-3.5 sm:grid-cols-2">
+      <div className="flex items-center justify-between gap-3 border-t border-hairline pt-4">
+        <p className="text-ink-muted tabular-nums">
+          <Link href="/borrow/mine" className="mr-3 font-bold text-ink underline underline-offset-4 sm:hidden">Your loans</Link>
+          {(items.count ?? 0).toLocaleString("en-MY")} {items.count === 1 ? "item" : "items"} near you
+        </p>
+        {isDemoMode() ? <DemoLabel /> : null}
+      </div>
+
+      <ul className="grid grid-cols-2 gap-x-3 gap-y-6 sm:gap-x-4 md:grid-cols-3 xl:grid-cols-4">
         {(items.data ?? []).map((item, index) => {
-          const photo = item.photo_paths?.[0]
+          const free = Number(item.deposit_rm) === 0
           return (
-            <li key={item.id} className="bb-card overflow-hidden">
-              <div className={`flex h-[76px] items-center justify-center ${imageTints[index % imageTints.length]}`}>
-                {photo ? (
-                  <Image src={photo} alt="" width={320} height={180} className="h-full w-full object-cover" />
-                ) : (
-                  <PackageIcon aria-hidden="true" className="size-10 text-ink" strokeWidth={1.6} />
-                )}
-              </div>
-              <div className="p-3">
-                <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="outline">{item.item_categories?.name ?? "Item"}</Badge>
-                  {item.deposit_rm === 0 ? <Badge variant="secondary">Free</Badge> : null}
-                </div>
-                <h2 className="mt-2 font-display text-[15px] text-ink">{item.title}</h2>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {item.condition.replace("_", " ")} · up to {item.max_loan_days} days
+            <li key={item.id} className="min-w-0">
+              <Link href={`/borrow/items/${item.id}`} className="group block rounded-lg">
+                <MediaPoster
+                  src={item.photo_paths?.[0] ?? demoImageFor(item.item_categories?.slug)}
+                  alt=""
+                  className={cn("border border-hairline transition-shadow duration-150 ease-out group-hover:shadow-raised", posterTints[index % posterTints.length])}
+                  badge={
+                    <span className={cn("rounded-full px-2.5 py-1 text-xs font-bold text-ink sm:text-sm", free ? "bg-mint-tint" : "bg-surface")}>
+                      {free ? "Free" : `${formatMoney(item.deposit_rm)} deposit`}
+                    </span>
+                  }
+                  sizes="(min-width: 1280px) 20vw, (min-width: 768px) 30vw, 50vw"
+                />
+                <p className="mt-2 font-display text-base leading-tight font-bold text-ink sm:text-lg">{item.title}</p>
+                <p className="mt-0.5 text-sm text-ink-muted">
+                  {item.condition.replace("_", " ")} · up to {item.max_loan_days} {item.max_loan_days === 1 ? "day" : "days"}
                 </p>
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Estimated value {formatMoney(item.estimated_new_price_rm)}
-                </p>
-                <Button render={<Link href={`/borrow/items/${item.id}`} />} size="block" className="mt-3">
-                  Ask to borrow
-                </Button>
-              </div>
+              </Link>
             </li>
           )
         })}
         {items.data?.length === 0 ? (
-          <li className="bb-card p-8 text-center sm:col-span-2">
-            <p className="font-display text-lg text-ink">No items match this search.</p>
-            <p className="mt-2 text-sm text-muted-foreground">Try a broader search, or list something useful for your neighbours.</p>
+          <li className="bb-card col-span-full p-8 text-center">
+            <p className="font-display text-lg font-bold text-ink">No items match this search.</p>
+            <p className="mt-2 text-sm text-ink-muted">Try a broader search, or list something useful for your neighbours.</p>
             <Button render={<Link href="/borrow/new" />} variant="cta" size="cta" className="mt-5">List an item</Button>
           </li>
         ) : null}
       </ul>
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        basePath="/borrow"
+        searchParams={{ q: params.q, category: params.category, free: params.free, nl: params.nl }}
+      />
     </div>
   )
 }
 
-function chipHrefWithoutFree(current: URLSearchParams) {
+const posterTints = ["bg-sun-tint", "bg-lilac-tint", "bg-mint-tint", "bg-coral-tint"]
+
+const demoImages: Record<string, string> = {
+  "home-tools": "/demo/item-drill.svg",
+  cleaning: "/demo/item-pressure-washer.svg",
+  events: "/demo/item-projector.svg",
+  sports: "/demo/item-badminton.svg",
+  kids: "/demo/item-board-games.svg",
+  kitchen: "/demo/item-cooler.svg",
+}
+
+function demoImageFor(slug?: string | null) {
+  return (slug && demoImages[slug]) || "/demo/item-placeholder.svg"
+}
+
+function chipHrefWithoutFree(current: URLSearchParams, category?: string) {
   const next = new URLSearchParams(current)
   next.delete("free")
+  if (category) next.set("category", category)
   const query = next.toString()
   return query ? `/borrow?${query}` : "/borrow"
 }

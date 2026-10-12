@@ -69,7 +69,7 @@ export function JoinForm() {
             <AlertDescription>{resolveState.message}</AlertDescription>
           </Alert>
         ) : null}
-        <Button type="submit" className="h-11" disabled={resolving}>
+        <Button type="submit" variant="cta" className="h-11 w-full sm:w-auto" disabled={resolving}>
           {resolving ? <Spinner data-icon="inline-start" /> : null}
           Check code
         </Button>
@@ -114,7 +114,7 @@ export function JoinForm() {
               </FieldDescription>
             </Field>
           </FieldGroup>
-          <Button type="submit" className="h-11">
+          <Button type="submit" variant="cta" className="h-11 w-full sm:w-auto">
             Join township
           </Button>
         </form>

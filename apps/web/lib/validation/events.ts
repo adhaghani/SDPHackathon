@@ -8,6 +8,7 @@ export const eventFormSchema = z
     startsAt: z.string().min(1, { error: "Choose a start time." }),
     endsAt: z.string().min(1, { error: "Choose an end time." }),
     locationText: z.string().trim().min(3, { error: "Add a shared location." }).max(160),
+    coverPath: z.string().trim().max(500).optional(),
     capacity: z.coerce.number().int().positive().max(1000).optional(),
     volunteerSlots: z.coerce.number().int().min(0).max(100).optional(),
     accessibilityTags: z.array(z.string()).default([]),

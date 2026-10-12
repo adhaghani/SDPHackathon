@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Reward voucher illustration">
+  <rect width="800" height="600" fill="#E2D9FF"/>
+  <circle cx="640" cy="110" r="120" fill="#FFD23F"/>
+  <rect x="130" y="180" width="540" height="260" rx="24" fill="#FFFFFF" stroke="#1B1340" stroke-width="9"/>
+  <path d="M170 240h460M170 380h240" stroke="#C9B8FF" stroke-width="14" stroke-linecap="round"/>
+  <circle cx="560" cy="330" r="46" fill="#FF6B4A"/>
+  <path d="M536 330h48M560 306v48" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round"/>
+</svg>

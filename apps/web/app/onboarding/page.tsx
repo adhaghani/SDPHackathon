@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 
 import { JoinForm } from "@/components/onboarding/join-form"
+import { TownshipLine } from "@/components/shared/township-line"
 import { getSessionContext } from "@/lib/data"
 import { Alert, AlertDescription } from "@workspace/ui/components/alert"
 
@@ -22,16 +23,17 @@ export default async function OnboardingPage({
 
   return (
     <main className="min-h-svh bg-background">
-      <div className="bb-band bb-safe-top rounded-b-[28px]">
-        <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
-          <p className="text-[13px] font-bold text-band-eyebrow">Join your township</p>
-          <h1 className="mt-1 font-display text-3xl text-white">
-            Start with a verified join code
+      <div className="bb-band bb-safe-top rounded-b-band">
+        <div className="mx-auto max-w-2xl px-4 pt-6 pb-9 sm:px-6">
+          <p className="font-display text-lg font-extrabold text-surface">BorrowBetter</p>
+          <p className="text-eyebrow mt-8 text-band-eyebrow">Step 1 of 1 · Join your township</p>
+          <h1 className="mt-2 font-display text-[32px] leading-tight font-extrabold text-balance text-surface sm:text-5xl">
+            Start with your township&apos;s join code
           </h1>
-          <p className="mt-2 text-band-eyebrow">
-            BorrowBetter keeps your unit label private and only uses it for
-            township verification.
+          <p className="mt-3 max-w-[56ch] text-band-eyebrow">
+            Your unit label stays private. It&apos;s used only to verify you live here, and is never shown to other residents, admins or sponsors.
           </p>
+          <TownshipLine tone="ink" className="mt-8" />
         </div>
       </div>
       <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">

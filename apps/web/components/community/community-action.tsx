@@ -40,7 +40,7 @@ export function GroupActionButton({ groupId, joined }: { groupId: string; joined
     <div className="flex flex-col gap-2">
       <form action={action}>
         <input type="hidden" name="groupId" value={groupId} />
-        <Button type="submit" variant={joined ? "outline" : "default"} className="h-11" disabled={pending}>
+        <Button type="submit" variant={joined ? "ghost" : "outline"} size="sm" disabled={pending}>
           {pending ? <Spinner data-icon="inline-start" /> : null}
           {joined ? "Leave group" : "Join group"}
         </Button>

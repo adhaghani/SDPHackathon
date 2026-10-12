@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Illustration of a pressure washer">
+  <rect width="800" height="500" fill="#FFF0B8"/>
+  <path d="M92 386h616" stroke="#E7E2F7" stroke-width="8" stroke-linecap="round"/>
+  <rect x="260" y="190" width="238" height="142" rx="20" fill="#FFFFFF" stroke="#1B1340" stroke-width="8"/>
+  <rect x="292" y="222" width="112" height="62" rx="12" fill="#C9B8FF" stroke="#1B1340" stroke-width="7"/>
+  <circle cx="348" cy="253" r="16" fill="#FF6B4A"/>
+  <path d="M498 252h84c34 0 48 22 48 46v46" fill="none" stroke="#1B1340" stroke-width="10" stroke-linecap="round"/>
+  <path d="M626 344h48" stroke="#1B1340" stroke-width="10" stroke-linecap="round"/>
+  <path d="M302 332v42m142-42v42" stroke="#1B1340" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="302" cy="382" r="12" fill="#1B1340"/>
+  <circle cx="444" cy="382" r="12" fill="#1B1340"/>
+</svg>

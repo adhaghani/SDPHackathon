@@ -1,4 +1,4 @@
-import Link from "next/link"
+import { PageBand } from "@/components/shared/page-band"
 
 const definitions = [
   ["Monthly active residents", "Active residents with at least one meaningful verified action in the month: check-in, booking activity, completed help, redemption or hosted completed event."],
@@ -13,10 +13,13 @@ const definitions = [
 
 export default function MethodologyPage() {
   return (
-    <div className="mx-auto max-w-4xl">
-      <Link href="/admin" className="text-sm text-muted-foreground underline underline-offset-4">Back to Township Pulse</Link>
-      <h1 className="mt-5 font-display text-3xl font-bold">Methodology</h1>
-      <p className="mt-2 text-muted-foreground">Every dashboard number uses the definitions below. Observed change is not proof of causation.</p>
+    <div className="w-full">
+      <PageBand
+        back={{ href: "/admin", label: "Township Pulse" }}
+        eyebrow="Township office"
+        title="Methodology"
+        description="Every dashboard number uses the definitions below. Observed change is not proof of causation."
+      />
       <ul className="mt-7 divide-y divide-border border-y border-border">
         {definitions.map(([term, definition]) => (
           <li key={term} className="py-5"><h2 className="font-display text-lg font-bold">{term}</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">{definition}</p></li>

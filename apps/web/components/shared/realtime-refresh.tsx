@@ -9,7 +9,7 @@ export function RealtimeRefresh({
   table,
   filter,
 }: {
-  table: "notifications" | "booking_messages"
+  table: "notifications" | "booking_messages" | "points_ledger"
   filter?: string
 }) {
   const router = useRouter()

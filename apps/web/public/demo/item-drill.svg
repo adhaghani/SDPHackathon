@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Illustration of a cordless drill">
+  <rect width="800" height="500" fill="#FFD6CB"/>
+  <path d="M92 386h616" stroke="#F2C6BC" stroke-width="8" stroke-linecap="round"/>
+  <path d="M262 188h190c26 0 44 18 44 42v54H262Z" fill="#FFFFFF" stroke="#1B1340" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M330 284h82l-22 82h-72Z" fill="#C9B8FF" stroke="#1B1340" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M496 242h96" stroke="#1B1340" stroke-width="12" stroke-linecap="round"/>
+  <path d="M592 242h42" stroke="#FF6B4A" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="300" cy="234" r="18" fill="#FFD23F"/>
+</svg>

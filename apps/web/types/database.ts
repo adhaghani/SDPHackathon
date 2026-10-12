@@ -1522,6 +1522,7 @@ export type Database = {
           description: string
           funded_by: string
           id: string
+          image_path: string | null
           kind: string
           partner_id: string | null
           per_user_limit: number
@@ -1539,6 +1540,7 @@ export type Database = {
           description?: string
           funded_by?: string
           id?: string
+          image_path?: string | null
           kind?: string
           partner_id?: string | null
           per_user_limit?: number
@@ -1555,6 +1557,7 @@ export type Database = {
           description?: string
           funded_by?: string
           id?: string
+          image_path?: string | null
           kind?: string
           partner_id?: string | null
           per_user_limit?: number

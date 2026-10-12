@@ -1,5 +1,5 @@
-import Link from "next/link"
 import { redirect } from "next/navigation"
+import { PageBand } from "@/components/shared/page-band"
 
 import { RedemptionVerificationForm } from "@/components/admin/admin-action-button"
 import { ReversePointsForm } from "@/components/admin/admin-forms"
@@ -33,10 +33,13 @@ export default async function AdminRewardsPage() {
   const candidates = (candidatesResult.data ?? []) as Array<{ ledger_id: string; user_id: string; action_type: string; delta: number; created_at: string; reason: string }>
 
   return (
-    <div className="mx-auto max-w-4xl">
-      <Link href="/admin" className="text-sm text-muted-foreground underline underline-offset-4">Back to Township Pulse</Link>
-      <h1 className="mt-5 font-display text-3xl font-bold">Rewards economy</h1>
-      <p className="mt-2 text-muted-foreground">Verify voucher codes and review aggregate redemption activity.</p>
+    <div className="w-full">
+      <PageBand
+        back={{ href: "/admin", label: "Township Pulse" }}
+        eyebrow="Township office"
+        title="Rewards economy"
+        description="Verify voucher codes and review aggregate redemption activity."
+      />
       <section className="mt-6 bb-card p-5">
         <h2 className="font-display text-lg font-bold">Mark a voucher used</h2>
         <div className="mt-4"><RedemptionVerificationForm /></div>

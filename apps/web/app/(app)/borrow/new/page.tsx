@@ -10,15 +10,14 @@ export default async function NewItemPage() {
   if (categories.error) throw new Error(categories.error.message)
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="mx-auto w-full max-w-5xl">
       <PageBand
+        back={{ href: "/borrow", label: "Borrow" }}
         eyebrow="Pinjam · Share"
         title="List an item"
         description="Share something useful with your neighbours. Deposits are recorded only and arranged offline."
       />
-      <div className="bb-card p-5 sm:p-7">
-        <ItemForm categories={categories.data ?? []} />
-      </div>
+      <ItemForm categories={categories.data ?? []} />
     </div>
   )
 }

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Illustration of a folding ladder">
+  <rect width="800" height="500" fill="#CFF0E0"/>
+  <path d="M92 386h616" stroke="#E7E2F7" stroke-width="8" stroke-linecap="round"/>
+  <path d="M320 126 246 366M480 126l74 240" fill="none" stroke="#1B1340" stroke-width="14" stroke-linecap="round"/>
+  <path d="M348 176h104M332 230h136M316 284h168M300 338h200" stroke="#FF6B4A" stroke-width="12" stroke-linecap="round"/>
+  <path d="M366 126h68" stroke="#1B1340" stroke-width="14" stroke-linecap="round"/>
+  <circle cx="248" cy="370" r="14" fill="#C9B8FF" stroke="#1B1340" stroke-width="7"/>
+  <circle cx="552" cy="370" r="14" fill="#C9B8FF" stroke="#1B1340" stroke-width="7"/>
+</svg>

@@ -6,18 +6,24 @@ import { signOut } from "@/actions/auth"
 import { Button } from "@workspace/ui/components/button"
 import { cn } from "@workspace/ui/lib/utils"
 
-export function SignOutButton({ className }: { className?: string }) {
+export function SignOutButton({
+  className,
+  compact = false,
+}: {
+  className?: string
+  compact?: boolean
+}) {
   return (
     <form action={signOut}>
       <Button
         type="submit"
         variant="ghost"
-        size="sm"
+        size={compact ? "icon-sm" : "sm"}
         className={cn("min-h-11 gap-2", className)}
         aria-label="Sign out"
       >
         <LogOutIcon aria-hidden="true" />
-        Sign out
+        <span className={compact ? "sr-only" : undefined}>Sign out</span>
       </Button>
     </form>
   )

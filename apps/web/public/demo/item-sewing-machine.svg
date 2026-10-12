@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Illustration of a sewing machine">
+  <rect width="800" height="500" fill="#CFF0E0"/>
+  <path d="M92 386h616" stroke="#E7E2F7" stroke-width="8" stroke-linecap="round"/>
+  <path d="M238 314h322c22 0 38-16 38-36V186c0-22-16-38-38-38H354c-22 0-38 16-38 38v52h-78Z" fill="#FFFFFF" stroke="#1B1340" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M316 238h198v44H316Z" fill="#FFD23F" stroke="#1B1340" stroke-width="7"/>
+  <circle cx="512" cy="260" r="16" fill="#FF6B4A"/>
+  <path d="M354 292v44m0 0h-44" stroke="#1B1340" stroke-width="8" stroke-linecap="round"/>
+  <path d="M280 354h280" stroke="#1B1340" stroke-width="8" stroke-linecap="round"/>
+</svg>

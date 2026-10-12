@@ -1,8 +1,9 @@
 "use client"
 
-import { useActionState } from "react"
+import { useActionState, useState } from "react"
 
 import { createPartnerChallenge, createPartnerReward } from "@/actions/sponsor"
+import { getBrowserClient } from "@/lib/supabase/browser"
 import { Alert, AlertDescription } from "@workspace/ui/components/alert"
 import { Button } from "@workspace/ui/components/button"
 import { Field, FieldError, FieldGroup, FieldLabel } from "@workspace/ui/components/field"
@@ -14,9 +15,43 @@ const idleState = { status: "idle" } as const
 
 export function SponsorRewardForm() {
   const [state, action, pending] = useActionState(createPartnerReward, idleState)
+  const [imagePath, setImagePath] = useState("/demo/reward-voucher.svg")
+  const [imageMessage, setImageMessage] = useState<string | null>(null)
+
+  async function handleImage(file: File | undefined) {
+    if (!file) return
+    setImageMessage(null)
+    try {
+      const bitmap = await createImageBitmap(file)
+      const scale = Math.min(1, 1200 / Math.max(bitmap.width, bitmap.height))
+      const canvas = document.createElement("canvas")
+      canvas.width = Math.round(bitmap.width * scale)
+      canvas.height = Math.round(bitmap.height * scale)
+      canvas.getContext("2d")?.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
+      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/webp", 0.82))
+      if (!blob) throw new Error("compression_failed")
+      const path = `reward-${crypto.randomUUID()}.webp`
+      const { error } = await getBrowserClient().storage.from("item-photos").upload(path, blob, { upsert: true })
+      if (error) throw error
+      const { data } = getBrowserClient().storage.from("item-photos").getPublicUrl(path)
+      setImagePath(data.publicUrl)
+      setImageMessage("Reward image compressed and uploaded.")
+    } catch {
+      setImagePath("/demo/reward-voucher.svg")
+      setImageMessage("Image upload is unavailable here, so the demo reward poster will be used.")
+    }
+  }
+
   return (
     <form action={action} className="flex flex-col gap-4">
+      <input type="hidden" name="imagePath" value={imagePath} />
       <FieldGroup>
+        <Field>
+          <FieldLabel htmlFor="sponsor-reward-image">Image</FieldLabel>
+          <Input id="sponsor-reward-image" name="image" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => void handleImage(event.target.files?.[0])} />
+          <p className="text-sm text-muted-foreground">Optional. A themed reward poster is used as a fallback.</p>
+          {imageMessage ? <p className="text-sm text-muted-foreground">{imageMessage}</p> : null}
+        </Field>
         <Field data-invalid={Boolean(state.fieldErrors?.title)}>
           <FieldLabel htmlFor="sponsor-reward-title">Reward title</FieldLabel>
           <Input id="sponsor-reward-title" name="title" required />
@@ -38,7 +73,7 @@ export function SponsorRewardForm() {
         </div>
       </FieldGroup>
       {state.message ? <Alert variant={state.status === "error" ? "destructive" : "default"}><AlertDescription>{state.message}</AlertDescription></Alert> : null}
-      <Button type="submit" className="h-11" disabled={pending}>{pending ? <Spinner data-icon="inline-start" /> : null}Create reward</Button>
+      <Button type="submit" variant="cta" className="h-11" disabled={pending}>{pending ? <Spinner data-icon="inline-start" /> : null}Create reward</Button>
     </form>
   )
 }
@@ -64,7 +99,7 @@ export function SponsorChallengeForm() {
         </div>
       </FieldGroup>
       {state.message ? <Alert variant={state.status === "error" ? "destructive" : "default"}><AlertDescription>{state.message}</AlertDescription></Alert> : null}
-      <Button type="submit" className="h-11" disabled={pending}>{pending ? <Spinner data-icon="inline-start" /> : null}Create challenge</Button>
+      <Button type="submit" variant="cta" className="h-11" disabled={pending}>{pending ? <Spinner data-icon="inline-start" /> : null}Create challenge</Button>
     </form>
   )
 }
