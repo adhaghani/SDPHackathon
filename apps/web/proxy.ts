@@ -14,6 +14,8 @@ const protectedPrefixes = [
   "/profile",
   "/onboarding",
   "/admin",
+  "/guests",
+  "/guard",
   "/sponsor",
 ]
 

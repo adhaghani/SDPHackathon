@@ -5,8 +5,8 @@ import { useActionState } from "react"
 import { bookBundle } from "@/actions/bundles"
 import { Alert, AlertDescription } from "@workspace/ui/components/alert"
 import { Button } from "@workspace/ui/components/button"
+import { DateRangeField } from "@/components/forms/date-range-field"
 import { Field, FieldLabel } from "@workspace/ui/components/field"
-import { Input } from "@workspace/ui/components/input"
 import { Spinner } from "@workspace/ui/components/spinner"
 
 const idleState = { status: "idle" } as const
@@ -16,16 +16,13 @@ export function BundleBookingForm({ bundleId, handoverOptions }: { bundleId: str
   return (
     <form action={action} className="flex flex-col gap-4">
       <input type="hidden" name="bundleId" value={bundleId} />
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field>
-          <FieldLabel htmlFor={`bundle-start-${bundleId}`}>Start date</FieldLabel>
-          <Input id={`bundle-start-${bundleId}`} name="startDate" type="date" required />
-        </Field>
-        <Field>
-          <FieldLabel htmlFor={`bundle-end-${bundleId}`}>End date</FieldLabel>
-          <Input id={`bundle-end-${bundleId}`} name="endDate" type="date" required />
-        </Field>
-      </div>
+      <DateRangeField
+        id={`bundle-dates-${bundleId}`}
+        startName="startDate"
+        endName="endDate"
+        label="Borrowing dates"
+        required
+      />
       <Field>
         <FieldLabel htmlFor={`bundle-handover-${bundleId}`}>Handover</FieldLabel>
         <select

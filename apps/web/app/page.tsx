@@ -12,12 +12,11 @@ import {
   UserPlusIcon,
 } from "lucide-react"
 
+import { PillarStrip } from "@/components/block/pillar-strip"
 import { DemoRoleSwitcher } from "@/components/demo/demo-role-switcher"
 import { ActivityRow } from "@/components/home/activity-row"
 import { LanguageSwitcher } from "@/components/i18n/language-switcher"
 import { BetterPointsChip } from "@/components/shared/better-points-chip"
-import { DemoLabel } from "@/components/shared/demo-label"
-import { TownshipLine } from "@/components/shared/township-line"
 import { marketingContent } from "@/content/marketing"
 import { isDemoMode, isFeatureEnabled } from "@/lib/env"
 import { getPreferredLocale } from "@/lib/i18n"
@@ -30,7 +29,7 @@ const lines = [
     name: "Pinjam",
     english: "Borrow and lend",
     icon: PackageIcon,
-    tint: "bg-coral-tint",
+    tint: "bg-sky",
     body: "Ladders, drills, folding tables, tents. Request, hand over in a shared space, and both sides confirm the return.",
     example: "+40 BP when a loan is returned and confirmed",
   },
@@ -38,7 +37,7 @@ const lines = [
     name: "Jom",
     english: "Neighbourhood events",
     icon: CalendarDaysIcon,
-    tint: "bg-sun-tint",
+    tint: "bg-lime",
     body: "Gotong-royong, repair cafés, swap markets. Register, then check in at the door with a QR ticket.",
     example: "+50 BP after a verified check-in",
   },
@@ -46,7 +45,7 @@ const lines = [
     name: "Tolong",
     english: "Helping hands",
     icon: HandHelpingIcon,
-    tint: "bg-mint-tint",
+    tint: "bg-mustard",
     body: "Carry groceries, water plants, walk someone to the clinic. Small, practical requests between neighbours.",
     example: "+30 BP when the neighbour confirms",
   },
@@ -54,17 +53,17 @@ const lines = [
     name: "Rimba",
     english: "Shared goals",
     icon: LeafIcon,
-    tint: "bg-lilac-tint",
+    tint: "bg-paper",
     body: "Township challenges and estimated impact: things reused instead of bought, hours volunteered.",
     example: "+200 BP when a challenge is completed",
   },
 ] as const
 
 const pulseBars = [
-  { name: "Pinjam", value: 82, bar: "bg-coral" },
-  { name: "Jom", value: 64, bar: "bg-sun" },
-  { name: "Tolong", value: 38, bar: "bg-mint" },
-  { name: "Rimba", value: 26, bar: "bg-lilac" },
+  { name: "Pinjam", value: 82, bar: "bg-sky" },
+  { name: "Jom", value: 64, bar: "bg-lime" },
+  { name: "Tolong", value: 38, bar: "bg-mustard" },
+  { name: "Rimba", value: 26, bar: "bg-ink" },
 ]
 
 export default async function Page() {
@@ -112,16 +111,16 @@ export default async function Page() {
 
       <main id="main-content">
         {/* Hero */}
-        <section className="bb-band overflow-hidden rounded-b-band">
+        <section className="overflow-hidden rounded-b-[32px] bg-lime text-ink">
           <div className="mx-auto grid max-w-7xl gap-12 px-5 pt-12 pb-14 sm:px-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-center lg:gap-16 lg:px-8 lg:pt-20 lg:pb-24">
             <div>
               <p className="inline-flex rounded-full bg-mint px-3 py-1 text-sm font-bold text-ink">
                 People and Planet · for Malaysian townships
               </p>
-              <h1 className="mt-6 max-w-[16ch] font-display text-[40px] leading-[1.02] font-extrabold text-balance text-surface sm:text-6xl lg:text-[68px]">
+              <h1 className="mt-6 max-w-[16ch] font-display text-[40px] leading-[1.02] font-extrabold text-balance text-ink sm:text-6xl lg:text-[68px]">
                 {locale === "ms" ? "Perbandaran anda, disambungkan melalui aktiviti dunia sebenar." : marketingContent.headline}
               </h1>
-              <p className="mt-6 max-w-[52ch] text-lg text-band-eyebrow">
+              <p className="mt-6 max-w-[52ch] text-lg text-ink-soft">
                 {locale === "ms"
                   ? "Pinjam dan kongsi, sertai acara kejiranan, bantu jiran dan terima pengiktirafan untuk sumbangan yang disahkan."
                   : marketingContent.description}
@@ -136,19 +135,19 @@ export default async function Page() {
                   {locale === "ms" ? "Cuba demo" : marketingContent.secondaryAction}
                 </Button>
               </div>
-              <p className="mt-4 text-sm text-band-eyebrow">
+              <p className="mt-4 text-sm text-ink-soft">
                 {locale === "ms"
                   ? "Ciri utama percuma untuk penduduk. Pengendali perbandaran membayar untuk sistem ini."
                   : "Free for residents. Township operators pay for the managed system."}
               </p>
               {demo ? (
-                <div className="mt-8 max-w-xl rounded-lg border border-white/15 p-4">
+                <div className="mt-8 max-w-xl rounded-[20px] border-2 border-ink/15 p-4">
                   <DemoRoleSwitcher />
                 </div>
               ) : null}
             </div>
 
-            <HeroPreview demo={demo} />
+            <HeroPreview />
           </div>
         </section>
 
@@ -156,12 +155,12 @@ export default async function Page() {
         <section id="how" className="mx-auto max-w-7xl scroll-mt-20 px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
           <div className="max-w-2xl">
             <p className="text-eyebrow text-ink-muted">How it works</p>
-            <h2 className="text-display-lg mt-2 text-ink lg:text-5xl lg:leading-[1.05]">Four lines run through every township</h2>
+            <h2 className="text-display-lg mt-2 text-ink lg:text-5xl lg:leading-[1.05]">A neighbourhood, not a dashboard</h2>
             <p className="mt-4 text-lg text-ink-muted">
-              Each line is a kind of real-world contribution. Residents move along them by doing things, not by opening the app.
+              Start with what you need, discover one nearby feed, make handovers visible and work toward a shared block goal.
             </p>
           </div>
-          <TownshipLine className="mt-12 max-w-4xl" />
+          <PillarStrip className="mt-8" />
           <ul className="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {lines.map(({ name, english, icon: Icon, tint, body, example }) => (
               <li key={name} className="bb-card flex flex-col p-5">
@@ -172,7 +171,13 @@ export default async function Page() {
                 <p className="font-bold text-ink-muted">{english}</p>
                 <p className="mt-3 text-ink">{body}</p>
                 <p className="mt-auto pt-5">
-                  <span className="inline-flex rounded-full bg-sun-tint px-3 py-1 text-sm font-bold text-ink">{example}</span>
+                  <span className={cn(
+                    "inline-flex rounded-full px-3 py-1 text-sm font-bold text-ink",
+                    name === "Pinjam" && "bg-sky",
+                    name === "Jom" && "bg-lime",
+                    name === "Tolong" && "bg-mustard",
+                    name === "Rimba" && "bg-ink text-white"
+                  )}>{example}</span>
                 </p>
               </li>
             ))}
@@ -236,7 +241,6 @@ export default async function Page() {
           <div className="bb-card p-5 sm:p-7">
             <div className="flex items-center justify-between gap-3">
               <p className="text-title text-ink">Participation by township line</p>
-              <DemoLabel />
             </div>
             <ul className="mt-5 flex flex-col gap-3">
               {pulseBars.map((row) => (
@@ -281,21 +285,20 @@ export default async function Page() {
                   </div>
                 </li>
               ))}
-              <li className="col-span-2"><DemoLabel /></li>
             </ul>
           </div>
         </section>
 
         {/* Closing CTA */}
         <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-          <div className="bb-band flex flex-col items-start gap-6 rounded-band p-8 sm:p-12 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-col items-start gap-6 rounded-[28px] bg-ink p-8 text-white sm:p-12 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <h2 className="font-display text-3xl font-extrabold text-balance text-surface sm:text-4xl">{marketingContent.tagline}</h2>
-              <p className="mt-3 max-w-[52ch] text-band-eyebrow">Join with your township&apos;s code. It takes a minute, and your unit label stays private.</p>
+              <h2 className="font-display text-3xl font-extrabold text-balance text-white sm:text-4xl">{marketingContent.tagline}</h2>
+              <p className="mt-3 max-w-[52ch] text-on-dark-muted">Join with your township&apos;s code. It takes a minute, and your unit label stays private.</p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
               <Button render={<Link href="/sign-up" />} variant="cta" size="cta">{localized.signUp}</Button>
-              <Button render={<Link href="/sign-in?next=/home" />} variant="outline" size="cta">{marketingContent.secondaryAction}</Button>
+              <Button render={<Link href="/sign-in?next=/home" />} variant="outline" size="cta" className="border-white bg-transparent text-white hover:bg-white/10">{marketingContent.secondaryAction}</Button>
             </div>
           </div>
         </section>
@@ -303,7 +306,7 @@ export default async function Page() {
 
       <footer className="border-t border-hairline">
         <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-8 text-sm text-ink-muted sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-          <p><span className="font-display font-extrabold text-ink">BorrowBetter</span> · {localized.tagline}</p>
+          <p><span className="font-display font-extrabold text-ink">BorrowLah</span> · {localized.tagline}</p>
           <p>Prototype for a university hackathon. No real brands or people.</p>
         </div>
       </footer>
@@ -312,7 +315,7 @@ export default async function Page() {
 }
 
 /** Illustrative app preview built from the real components, with fictional content. */
-function HeroPreview({ demo }: { demo: boolean }) {
+function HeroPreview() {
   return (
     <div className="mx-auto w-full max-w-md lg:max-w-none">
       <div className="relative">
@@ -320,10 +323,13 @@ function HeroPreview({ demo }: { demo: boolean }) {
         <div className="rounded-[20px] bg-ink px-4 pt-5 pb-6">
           <p className="text-eyebrow text-band-eyebrow">Harmoni Heights</p>
           <p className="mt-2 font-display text-2xl leading-tight font-extrabold text-surface">Selamat petang, Nurul</p>
-          <p className="mt-2 text-sm text-band-eyebrow">
+          <p className="mt-2 text-sm text-on-dark-muted">
             160 BP from <strong className="text-sun">Level 4 · Jiran Mesra</strong>
           </p>
-          <TownshipLine tone="ink" current="Tolong" details={{ Pinjam: "11 loans", Jom: "6 events", Tolong: "Next stop", Rimba: "2 goals" }} className="mt-5" />
+          <div className="mt-5 rounded-[16px] bg-white p-3 text-ink">
+            <div className="flex items-center justify-between text-xs font-bold"><span>Blok C · October goal</span><span>312 / 400</span></div>
+            <div className="mt-2 h-2 overflow-hidden rounded-full bg-paper"><div className="h-full w-[78%] rounded-full bg-ink" /></div>
+          </div>
         </div>
         <div className="mt-4 rounded-lg bg-coral-tint p-3">
           <p className="font-bold text-ink">Return the cordless drill</p>
@@ -340,8 +346,8 @@ function HeroPreview({ demo }: { demo: boolean }) {
         Check-in verified
       </p>
       </div>
-      <p className="mt-8 text-center text-xs text-band-eyebrow lg:ml-8">
-        Illustrative preview{demo ? " · demo data" : ""}. Names and numbers are fictional.
+      <p className="mt-8 text-center text-xs text-ink-soft lg:ml-8">
+        Illustrative preview. Names and numbers are fictional.
       </p>
     </div>
   )

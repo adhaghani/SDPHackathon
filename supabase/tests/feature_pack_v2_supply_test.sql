@@ -12,8 +12,8 @@ select has_table('public', 'bundle_items', 'bundle item table exists');
 select has_table('public', 'booking_groups', 'booking group table exists');
 
 select id as supply_township_id from public.townships where slug = 'harmoni-heights-demo' \gset
-select id as supply_aisyah_id from auth.users where email = 'aisyah@borrowbetter.demo' \gset
-select id as supply_farah_id from auth.users where email = 'farah@borrowbetter.demo' \gset
+select id as supply_aisyah_id from auth.users where email = 'aisyah@borrowlah.demo' \gset
+select id as supply_farah_id from auth.users where email = 'farah@borrowlah.demo' \gset
 select id as supply_offer_id
 from public.item_request_offers
 where is_demo and status = 'proposed' and item_id is not null
@@ -172,7 +172,7 @@ select lives_ok(
          and item_request_offer_id is not null),
       'confirm_return',
       '{"return_condition":"good"}'::jsonb,
-      (select id from auth.users where email = 'raj@borrowbetter.demo'),
+      (select id from auth.users where email = 'raj@borrowlah.demo'),
       now()
     )
   $$,

@@ -5,6 +5,7 @@ import { useActionState, useState } from "react"
 import { askHelp, talkToOrganiser, type HelpActionState } from "@/actions/help"
 import { Alert, AlertDescription } from "@workspace/ui/components/alert"
 import { Button } from "@workspace/ui/components/button"
+import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { Spinner } from "@workspace/ui/components/spinner"
 import { Textarea } from "@workspace/ui/components/textarea"
 
@@ -31,7 +32,7 @@ export function HelpChat({
   return (
     <div className="grid gap-7 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
       <section aria-labelledby="ask-help-heading" className="bb-card p-5">
-        <h2 id="ask-help-heading" className="text-title text-ink">Ask BorrowBetter</h2>
+        <h2 id="ask-help-heading" className="text-title text-ink">Ask BorrowLah</h2>
         <p className="mt-1 text-sm text-ink-muted">
           Answers use the help centre only. Without an AI key, the top matching articles are shown instead.
         </p>
@@ -64,8 +65,8 @@ export function HelpChat({
           </div>
         ) : null}
         {messages.length ? (
-          <div className="mt-5 max-h-72 overflow-y-auto border-t border-hairline pt-4">
-            <ul className="space-y-2">
+          <ScrollArea className="mt-5 max-h-72 border-t border-hairline pt-4" contentClassName="min-h-full">
+            <ul className="flex flex-col gap-2">
               {messages.map((message, index) => (
                 <li
                   key={message.id ?? index}
@@ -77,7 +78,7 @@ export function HelpChat({
                 </li>
               ))}
             </ul>
-          </div>
+          </ScrollArea>
         ) : null}
 
         <form action={ticketAction} className="mt-5 flex flex-col gap-3 border-t border-hairline pt-4">
@@ -89,7 +90,7 @@ export function HelpChat({
             id="support-subject"
             name="subject"
             maxLength={160}
-            defaultValue="Need help with BorrowBetter"
+            defaultValue="Need help with BorrowLah"
             className="min-h-11 rounded-lg border border-ink-muted bg-surface px-3 text-ink outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
           />
           <Button type="submit" variant="outline" disabled={ticketPending}>

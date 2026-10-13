@@ -1,5 +1,5 @@
 import type { Viewport } from "next"
-import { DM_Sans, Syne } from "next/font/google"
+import { Bricolage_Grotesque, Instrument_Sans } from "next/font/google"
 
 import "@workspace/ui/globals.css"
 import { Toaster } from "@workspace/ui/components/sonner"
@@ -9,32 +9,32 @@ import { cn } from "@workspace/ui/lib/utils"
 
 export const metadata = {
   title: {
-    default: "BorrowBetter",
-    template: "%s · BorrowBetter",
+    default: "BorrowLah",
+    template: "%s · BorrowLah",
   },
   description: "Share more. Connect more. Live better.",
 }
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#1B1340" },
-    { media: "(prefers-color-scheme: dark)", color: "#120D2E" },
+    { media: "(prefers-color-scheme: light)", color: "#d9f45a" },
+    { media: "(prefers-color-scheme: dark)", color: "#111111" },
   ],
   colorScheme: "light",
   viewportFit: "cover",
 }
 
-const dmSans = DM_Sans({
-  weight: ["400", "700"],
+const instrumentSans = Instrument_Sans({
+  weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
-  variable: "--font-dm-sans",
+  variable: "--font-instrument",
   display: "swap",
 })
 
-const syne = Syne({
-  weight: "700",
+const bricolageGrotesque = Bricolage_Grotesque({
+  weight: ["500", "700", "800"],
   subsets: ["latin"],
-  variable: "--font-syne",
+  variable: "--font-bricolage",
   display: "swap",
 })
 
@@ -49,8 +49,8 @@ export default function RootLayout({
       suppressHydrationWarning
       className={cn(
         "antialiased",
-        dmSans.variable,
-        syne.variable,
+        instrumentSans.variable,
+        bricolageGrotesque.variable,
         "font-sans"
       )}
     >

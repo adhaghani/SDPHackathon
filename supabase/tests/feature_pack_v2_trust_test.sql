@@ -9,8 +9,8 @@ select has_function('public', 'get_incoming_request_trust', 'incoming trust tier
 select has_function('public', 'save_item_guide', 'guide save function exists');
 select has_function('public', 'get_item_history', 'item history function exists');
 
-select id as trust_aisyah_id from auth.users where email = 'aisyah@borrowbetter.demo' \gset
-select id as trust_raj_id from auth.users where email = 'raj@borrowbetter.demo' \gset
+select id as trust_aisyah_id from auth.users where email = 'aisyah@borrowlah.demo' \gset
+select id as trust_raj_id from auth.users where email = 'raj@borrowlah.demo' \gset
 select id as trust_township_id from public.townships where slug = 'harmoni-heights-demo' \gset
 select id as trust_item_id from public.items where title = 'Pressure washer for the next clean-up' limit 1 \gset
 select id as trust_history_item_id from public.items where title = 'Pressure washer' limit 1 \gset
@@ -110,7 +110,7 @@ select lives_ok(
          and item_id = (select id from public.items where title = 'Pressure washer for the next clean-up')),
       'approve',
       '{}'::jsonb,
-      (select id from auth.users where email = 'raj@borrowbetter.demo'),
+      (select id from auth.users where email = 'raj@borrowlah.demo'),
       now()
     )
   $$,
@@ -125,7 +125,7 @@ select throws_ok(
          and item_id = (select id from public.items where title = 'Pressure washer for the next clean-up')),
       'confirm_handover',
       '{"guide_acknowledged": false}'::jsonb,
-      (select id from auth.users where email = 'aisyah@borrowbetter.demo'),
+      (select id from auth.users where email = 'aisyah@borrowlah.demo'),
       now()
     )
   $$,
@@ -142,7 +142,7 @@ select lives_ok(
          and item_id = (select id from public.items where title = 'Pressure washer for the next clean-up')),
       'confirm_handover',
       '{"guide_acknowledged": true}'::jsonb,
-      (select id from auth.users where email = 'aisyah@borrowbetter.demo'),
+      (select id from auth.users where email = 'aisyah@borrowlah.demo'),
       now()
     )
   $$,
@@ -157,7 +157,7 @@ select lives_ok(
          and item_id = (select id from public.items where title = 'Pressure washer for the next clean-up')),
       'confirm_handover',
       '{}'::jsonb,
-      (select id from auth.users where email = 'raj@borrowbetter.demo'),
+      (select id from auth.users where email = 'raj@borrowlah.demo'),
       now()
     )
   $$,
@@ -172,7 +172,7 @@ select lives_ok(
          and item_id = (select id from public.items where title = 'Pressure washer for the next clean-up')),
       'mark_returned',
       '{"would_have_bought":"no"}'::jsonb,
-      (select id from auth.users where email = 'aisyah@borrowbetter.demo'),
+      (select id from auth.users where email = 'aisyah@borrowlah.demo'),
       now()
     )
   $$,
@@ -187,7 +187,7 @@ select throws_ok(
          and item_id = (select id from public.items where title = 'Pressure washer for the next clean-up')),
       'confirm_return',
       '{"return_condition":"damaged","return_condition_reason":""}'::jsonb,
-      (select id from auth.users where email = 'raj@borrowbetter.demo'),
+      (select id from auth.users where email = 'raj@borrowlah.demo'),
       now()
     )
   $$,

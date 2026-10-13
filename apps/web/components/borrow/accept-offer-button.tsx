@@ -6,8 +6,7 @@ import { acceptItemOffer } from "@/actions/requests"
 import { Alert, AlertDescription } from "@workspace/ui/components/alert"
 import { Button } from "@workspace/ui/components/button"
 import { Spinner } from "@workspace/ui/components/spinner"
-import { Field, FieldLabel } from "@workspace/ui/components/field"
-import { Input } from "@workspace/ui/components/input"
+import { DateRangeField } from "@/components/forms/date-range-field"
 
 const idleState = { status: "idle" } as const
 
@@ -18,14 +17,15 @@ export function AcceptOfferButton({ offerId }: { offerId: string }) {
       <form action={action}>
         <input type="hidden" name="offerId" value={offerId} />
         <div className="flex flex-wrap items-end gap-2">
-          <Field>
-            <FieldLabel htmlFor={`accept-start-${offerId}`}>Start</FieldLabel>
-            <Input id={`accept-start-${offerId}`} name="startDate" type="date" required />
-          </Field>
-          <Field>
-            <FieldLabel htmlFor={`accept-end-${offerId}`}>End</FieldLabel>
-            <Input id={`accept-end-${offerId}`} name="endDate" type="date" required />
-          </Field>
+          <div className="min-w-[18rem] flex-1">
+            <DateRangeField
+              id={`accept-dates-${offerId}`}
+              startName="startDate"
+              endName="endDate"
+              label="Available dates"
+              required
+            />
+          </div>
           <Button type="submit" variant="cta" disabled={pending}>
             {pending ? <Spinner data-icon="inline-start" /> : null}
             Accept offer

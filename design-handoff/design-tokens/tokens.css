@@ -1,83 +1,86 @@
 /*
- * BorrowBetter design tokens — merge into packages/ui/src/styles/globals.css.
+ * BorrowLah — Option C "Your Block" tokens.
+ * This REPLACES the Option A palette (ink/lilac/coral/sun) and fonts (Syne/DM Sans).
+ * Merge into packages/ui/src/styles/globals.css.
  *
- * CONFIRMED values (from the system context doc): ink, ink-muted, ground, surface,
- * border, band-eyebrow, sun, mint, lilac, coral, Syne + DM Sans.
- * PLACEHOLDER values (designer's guess — if globals.css already defines these,
- * KEEP THE EXISTING VALUES): the four tints, radii, shadows, type sizes.
+ * Contrast (WCAG 2), all checked:
+ *   ink on lime 15.3 · ink on tomato 6.1 · ink on sky 11.6 · ink on mustard 10.2
+ *   ink-soft on paper 10.3 / on white 11.4 / on sky 7.0
+ *   on-dark-muted on ink 12.7 / on ink-raised 9.6 · white on ink-raised 14.4
+ * Text on lime, tomato, sky and mustard is ALWAYS ink (#111111), never white.
+ * hairline (#e4e4dc) is decorative only (1.3:1) — never the only edge of a control.
  */
 
 :root {
-  /* Core palette */
-  --bb-ink: #1b1340;
-  --bb-ink-muted: #4a4570;
-  --bb-ground: #f6f4fb;
-  --bb-surface: #ffffff;
-  --bb-border: #e7e2f7;
-  --bb-band-eyebrow: #cfc8f0;
-  --bb-sun: #ffd23f;
-  --bb-mint: #7be0b0;
-  --bb-lilac: #c9b8ff;
-  --bb-coral: #ff6b4a;
+  /* Ground & text */
+  --bb-lime: #d9f45a;          /* brand ground: Home + Impact top, active nav, selected states */
+  --bb-ink: #111111;           /* text, dark surfaces, nav bar, selected chips */
+  --bb-ink-raised: #2a2a2a;    /* secondary buttons/nav on dark screens */
+  --bb-white: #ffffff;         /* sheets and inputs */
+  --bb-paper: #f4f4ee;         /* soft cards on white sheets */
+  --bb-ink-soft: #3a3a3a;      /* secondary text on light grounds */
+  --bb-on-dark-muted: #d4d4cc; /* secondary text on ink */
+  --bb-hairline: #e4e4dc;      /* dividers, unselected day-chip borders, progress tracks */
+  --bb-lime-track: #c2dc4a;    /* progress-ring track on lime */
 
-  /* Tints (placeholder) */
-  --bb-sun-tint: #fff4c7;
-  --bb-mint-tint: #ddf7ea;
-  --bb-lilac-tint: #eee8ff;
-  --bb-coral-tint: #ffe3db;
+  /* Pillar accents — each township-line pillar owns one colour */
+  --bb-sky: #8fd3ff;     /* PINJAM — borrow & lend */
+  --bb-lime-tag: #d9f45a;/* JOM — events (same as lime) */
+  --bb-mustard: #f2b33d; /* TOLONG — help requests */
+  --bb-tomato: #ff5a36;  /* primary action + attention (Request, Ask, step 1, your share) */
 
-  /* Semantic aliases */
-  --bb-on-accent: var(--bb-ink);   /* text on sun / mint / lilac / coral — never white */
-  --bb-focus-ring: var(--bb-ink);  /* 2px solid, 2px offset; use surface on ink bands */
+  /* Radius */
+  --bb-radius-tag: 6px;     /* pillar tags */
+  --bb-radius-thumb: 14px;  /* thumbnails, send button */
+  --bb-radius-tile: 16px;   /* stat tiles, day chips */
+  --bb-radius-card: 20px;   /* feed cards, inputs, info rows */
+  --bb-radius-feature: 22px;/* goal card, reward cards */
+  --bb-radius-dock: 26px;   /* floating nav / action dock */
+  --bb-radius-ticket: 28px; /* event ticket */
+  --bb-radius-sheet: 32px;  /* top corners of the white sheet */
 
-  /* Radius (placeholder) */
-  --bb-radius-sm: 8px;
-  --bb-radius-md: 12px;
-  --bb-radius-lg: 16px;   /* cards, posters */
-  --bb-radius-band: 32px; /* bottom corners of hero / dark bands */
-
-  /* Shadow (placeholder) */
-  --bb-shadow-card: 0 1px 2px rgba(27, 19, 64, 0.06), 0 4px 12px rgba(27, 19, 64, 0.05);
-  --bb-shadow-raised: 0 2px 4px rgba(27, 19, 64, 0.08), 0 10px 24px rgba(27, 19, 64, 0.08);
+  /* Elevation — only floating elements get a shadow */
+  --bb-shadow-dock: 0 10px 30px rgba(17, 17, 17, 0.25);
 
   /* Type */
-  --bb-font-display: "Syne", "DM Sans", system-ui, sans-serif;
-  --bb-font-sans: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --bb-font-display: "Bricolage Grotesque", "Instrument Sans", system-ui, sans-serif;
+  --bb-font-sans: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
-/*
- * Tailwind v4 mapping (shadcn setup). If the project is on Tailwind v3, put the same
- * keys under theme.extend.colors / borderRadius / boxShadow / fontFamily instead.
- */
+/* Tailwind v4 mapping. On Tailwind v3, put the same keys in theme.extend. */
 @theme inline {
+  --color-lime: var(--bb-lime);
   --color-ink: var(--bb-ink);
-  --color-ink-muted: var(--bb-ink-muted);
-  --color-ground: var(--bb-ground);
-  --color-surface: var(--bb-surface);
-  --color-hairline: var(--bb-border);
-  --color-band-eyebrow: var(--bb-band-eyebrow);
-  --color-sun: var(--bb-sun);
-  --color-mint: var(--bb-mint);
-  --color-lilac: var(--bb-lilac);
-  --color-coral: var(--bb-coral);
-  --color-sun-tint: var(--bb-sun-tint);
-  --color-mint-tint: var(--bb-mint-tint);
-  --color-lilac-tint: var(--bb-lilac-tint);
-  --color-coral-tint: var(--bb-coral-tint);
-  --radius-band: var(--bb-radius-band);
-  --shadow-card: var(--bb-shadow-card);
-  --shadow-raised: var(--bb-shadow-raised);
+  --color-ink-raised: var(--bb-ink-raised);
+  --color-paper: var(--bb-paper);
+  --color-ink-soft: var(--bb-ink-soft);
+  --color-on-dark-muted: var(--bb-on-dark-muted);
+  --color-hairline: var(--bb-hairline);
+  --color-sky: var(--bb-sky);
+  --color-mustard: var(--bb-mustard);
+  --color-tomato: var(--bb-tomato);
+  --radius-card: var(--bb-radius-card);
+  --radius-dock: var(--bb-radius-dock);
+  --radius-sheet: var(--bb-radius-sheet);
+  --shadow-dock: var(--bb-shadow-dock);
   --font-display: var(--bb-font-display);
   --font-sans: var(--bb-font-sans);
 }
 
-/* Type scale (placeholder sizes) */
-.text-display-xl { font: 800 48px/52px var(--bb-font-display); letter-spacing: -0.02em; }
-.text-display-lg { font: 700 32px/36px var(--bb-font-display); letter-spacing: -0.01em; }
-.text-heading    { font: 700 22px/28px var(--bb-font-display); }
-.text-title      { font: 700 17px/22px var(--bb-font-display); }
-.text-eyebrow    { font: 600 12px/16px var(--bb-font-sans); letter-spacing: 0.08em; text-transform: uppercase; }
-.tabular         { font-variant-numeric: tabular-nums; }
+/* Type scale (px values match the mockups) */
+.text-hero    { font: 800 40px/38px var(--bb-font-display); letter-spacing: -0.03em; } /* Home greeting */
+.text-ticket  { font: 800 44px/40px var(--bb-font-display); letter-spacing: -0.03em; } /* Ticket title */
+.text-number  { font: 800 52px/50px var(--bb-font-display); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.text-h1      { font: 800 34px/34px var(--bb-font-display); letter-spacing: -0.03em; } /* Item title */
+.text-h2      { font: 800 24px/28px var(--bb-font-display); letter-spacing: -0.02em; } /* Section titles */
+.text-card    { font: 700 17px/21px var(--bb-font-sans); }                            /* Feed card titles */
+.text-body    { font: 400 15px/22px var(--bb-font-sans); }
+.text-meta    { font: 400 14px/19px var(--bb-font-sans); }
+.text-tag     { font: 700 11px/16px var(--bb-font-sans); letter-spacing: 0.06em; text-transform: uppercase; }
+.tabular      { font-variant-numeric: tabular-nums; }
+
+:where(a, button, input, [tabindex]):focus-visible { outline: 3px solid var(--bb-ink); outline-offset: 2px; }
+.on-dark :where(a, button, input, [tabindex]):focus-visible { outline-color: var(--bb-lime); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }

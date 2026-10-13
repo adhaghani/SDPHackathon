@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800" role="img" aria-label="Fictional event poster">
-  <rect width="600" height="800" fill="#1B1340"/>
-  <circle cx="470" cy="150" r="120" fill="#FFD23F"/>
-  <circle cx="118" cy="610" r="150" fill="#7BE0B0"/>
-  <path d="M0 520c140-80 240-80 360 0s220 80 240 36v244H0Z" fill="#C9B8FF"/>
-  <path d="M90 330h420" stroke="#FF6B4A" stroke-width="14" stroke-linecap="round"/>
-  <path d="M120 392h250" stroke="#F6F4FB" stroke-width="12" stroke-linecap="round"/>
-  <path d="M120 430h180" stroke="#F6F4FB" stroke-width="12" stroke-linecap="round"/>
+  <rect width="600" height="800" fill="#111111"/>
+  <circle cx="470" cy="150" r="120" fill="#F2B33D"/>
+  <circle cx="118" cy="610" r="150" fill="#D9F45A"/>
+  <path d="M0 520c140-80 240-80 360 0s220 80 240 36v244H0Z" fill="#8FD3FF"/>
+  <path d="M90 330h420" stroke="#FF5A36" stroke-width="14" stroke-linecap="round"/>
+  <path d="M120 392h250" stroke="#F4F4EE" stroke-width="12" stroke-linecap="round"/>
+  <path d="M120 430h180" stroke="#F4F4EE" stroke-width="12" stroke-linecap="round"/>
 </svg>

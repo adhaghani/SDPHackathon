@@ -24,6 +24,9 @@ export function DemoRoleSwitcher() {
         <Button type="submit" name="role" value="admin" variant="outline" size="sm" className="w-full sm:w-auto" disabled={pending}>
           Township office · admin
         </Button>
+        <Button type="submit" name="role" value="guard" variant="outline" size="sm" className="w-full sm:w-auto" disabled={pending}>
+          Gate Guard
+        </Button>
         <Button type="submit" name="role" value="partner" variant="outline" size="sm" className="w-full sm:w-auto" disabled={pending}>
           Kopi Kita · partner
         </Button>

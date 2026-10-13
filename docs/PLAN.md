@@ -1,6 +1,6 @@
-# BorrowBetter build plan
+# BorrowLah build plan
 
-Source of truth: the BorrowBetter build brief at `/Users/adhaghani/.codex/attachments/9df3d731-810f-4604-bf06-48a2ee5c2d88/pasted-text-1.txt`. Re-read the relevant section before each slice.
+Source of truth: the BorrowLah build brief at `/Users/adhaghani/.codex/attachments/9df3d731-810f-4604-bf06-48a2ee5c2d88/pasted-text-1.txt`. Re-read the relevant section before each slice.
 
 ## Working agreement
 
@@ -19,7 +19,7 @@ Source of truth: the BorrowBetter build brief at `/Users/adhaghani/.codex/attach
 | 0.2  | Create planning documents                                            | `docs/PLAN.md`, `PROGRESS.md`, `docs/DESIGN_PLAN.md`, `docs/DECISIONS.md` exist and reflect the brief                                                                                                                                                                                          |
 | 0.3  | Configure scripts, lint, format, typecheck and tests                 | Root/app scripts cover `dev`, `build`, `lint`, `typecheck`, `test`, `test:db`, `types:gen`, `db:push`, `seed`, `demo:reset`; CI runs lint, typecheck, tests and build                                                                                                                          |
 | 0.4  | Add required shadcn components                                       | Button, card, dialog, sheet, drawer, tabs, badge, avatar, progress, calendar, form, input, select, textarea, table, sonner, skeleton, chart, command, dropdown-menu, tooltip, switch, checkbox, radio-group, alert, scroll-area and separator are available and composition rules are followed |
-| 0.5  | Apply BorrowBetter design tokens and type                            | `globals.css` uses the Embun/Tinta/Pinjam/Jom/Tolong/Rimba/Emas system, dark variants, on-colour pairs, WCAG AA-safe choices, Bricolage Grotesque and Atkinson Hyperlegible roles, and comfort-setting hooks                                                                                   |
+| 0.5  | Apply BorrowLah design tokens and type                            | `globals.css` uses the Embun/Tinta/Pinjam/Jom/Tolong/Rimba/Emas system, dark variants, on-colour pairs, WCAG AA-safe choices, Bricolage Grotesque and Atkinson Hyperlegible roles, and comfort-setting hooks                                                                                   |
 | 0.6  | Add Supabase foundation                                              | `.env.example`, generated-type placeholder, browser/server/admin clients, `server-only` admin module, request-interception session refresh and `/api/health` database probe                                                                                                                    |
 | 0.7  | Add auth and app shell                                               | `/sign-in`, `/sign-up`, `/auth/callback`, `/onboarding` placeholders, protected-route redirect, mobile bottom navigation and desktop side navigation                                                                                                                                           |
 | 0.8  | Add PWA basics and docs                                              | `manifest.ts`, icons, no offline caching, `docs/DESIGN_PLAN.md` wireframes reviewed against section 8                                                                                                                                                                                          |

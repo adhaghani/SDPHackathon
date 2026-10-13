@@ -1,6 +1,6 @@
 import Link from "next/link"
 
-import { markNotificationRead } from "@/actions/notifications"
+import { markAllNotificationsRead, markNotificationRead } from "@/actions/notifications"
 import { PageBand } from "@/components/shared/page-band"
 import { formatRelativeDay } from "@/lib/activity"
 import { requireActiveMember } from "@/lib/data"
@@ -29,6 +29,13 @@ export default async function NotificationsPage() {
         eyebrow="Updates"
         title="Notifications"
         description={unread ? `${unread} unread. Verified points, booking changes and membership updates.` : "You're all caught up."}
+        actions={
+          unread > 0 ? (
+            <form action={markAllNotificationsRead}>
+              <Button type="submit" variant="outline" size="sm">Mark all as read</Button>
+            </form>
+          ) : null
+        }
       />
       {rows.length ? (
         <ul className="bb-card divide-y divide-hairline">

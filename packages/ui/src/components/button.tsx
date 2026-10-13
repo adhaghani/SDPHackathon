@@ -7,23 +7,23 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/85",
-        cta: "bg-coral text-ink hover:bg-coral/85",
-        tint: "bg-sun-tint text-ink hover:bg-sun-tint/80",
+        default: "bg-ink text-white hover:bg-ink-raised",
+        cta: "bg-tomato text-ink hover:brightness-95",
+        tint: "bg-mustard text-ink hover:brightness-95",
         outline:
-          "border-ink-muted bg-surface text-ink hover:bg-lilac-tint hover:text-ink aria-expanded:bg-lilac-tint aria-expanded:text-ink",
+          "border-2 border-ink bg-white text-ink hover:bg-paper hover:text-ink aria-expanded:bg-paper aria-expanded:text-ink",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-mint-tint aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+          "bg-sky text-ink hover:brightness-95 aria-expanded:bg-sky aria-expanded:text-ink",
         ghost:
           "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
         destructive:
-          "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
+          "bg-tomato text-ink hover:brightness-95 focus-visible:border-ink focus-visible:ring-destructive/20",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
         default:
           "min-h-11 gap-1.5 px-4 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3",
-        cta: "min-h-12 gap-2 px-5 text-[15px]",
+        cta: "min-h-[52px] gap-2 rounded-[20px] px-5 text-base",
         block: "w-full min-h-11 px-4 text-[13px]",
         xs: "min-h-9 gap-1 rounded-[min(var(--radius-md),10px)] px-2 text-xs in-data-[slot=button-group]:rounded-sm has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
         sm: "min-h-11 gap-1 px-3 text-sm in-data-[slot=button-group]:rounded-sm has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 [&_svg:not([class*='size-'])]:size-3.5",

@@ -26,9 +26,9 @@ export function RedeemButton({
     <div className="flex flex-col gap-2">
       <form action={action}>
         <input type="hidden" name="rewardId" value={rewardId} />
-        <Button type="submit" variant="cta" className="w-full" disabled={pending || missingBp > 0 || soldOut}>
+        <Button type="submit" variant="cta" className="w-full bg-ink text-white hover:bg-ink-raised disabled:border-2 disabled:border-[#c8c8c0] disabled:bg-transparent disabled:text-ink-soft" disabled={pending || missingBp > 0 || soldOut}>
           {pending ? <Spinner data-icon="inline-start" /> : null}
-          {soldOut ? "Fully redeemed" : missingBp > 0 ? `${missingBp.toLocaleString("en-MY")} BP to go` : `Redeem for ${costBp.toLocaleString("en-MY")} BP`}
+          {soldOut ? "Fully redeemed" : missingBp > 0 ? `${missingBp.toLocaleString("en-MY")} BP to go` : `Redeem · ${costBp.toLocaleString("en-MY")} BP`}
         </Button>
       </form>
       {state.message ? (

@@ -1,5 +1,5 @@
 export const authContent = {
-  brand: "BorrowBetter",
+  brand: "BorrowLah",
   tagline: "Share more. Connect more. Live better.",
   signIn: {
     title: "Welcome back",
@@ -21,6 +21,6 @@ export const authContent = {
   },
   consent: {
     terms: "I agree to the community guidelines and terms.",
-    privacy: "I understand how BorrowBetter uses my data.",
+    privacy: "I understand how BorrowLah uses my data.",
   },
 } as const

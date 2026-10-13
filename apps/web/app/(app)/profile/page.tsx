@@ -40,18 +40,33 @@ export default async function ProfilePage() {
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-8">
-      <section className="bb-card flex flex-wrap items-center gap-4 p-5 sm:p-6">
-        <span aria-hidden="true" className="grid size-16 shrink-0 place-items-center rounded-full bg-lilac font-display text-2xl font-extrabold text-ink">
+      <section className="flex flex-wrap items-center gap-4 rounded-[22px] bg-lime p-4 min-[360px]:p-5 sm:p-6">
+        <span aria-hidden="true" className="order-1 grid size-16 shrink-0 place-items-center rounded-full bg-lilac font-display text-2xl font-extrabold text-ink">
           {name.slice(0, 1).toUpperCase()}
         </span>
-        <div className="min-w-0 flex-1">
-          <p className="text-eyebrow text-ink-muted">{active.membership.townships?.name ?? "Your township"}</p>
-          <h1 className="text-display-lg mt-0.5 break-words text-ink">{name}</h1>
-          <p className="mt-0.5 text-ink-muted capitalize">{role}</p>
+        <div className="order-3 w-full min-w-0 lg:order-2 lg:w-auto lg:flex-1">
+          <p className="text-tag text-ink-soft">{active.membership.townships?.name ?? "Your township"}</p>
+          <h1 className="text-h1 mt-1 max-[359px]:text-[30px] max-[359px]:leading-[30px] break-words text-ink">{name}</h1>
+          <p className="mt-1 text-body text-ink-soft capitalize">{role}</p>
         </div>
-        <BetterPointsChip balance={active.points?.balance ?? 0} />
+        <BetterPointsChip balance={active.points?.balance ?? 0} className="order-2 lg:order-3" />
       </section>
 
+      <section aria-labelledby="badges-heading">
+        <div className="flex items-baseline justify-between gap-3">
+          <h2 id="badges-heading" className="text-heading text-ink">Badges earned</h2>
+          <Link href="/rewards" className="text-sm font-bold text-ink underline underline-offset-4">All badges</Link>
+        </div>
+        {(badgesResult.data ?? []).length ? (
+          <ul className="mt-4 grid grid-cols-4 gap-2.5 sm:grid-cols-6 sm:gap-3">
+            {badgesResult.data?.map((badge, index) => (
+              <BadgeCard key={badge.id} index={index} name={badge.badges?.name ?? "Award"} description={badge.badges?.description ?? ""} icon={badge.badges?.icon ?? "award"} earned />
+            ))}
+          </ul>
+        ) : (
+          <p className="mt-4 rounded-lg border border-hairline bg-surface p-4 text-sm text-ink-muted">No badges yet. Your first verified activity starts the route.</p>
+        )}
+      </section>
       <dl className="grid grid-cols-2 gap-3">
         <div className="bb-card p-4">
           <dt className="text-sm text-ink-muted">Pinjam · Items lent</dt>
@@ -122,21 +137,6 @@ export default async function ProfilePage() {
         </section>
       ) : null}
 
-      <section aria-labelledby="badges-heading">
-        <div className="flex items-baseline justify-between gap-3">
-          <h2 id="badges-heading" className="text-heading text-ink">Badges earned</h2>
-          <Link href="/rewards" className="text-sm font-bold text-ink underline underline-offset-4">All badges</Link>
-        </div>
-        {(badgesResult.data ?? []).length ? (
-          <ul className="mt-4 grid grid-cols-4 gap-2.5 sm:grid-cols-6 sm:gap-3">
-            {badgesResult.data?.map((badge, index) => (
-              <BadgeCard key={badge.id} index={index} name={badge.badges?.name ?? "Award"} description={badge.badges?.description ?? ""} icon={badge.badges?.icon ?? "award"} earned />
-            ))}
-          </ul>
-        ) : (
-          <p className="mt-4 rounded-lg border border-hairline bg-surface p-4 text-sm text-ink-muted">No badges yet. Your first verified activity starts the route.</p>
-        )}
-      </section>
     </div>
   )
 }

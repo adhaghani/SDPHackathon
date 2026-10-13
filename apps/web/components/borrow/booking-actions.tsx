@@ -72,7 +72,7 @@ export function BookingActions({
               <select
                 name="wouldHaveBought"
                 defaultValue="no"
-                aria-label="Without BorrowBetter, would you have bought or rented this?"
+                aria-label="Without BorrowLah, would you have bought or rented this?"
                 className="h-11 rounded-lg border border-input bg-background px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               >
                 <option value="yes">Yes</option>

@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Illustration of a cooler box">
   <rect width="800" height="500" fill="#E2D9FF"/>
-  <path d="M92 386h616" stroke="#C9B8FF" stroke-width="8" stroke-linecap="round"/>
-  <rect x="248" y="196" width="304" height="154" rx="18" fill="#FFFFFF" stroke="#1B1340" stroke-width="8"/>
-  <path d="M230 196h340" stroke="#1B1340" stroke-width="12" stroke-linecap="round"/>
-  <path d="M304 258h192" stroke="#7BE0B0" stroke-width="18" stroke-linecap="round"/>
-  <path d="M320 316h160" stroke="#FF6B4A" stroke-width="10" stroke-linecap="round"/>
-  <circle cx="306" cy="232" r="12" fill="#FFD23F"/>
+  <path d="M92 386h616" stroke="#8FD3FF" stroke-width="8" stroke-linecap="round"/>
+  <rect x="248" y="196" width="304" height="154" rx="18" fill="#FFFFFF" stroke="#111111" stroke-width="8"/>
+  <path d="M230 196h340" stroke="#111111" stroke-width="12" stroke-linecap="round"/>
+  <path d="M304 258h192" stroke="#D9F45A" stroke-width="18" stroke-linecap="round"/>
+  <path d="M320 316h160" stroke="#FF5A36" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="306" cy="232" r="12" fill="#F2B33D"/>
 </svg>

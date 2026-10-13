@@ -286,7 +286,7 @@ export function ItemForm({
             <Field>
               <FieldLabel htmlFor="deposit">Deposit (RM)</FieldLabel>
               <Input id="deposit" name="depositRm" type="number" min="0" step="0.01" defaultValue="0" disabled={!requiresDeposit} onChange={(event) => update("deposit", event.target.value)} />
-              <FieldDescription>Recorded only. BorrowBetter never handles money.</FieldDescription>
+              <FieldDescription>Recorded only. BorrowLah never handles money.</FieldDescription>
             </Field>
             <Field>
               <FieldLabel htmlFor="estimated-price">New price (RM, optional)</FieldLabel>

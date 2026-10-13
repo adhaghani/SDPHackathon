@@ -278,16 +278,16 @@ where t.slug = 'harmoni-heights-demo'
 on conflict do nothing;
 
 insert into public.announcements (township_id, author_id, title, body, pinned)
-select t.id, u.id, 'Welcome to Harmoni Heights', 'BorrowBetter is a fictional demo township. Meet in shared spaces and look out for one another.', true
+select t.id, u.id, 'Welcome to Harmoni Heights', 'BorrowLah is a fictional demo township. Meet in shared spaces and look out for one another.', true
 from public.townships t
-join auth.users u on u.email = 'office@borrowbetter.demo'
+join auth.users u on u.email = 'office@borrowlah.demo'
 where t.slug = 'harmoni-heights-demo'
 on conflict do nothing;
 
 insert into public.help_requests (township_id, requester_id, title, details, kind, needed_by, status)
 select t.id, u.id, 'Help carry groceries', 'A short helping request for the demo community tab.', 'errand', current_date + 2, 'open'
 from public.townships t
-join auth.users u on u.email = 'siti@borrowbetter.demo'
+join auth.users u on u.email = 'siti@borrowlah.demo'
 where t.slug = 'harmoni-heights-demo'
 on conflict do nothing;
 

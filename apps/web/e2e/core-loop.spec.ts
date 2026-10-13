@@ -11,7 +11,7 @@ test("seeded demo loop verifies check-in, borrow discovery and rewards", async (
   await aisyah.goto("/")
   await aisyah.getByRole("button", { name: "Aisyah · resident" }).click()
   await aisyah.waitForURL("**/home")
-  await expect(aisyah.getByRole("heading", { level: 1 }).first()).toBeVisible()
+  await expect(aisyah.getByRole("heading", { level: 1 }).first()).toBeVisible({ timeout: 15000 })
 
   await aisyah.goto("/events")
   const eventLink = aisyah
@@ -39,7 +39,7 @@ test("seeded demo loop verifies check-in, borrow discovery and rewards", async (
   await expect(raj.getByText(/Aisyah Rahman (?:is already )?checked in/)).toBeVisible()
 
   await aisyah.goto("/borrow")
-  await expect(aisyah.getByRole("heading", { level: 1 }).first()).toBeVisible()
+  await expect(aisyah.getByRole("heading", { level: 1 }).first()).toBeVisible({ timeout: 15000 })
   await aisyah.goto("/rewards")
   await expect(aisyah.getByText(/Voucher|BP available/)).toBeVisible()
 

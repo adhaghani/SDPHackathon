@@ -109,9 +109,8 @@ export default async function CommunityPage() {
               </ul>
             ) : (
               <p className="mt-4 rounded-lg border border-hairline bg-surface p-5 text-ink-muted">
-                No one needs a hand right now. When you do, ask using the form{" "}
-                <span className="xl:hidden">below</span>
-                <span className="max-xl:hidden">beside this list</span>.
+                No one needs a hand right now. Use{" "}
+                <span className="font-bold">Ask for help</span> to post a request in a focused dialog.
               </p>
             )}
           </section>

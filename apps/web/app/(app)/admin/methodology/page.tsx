@@ -17,6 +17,8 @@ const definitions = [
   ["Predictive demand", "Eight-week category baseline from bookings, search events and open requests, multiplied by a reviewed festival uplift. Always labelled Forecast and never presented as causal."],
   ["Reward redemption rate", "Share of residents holding points who redeemed at least one reward in the period."],
   ["Cost per active resident", "Operator-funded reward cost plus admin-entered programme costs divided by monthly active residents."],
+  ["Guest visitors", "Aggregate entry and exit activity for visitor passes. Buckets with fewer than five distinct visitors are suppressed and never expose visitor names, phones, plates or units."],
+  ["Guest retention", "Visitor name, phone, plate, purpose and pass token data are deleted after the configured retention period (default 90 days). Anonymised log rows remain for aggregate statistics."],
 ]
 
 export default function MethodologyPage() {

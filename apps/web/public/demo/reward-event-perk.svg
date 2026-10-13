@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Event perk illustration">
   <rect width="800" height="600" fill="#FFD6CB"/>
   <path d="M100 440h600" stroke="#F2C6BC" stroke-width="10" stroke-linecap="round"/>
-  <path d="M400 120 620 420H180Z" fill="#FFFFFF" stroke="#1B1340" stroke-width="9" stroke-linejoin="round"/>
-  <path d="M400 120v300" stroke="#FF6B4A" stroke-width="12"/>
-  <path d="M400 420V280l86 140" fill="#C9B8FF" stroke="#1B1340" stroke-width="8"/>
-  <circle cx="170" cy="140" r="36" fill="#FFD23F"/>
+  <path d="M400 120 620 420H180Z" fill="#FFFFFF" stroke="#111111" stroke-width="9" stroke-linejoin="round"/>
+  <path d="M400 120v300" stroke="#FF5A36" stroke-width="12"/>
+  <path d="M400 420V280l86 140" fill="#8FD3FF" stroke="#111111" stroke-width="8"/>
+  <circle cx="170" cy="140" r="36" fill="#F2B33D"/>
 </svg>

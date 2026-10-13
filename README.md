@@ -1,8 +1,8 @@
-# BorrowBetter
+# BorrowLah
 
 **Share more. Connect more. Live better.**
 
-BorrowBetter is a demo-ready community participation and sustainability system for Malaysian townships. Residents borrow and lend, join neighbourhood events, help one another and earn BetterPoints for verified real-world contributions. Township managers see aggregate impact, not private resident activity.
+BorrowLah is a demo-ready community participation and sustainability system for Malaysian townships. Residents borrow and lend, join neighbourhood events, help one another and earn BetterPoints for verified real-world contributions. Township managers see aggregate impact, not private resident activity.
 
 ## Architecture
 

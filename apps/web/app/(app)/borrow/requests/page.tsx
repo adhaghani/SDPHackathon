@@ -4,7 +4,6 @@ import { AcceptOfferButton } from "@/components/borrow/accept-offer-button"
 import { ItemOfferForm } from "@/components/borrow/item-offer-form"
 import { AttachOfferItemForm } from "@/components/borrow/attach-offer-item-form"
 import { ItemRequestForm } from "@/components/borrow/item-request-form"
-import { DemoLabel } from "@/components/shared/demo-label"
 import { PageBand } from "@/components/shared/page-band"
 import { requireActiveMember } from "@/lib/data"
 import { createClient } from "@/lib/supabase/server"
@@ -99,7 +98,6 @@ export default async function ItemRequestsPage({
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
                           <h3 className="text-title text-ink">{request.title}</h3>
-                          {request.is_demo ? <DemoLabel /> : null}
                         </div>
                         <p className="mt-1 text-sm text-ink-muted">
                           {request.category_name ?? "Any category"}

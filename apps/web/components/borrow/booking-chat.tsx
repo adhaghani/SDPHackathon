@@ -6,6 +6,7 @@ import { sendBookingMessage } from "@/actions/borrow"
 import { Button } from "@workspace/ui/components/button"
 import { Field, FieldLabel } from "@workspace/ui/components/field"
 import { Textarea } from "@workspace/ui/components/textarea"
+import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { Spinner } from "@workspace/ui/components/spinner"
 
 const idleState = { status: "idle" } as const
@@ -25,7 +26,8 @@ export function BookingChat({
     <section className="bb-card p-5">
       <h2 className="text-title text-ink">Booking chat</h2>
       <p className="mt-1 text-sm text-ink-muted">Visible only to the borrower and lender.</p>
-      <ul className="mt-4 flex max-h-72 flex-col gap-3 overflow-y-auto rounded-lg bg-ground p-3">
+      <ScrollArea className="mt-4 max-h-72 rounded-lg bg-ground p-3" contentClassName="min-h-full">
+      <ul className="flex flex-col gap-3">
         {messages.map((message) => (
           <li key={message.id} className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${message.sender_id === currentUserId ? "self-end bg-lilac-tint text-ink" : "self-start border border-hairline bg-surface text-ink"}`}>
             <p>{message.body}</p>
@@ -34,6 +36,7 @@ export function BookingChat({
         ))}
         {!messages.length ? <li className="text-sm text-muted-foreground">No messages yet.</li> : null}
       </ul>
+      </ScrollArea>
       <form action={action} className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
         <input type="hidden" name="bookingId" value={bookingId} />
         <Field className="flex-1">

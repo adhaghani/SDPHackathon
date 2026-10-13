@@ -194,7 +194,6 @@ export default async function AdminDemandPage() {
               {wishlists.map((item) => (
                 <li key={item.id} className="rounded-full bg-lilac-tint px-3 py-1 text-sm font-bold text-ink">
                   {item.requested_label}
-                  {item.is_demo ? <span className="ml-2 text-xs text-ink-muted">Demo data</span> : null}
                 </li>
               ))}
             </ul>

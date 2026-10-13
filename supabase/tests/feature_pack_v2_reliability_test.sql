@@ -11,8 +11,8 @@ select has_table('public', 'help_messages', 'help message table exists');
 select has_table('public', 'support_tickets', 'support ticket table exists');
 
 select id as rel_township_id from public.townships where slug = 'harmoni-heights-demo' \gset
-select id as rel_aisyah_id from auth.users where email = 'aisyah@borrowbetter.demo' \gset
-select id as rel_raj_id from auth.users where email = 'raj@borrowbetter.demo' \gset
+select id as rel_aisyah_id from auth.users where email = 'aisyah@borrowlah.demo' \gset
+select id as rel_raj_id from auth.users where email = 'raj@borrowlah.demo' \gset
 select id as rel_booking_id
 from public.bookings
 where status = 'requested'
@@ -55,7 +55,7 @@ select lives_ok(
          and item_id = (select id from public.items where title = 'Pressure washer for the next clean-up')),
       'approve',
       '{}'::jsonb,
-      (select id from auth.users where email = 'raj@borrowbetter.demo'),
+      (select id from auth.users where email = 'raj@borrowlah.demo'),
       now()
     )
   $$,

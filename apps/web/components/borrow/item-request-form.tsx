@@ -6,6 +6,7 @@ import { postItemRequest } from "@/actions/requests"
 import { Alert, AlertDescription } from "@workspace/ui/components/alert"
 import { Button } from "@workspace/ui/components/button"
 import { Checkbox } from "@workspace/ui/components/checkbox"
+import { DateRangeField } from "@/components/forms/date-range-field"
 import { Field, FieldDescription, FieldLabel } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
 import { NativeSelect, NativeSelectOption } from "@workspace/ui/components/native-select"
@@ -40,14 +41,14 @@ export function ItemRequestForm({
             ))}
           </NativeSelect>
         </Field>
-        <Field>
-          <FieldLabel htmlFor="request-from">Needed from</FieldLabel>
-          <Input id="request-from" name="neededFrom" type="date" />
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="request-until">Needed until</FieldLabel>
-          <Input id="request-until" name="neededUntil" type="date" />
-        </Field>
+        <div className="sm:col-span-2">
+          <DateRangeField
+            id="request-dates"
+            startName="neededFrom"
+            endName="neededUntil"
+            label="Needed dates"
+          />
+        </div>
       </div>
       <Field>
         <FieldLabel htmlFor="request-note">Note</FieldLabel>

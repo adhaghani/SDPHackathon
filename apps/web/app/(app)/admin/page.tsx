@@ -2,7 +2,8 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 
 import { StatTile } from "@/components/admin/stat-tile"
-import { DemoLabel } from "@/components/shared/demo-label"
+import { PageBand } from "@/components/shared/page-band"
+import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { activityLine } from "@/lib/activity"
 import { requireActiveMember } from "@/lib/data"
 import { isDemoMode, isFeatureEnabled } from "@/lib/env"
@@ -129,41 +130,43 @@ export default async function AdminPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div className="min-w-0">
-          <p className="text-eyebrow text-ink-muted">{active.membership.townships?.name ?? "Township"} · Aggregate view</p>
-          <h1 className="text-display-lg mt-1 text-ink">Township Pulse</h1>
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-          {isDemoMode() ? <DemoLabel /> : null}
-          <form method="get" action="/admin" className="flex items-center gap-2">
-            <label htmlFor="days" className="text-sm font-bold text-ink">Period</label>
-            <select
-              id="days"
-              name="days"
-              defaultValue={String(days)}
-              className="h-11 rounded-lg border border-ink-muted bg-surface px-3 text-base text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
-            >
-              <option value="7">Last 7 days</option>
-              <option value="30">Last 30 days</option>
-              <option value="90">Last 90 days</option>
-            </select>
-            <Button type="submit" variant="outline">Apply</Button>
-          </form>
-        </div>
-      </div>
+      <PageBand
+        eyebrow={`${active.membership.townships?.name ?? "Township"} · Aggregate view`}
+        title="Township Pulse"
+        description="A verified, privacy-safe view of participation across the township."
+        actions={
+          <div className="flex flex-wrap items-center gap-3">
+            <form method="get" action="/admin" className="flex items-center gap-2">
+              <label htmlFor="days" className="text-sm font-bold text-ink">Period</label>
+              <select
+                id="days"
+                name="days"
+                defaultValue={String(days)}
+                className="h-11 rounded-[16px] border-2 border-ink bg-white px-3 text-base text-ink"
+              >
+                <option value="7">Last 7 days</option>
+                <option value="30">Last 30 days</option>
+                <option value="90">Last 90 days</option>
+              </select>
+              <Button type="submit" variant="outline">Apply</Button>
+            </form>
+          </div>
+        }
+      />
 
-      <nav aria-label="Admin tools" className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 md:hidden">
+      <ScrollArea orientation="horizontal" className="-mx-4 h-14 sm:-mx-6 md:hidden">
+        <nav aria-label="Admin tools" className="flex h-full w-max items-center gap-2 px-4 sm:px-6">
         {adminLinks
           .filter((link) => !("flag" in link) || isFeatureEnabled(link.flag))
           .map((link) => (
             <Button key={link.href} render={<Link href={link.href} />} variant="outline" className="shrink-0">
               {link.label}
             </Button>
-          ))}
-      </nav>
+            ))}
+        </nav>
+      </ScrollArea>
 
-      <section aria-label="Key figures" className="grid grid-cols-1 gap-3 min-[400px]:grid-cols-2 xl:grid-cols-4 xl:gap-4">
+      <section aria-label="Key figures" className="grid grid-cols-1 gap-3 min-[400px]:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 xl:gap-4">
         <StatTile label="Active residents" value={fmt(metrics.active_residents)} detail={`Verified action in ${days} days`} />
         <StatTile label="Completed loans" value={fmt(metrics.completed_borrowing_transactions)} detail="Two-sided confirmed" />
         <StatTile label="Verified volunteer hours" value={fmt(metrics.verified_volunteer_hours)} detail={`${fmt(metrics.repeat_event_attendance)} repeat attendees`} />
@@ -221,8 +224,8 @@ export default async function AdminPage({
 
             <h3 className="text-title mt-8 text-ink">By neighbourhood</h3>
             {neighbourhoods.length ? (
-              <div className="mt-3 overflow-x-auto">
-                <table className="w-full min-w-[22rem] text-left text-sm">
+              <ScrollArea orientation="horizontal" className="mt-3 h-[13rem]">
+                <table className="w-max min-w-[22rem] text-left text-sm">
                   <thead>
                     <tr className="border-b border-hairline text-ink-muted">
                       <th scope="col" className="py-2 pr-3 font-bold">Neighbourhood</th>
@@ -246,7 +249,7 @@ export default async function AdminPage({
                     })}
                   </tbody>
                 </table>
-              </div>
+              </ScrollArea>
             ) : (
               <p className="mt-3 text-sm text-ink-muted">No neighbourhood has enough participation to show yet without identifying residents.</p>
             )}
@@ -256,7 +259,8 @@ export default async function AdminPage({
             <h2 id="weekly-heading" className="text-title text-ink">Weekly active residents</h2>
             <p className="mt-1 text-sm text-ink-muted">Residents with at least one verified action each week.</p>
             {weekly.length ? (
-              <ul className="mt-5 flex h-40 items-end gap-2 overflow-x-auto">
+              <ScrollArea orientation="horizontal" className="mt-5 h-40">
+              <ul className="flex h-full w-max items-end gap-2">
                 {weekly.map((row) => (
                   <li key={row.week} className="flex min-w-8 flex-1 flex-col items-center gap-1.5">
                     <span className="text-xs font-bold tabular-nums">{row.active_residents}</span>
@@ -265,6 +269,7 @@ export default async function AdminPage({
                   </li>
                 ))}
               </ul>
+              </ScrollArea>
             ) : (
               <p className="mt-4 text-sm text-ink-muted">No weekly activity yet.</p>
             )}
@@ -289,7 +294,7 @@ export default async function AdminPage({
             </ul>
           </section>
 
-          <section aria-labelledby="privacy-heading" className="bb-band rounded-lg p-5">
+          <section aria-labelledby="privacy-heading" className="rounded-[20px] bg-ink p-5 text-white">
             <h2 id="privacy-heading" className="text-eyebrow text-band-eyebrow">Privacy safeguard</h2>
             <p className="mt-2 text-surface">
               This view shows aggregates only. Private messages, unit labels and individual resident activity are never shown to admins or sponsors.

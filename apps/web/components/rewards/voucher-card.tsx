@@ -17,10 +17,10 @@ export function VoucherCard({
   validUntil?: string | null
 }) {
   return (
-    <li className="flex min-w-0 overflow-hidden rounded-lg bg-surface shadow-card">
+    <li className="flex min-h-[176px] min-w-0 overflow-hidden rounded-[20px] bg-white">
       <div className="flex min-w-0 flex-1 flex-col p-4 sm:p-5">
         <p className="text-eyebrow text-ink-muted">{partnerName ?? "Township reward"}</p>
-        <p className="text-title mt-1 text-ink">{title}</p>
+        <p className="text-title mt-1 line-clamp-2 text-ink">{title}</p>
         <p className="mt-1 text-sm text-ink-muted tabular-nums">
           {costBp.toLocaleString("en-MY")} BP · redeemed {formatEventDate(redeemedAt)}
         </p>

@@ -73,7 +73,7 @@ export function OfflineHandoverSync() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="font-bold">Offline handover queue</p>
-          <p className="text-sm text-band-eyebrow">{queuedCount} waiting to sync</p>
+          <p className="text-sm text-ink-soft">{queuedCount} waiting to sync</p>
         </div>
         <Button type="button" variant="outline" size="sm" onClick={() => void flushQueue()}>
           Sync queue

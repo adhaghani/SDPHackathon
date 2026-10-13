@@ -3,13 +3,14 @@ import { PlusIcon } from "lucide-react"
 
 import { BorrowSearchForm } from "@/components/borrow/borrow-search-form"
 import { ForecastNudge } from "@/components/borrow/forecast-nudge"
-import { DemoLabel } from "@/components/shared/demo-label"
+import { PageBand } from "@/components/shared/page-band"
 import { MediaPoster } from "@/components/shared/media-poster"
 import { Pagination } from "@/components/shared/pagination"
+import { BorrowFilterDialog } from "@/components/shared/filter-dialog"
 import { requireActiveMember } from "@/lib/data"
 import { formatMoney } from "@/lib/format"
 import { createClient } from "@/lib/supabase/server"
-import { isDemoMode, isFeatureEnabled } from "@/lib/env"
+import { isFeatureEnabled } from "@/lib/env"
 import { parseNaturalLanguageSearch } from "@/lib/ai-search"
 import { Button } from "@workspace/ui/components/button"
 import { cn } from "@workspace/ui/lib/utils"
@@ -55,95 +56,58 @@ export default async function BorrowPage({
   const items = await query
   if (items.error) throw new Error(items.error.message)
 
-  const current = new URLSearchParams()
-  if (params.q) current.set("q", params.q)
-  if (params.nl) current.set("nl", params.nl)
-  if (params.free === "true") current.set("free", "true")
-  if (params.kind) current.set("kind", params.kind)
-
-  const categoryOptions = (categories.data ?? []).filter((category) =>
-    params.kind === "skill" ? category.kind === "skill" : category.kind !== "skill"
-  )
-
-  const chipHref = (category?: string) => {
-    const next = new URLSearchParams(current)
-    if (category) next.set("category", category)
-    else next.delete("category")
-    const query = next.toString()
-    return query ? `/borrow?${query}` : "/borrow"
-  }
-  const kindHref = (kind: "item" | "skill") => {
-    const next = new URLSearchParams(current)
-    if (params.kind === kind) next.delete("kind")
-    else next.set("kind", kind)
-    const query = next.toString()
-    return query ? `/borrow?${query}` : "/borrow"
-  }
-  const freeHref = params.free === "true"
-    ? chipHrefWithoutFree(current, params.category)
-    : (() => {
-        const next = new URLSearchParams(current)
-        if (params.category) next.set("category", params.category)
-        next.set("free", "true")
-        return `/borrow?${next.toString()}`
-      })()
   const totalPages = Math.max(1, Math.ceil((items.count ?? 0) / pageSize))
-  const chipClass = (active: boolean) =>
-    cn(
-      "inline-flex min-h-11 shrink-0 items-center rounded-full px-4 text-sm font-bold transition-colors duration-150 ease-out",
-      active ? "bg-ink text-surface" : "bg-lilac-tint text-ink hover:bg-lilac"
-    )
 
   return (
     <div className="flex flex-col gap-5">
       <ForecastNudge />
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-eyebrow text-ink-muted">Pinjam · Borrow</p>
-          <h1 className="text-display-lg mt-1 text-ink">Borrow</h1>
-        </div>
-        <div className="flex shrink-0 flex-wrap justify-end gap-2">
-          <Button render={<Link href="/borrow/mine" />} variant="outline" className="max-sm:hidden">Your loans</Button>
-          <Button render={<Link href="/borrow/new" />} variant="cta" size="cta">
-            <PlusIcon aria-hidden="true" data-icon="inline-start" />
-            List an item
-          </Button>
-        </div>
-      </div>
+      <PageBand
+        eyebrow="PINJAM · Borrow"
+        title="Borrow"
+        description="Find useful things shared by neighbours, then arrange a handover in a public shared space."
+        actions={
+          <>
+            <Button render={<Link href="/borrow/mine" />} variant="outline" className="max-sm:hidden">Your loans</Button>
+            <Button render={<Link href="/borrow/new" />} variant="cta" size="cta">
+              <PlusIcon aria-hidden="true" data-icon="inline-start" />
+              List an item
+            </Button>
+          </>
+        }
+      />
 
       <BorrowSearchForm
         query={params.q ?? ""}
         category={params.category}
         free={params.free === "true"}
+        kind={params.kind}
         naturalLanguage={params.nl}
         showNaturalLanguage={isFeatureEnabled("ai_search")}
+        filters={
+          <div className="flex w-full flex-wrap items-center gap-3 sm:w-auto">
+            <BorrowFilterDialog
+              categories={categories.data ?? []}
+              activeCategory={params.category}
+              activeKind={params.kind}
+              freeOnly={params.free === "true"}
+              query={params.q}
+              naturalLanguage={params.nl}
+            />
+            <Link
+              href="/borrow/saved"
+              className="inline-flex min-h-11 shrink-0 items-center text-sm font-bold text-ink underline underline-offset-4"
+            >
+              Saved
+            </Link>
+            <Link
+              href="/borrow/requests"
+              className="inline-flex min-h-11 shrink-0 items-center text-sm font-bold text-ink underline underline-offset-4"
+            >
+              Requests
+            </Link>
+          </div>
+        }
       />
-
-      <nav aria-label="Borrow filters" className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-        <Link href={chipHref()} aria-current={!params.category ? "true" : undefined} className={chipClass(!params.category)}>
-          All
-        </Link>
-        <Link href="/borrow/requests" className={chipClass(false)}>Requests</Link>
-        <Link href={kindHref("item")} aria-current={params.kind === "item" ? "true" : undefined} className={chipClass(params.kind === "item")}>
-          Items
-        </Link>
-        <Link href={kindHref("skill")} aria-current={params.kind === "skill" ? "true" : undefined} className={chipClass(params.kind === "skill")}>
-          Skills
-        </Link>
-        <Link href={freeHref} aria-current={params.free === "true" ? "true" : undefined} className={chipClass(params.free === "true")}>
-          Free to borrow
-        </Link>
-        {categoryOptions.map((category) => (
-          <Link
-            key={category.id}
-            href={chipHref(category.slug)}
-            aria-current={params.category === category.slug ? "true" : undefined}
-            className={chipClass(params.category === category.slug)}
-          >
-            {category.name}
-          </Link>
-        ))}
-      </nav>
 
       {!params.kind || params.kind === "item" ? (
         <section aria-labelledby="bundles-heading" className={bundlesResult.data?.length ? "" : "hidden"}>
@@ -176,7 +140,6 @@ export default async function BorrowPage({
           <Link href="/borrow/mine" className="mr-3 font-bold text-ink underline underline-offset-4 sm:hidden">Your loans</Link>
           {(items.count ?? 0).toLocaleString("en-MY")} {items.count === 1 ? "item" : "items"} near you
         </p>
-        {isDemoMode() ? <DemoLabel /> : null}
       </div>
 
       <ul className="grid grid-cols-2 gap-x-3 gap-y-6 sm:gap-x-4 md:grid-cols-3 xl:grid-cols-4">
@@ -241,12 +204,4 @@ const demoImages: Record<string, string> = {
 
 function demoImageFor(slug?: string | null) {
   return (slug && demoImages[slug]) || "/demo/item-placeholder.svg"
-}
-
-function chipHrefWithoutFree(current: URLSearchParams, category?: string) {
-  const next = new URLSearchParams(current)
-  next.delete("free")
-  if (category) next.set("category", category)
-  const query = next.toString()
-  return query ? `/borrow?${query}` : "/borrow"
 }

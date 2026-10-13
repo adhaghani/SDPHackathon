@@ -1,5 +1,5 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js"
-import { randomUUID } from "node:crypto"
+import { createHash, randomUUID } from "node:crypto"
 
 import { loadDemoEnv, requiredEnv } from "./env"
 
@@ -24,56 +24,61 @@ const itemMockImages: Record<string, string> = {
 
 const demoUsers = [
   {
-    email: "aisyah@borrowbetter.demo",
+    email: "aisyah@borrowlah.demo",
     displayName: "Aisyah Rahman",
     role: "resident" as const,
   },
   {
-    email: "raj@borrowbetter.demo",
+    email: "raj@borrowlah.demo",
     displayName: "Raj Kumar",
     role: "organiser" as const,
   },
   {
-    email: "office@borrowbetter.demo",
+    email: "office@borrowlah.demo",
     displayName: "Township office",
     role: "township_admin" as const,
   },
   {
-    email: "farah@borrowbetter.demo",
+    email: "guard@borrowlah.demo",
+    displayName: "Gate Guard",
+    role: "guard" as const,
+  },
+  {
+    email: "farah@borrowlah.demo",
     displayName: "Farah Nordin",
     role: "resident" as const,
   },
   {
-    email: "kopi@borrowbetter.demo",
+    email: "kopi@borrowlah.demo",
     displayName: "Kopi Kita partner",
     role: "resident" as const,
   },
-  { email: "mei@borrowbetter.demo", displayName: "Mei Ling Tan", role: "resident" as const },
-  { email: "siti@borrowbetter.demo", displayName: "Siti Aminah", role: "resident" as const },
-  { email: "kumar@borrowbetter.demo", displayName: "Kumar Raj", role: "resident" as const },
-  { email: "nurul@borrowbetter.demo", displayName: "Nurul Huda", role: "resident" as const },
-  { email: "lim@borrowbetter.demo", displayName: "Lim Wei", role: "resident" as const },
-  { email: "priya@borrowbetter.demo", displayName: "Priya Nair", role: "resident" as const },
-  { email: "azlan@borrowbetter.demo", displayName: "Azlan Musa", role: "resident" as const },
-  { email: "hafiz@borrowbetter.demo", displayName: "Hafiz Rahman", role: "resident" as const },
-  { email: "daniel@borrowbetter.demo", displayName: "Daniel Lee", role: "resident" as const },
-  { email: "nadia@borrowbetter.demo", displayName: "Nadia Ismail", role: "resident" as const },
-  { email: "cheryl@borrowbetter.demo", displayName: "Cheryl Wong", role: "resident" as const },
-  { email: "syafiq@borrowbetter.demo", displayName: "Syafiq Zain", role: "resident" as const },
-  { email: "kavitha@borrowbetter.demo", displayName: "Kavitha Devi", role: "resident" as const },
-  { email: "ramesh@borrowbetter.demo", displayName: "Ramesh Kumar", role: "resident" as const },
-  { email: "zara@borrowbetter.demo", displayName: "Zara Hakim", role: "resident" as const },
-  { email: "amir@borrowbetter.demo", displayName: "Amir Hakimi", role: "resident" as const },
-  { email: "joanne@borrowbetter.demo", displayName: "Joanne Goh", role: "resident" as const },
-  { email: "hakim@borrowbetter.demo", displayName: "Hakim Omar", role: "resident" as const },
-  { email: "felicia@borrowbetter.demo", displayName: "Felicia Tan", role: "resident" as const },
-  { email: "ravi@borrowbetter.demo", displayName: "Ravi Subramaniam", role: "resident" as const },
-  { email: "mira@borrowbetter.demo", displayName: "Mira Yusof", role: "resident" as const },
-  { email: "brandon@borrowbetter.demo", displayName: "Brandon Sim", role: "resident" as const },
-  { email: "ain@borrowbetter.demo", displayName: "Ain Zaleha", role: "resident" as const },
-  { email: "kelvin@borrowbetter.demo", displayName: "Kelvin Ong", role: "resident" as const },
-  { email: "sharma@borrowbetter.demo", displayName: "Sharma Nair", role: "resident" as const },
-  { email: "faizal@borrowbetter.demo", displayName: "Faizal Ali", role: "resident" as const },
+  { email: "mei@borrowlah.demo", displayName: "Mei Ling Tan", role: "resident" as const },
+  { email: "siti@borrowlah.demo", displayName: "Siti Aminah", role: "resident" as const },
+  { email: "kumar@borrowlah.demo", displayName: "Kumar Raj", role: "resident" as const },
+  { email: "nurul@borrowlah.demo", displayName: "Nurul Huda", role: "resident" as const },
+  { email: "lim@borrowlah.demo", displayName: "Lim Wei", role: "resident" as const },
+  { email: "priya@borrowlah.demo", displayName: "Priya Nair", role: "resident" as const },
+  { email: "azlan@borrowlah.demo", displayName: "Azlan Musa", role: "resident" as const },
+  { email: "hafiz@borrowlah.demo", displayName: "Hafiz Rahman", role: "resident" as const },
+  { email: "daniel@borrowlah.demo", displayName: "Daniel Lee", role: "resident" as const },
+  { email: "nadia@borrowlah.demo", displayName: "Nadia Ismail", role: "resident" as const },
+  { email: "cheryl@borrowlah.demo", displayName: "Cheryl Wong", role: "resident" as const },
+  { email: "syafiq@borrowlah.demo", displayName: "Syafiq Zain", role: "resident" as const },
+  { email: "kavitha@borrowlah.demo", displayName: "Kavitha Devi", role: "resident" as const },
+  { email: "ramesh@borrowlah.demo", displayName: "Ramesh Kumar", role: "resident" as const },
+  { email: "zara@borrowlah.demo", displayName: "Zara Hakim", role: "resident" as const },
+  { email: "amir@borrowlah.demo", displayName: "Amir Hakimi", role: "resident" as const },
+  { email: "joanne@borrowlah.demo", displayName: "Joanne Goh", role: "resident" as const },
+  { email: "hakim@borrowlah.demo", displayName: "Hakim Omar", role: "resident" as const },
+  { email: "felicia@borrowlah.demo", displayName: "Felicia Tan", role: "resident" as const },
+  { email: "ravi@borrowlah.demo", displayName: "Ravi Subramaniam", role: "resident" as const },
+  { email: "mira@borrowlah.demo", displayName: "Mira Yusof", role: "resident" as const },
+  { email: "brandon@borrowlah.demo", displayName: "Brandon Sim", role: "resident" as const },
+  { email: "ain@borrowlah.demo", displayName: "Ain Zaleha", role: "resident" as const },
+  { email: "kelvin@borrowlah.demo", displayName: "Kelvin Ong", role: "resident" as const },
+  { email: "sharma@borrowlah.demo", displayName: "Sharma Nair", role: "resident" as const },
+  { email: "faizal@borrowlah.demo", displayName: "Faizal Ali", role: "resident" as const },
 ]
 
 function isoAt(timestamp: number): string {
@@ -85,7 +90,7 @@ async function ensureUser(
   email: string,
   displayName: string
 ): Promise<string> {
-  const password = process.env.DEMO_USER_PASSWORD ?? "BorrowBetter-Demo-2026!"
+  const password = process.env.DEMO_USER_PASSWORD ?? "BorrowLah-Demo-2026!"
   const listed = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 })
   const existing = listed.data.users.find(
     (user) => user.email?.toLowerCase() === email.toLowerCase()
@@ -212,7 +217,7 @@ async function ensureSecondTownship(
     { onConflict: "township_id,name" }
   )
   const neighbourhood = await admin.from("neighbourhoods").select("id").eq("township_id", townshipId).eq("name", "Damai").single()
-  for (const email of ["aisyah@borrowbetter.demo", "raj@borrowbetter.demo", "office@borrowbetter.demo"]) {
+  for (const email of ["aisyah@borrowlah.demo", "raj@borrowlah.demo", "office@borrowlah.demo"]) {
     const userId = userIds[email]
     if (userId) {
       await admin.from("township_members").upsert(
@@ -271,6 +276,53 @@ async function ensureProfilesAndMembers(
   }
 }
 
+
+async function ensureGuestPassData(
+  admin: SupabaseClient<Database>,
+  townshipId: string,
+  userIds: Record<string, string>
+) {
+  await admin.from("gates").upsert(
+    [
+      { township_id: townshipId, name: "Main gate", active: true },
+      { township_id: townshipId, name: "Back gate", active: true },
+    ],
+    { onConflict: "township_id,name" }
+  )
+
+  const hostId = userIds["aisyah@borrowlah.demo"]
+  if (!hostId) return
+
+  const token = "sample-guest-token-128bit"
+  const shortCode = "GUEST123"
+  const tokenHash = createHash("sha256").update(token).digest("hex")
+  const shortHash = createHash("sha256").update(shortCode).digest("hex")
+  const existing = await findOne(admin, "visitor_passes", { token_hash: `\\x${tokenHash}` })
+  if (existing) return
+
+  const now = Date.now()
+  const { data, error } = await admin
+    .from("visitor_passes")
+    .insert({
+      host_id: hostId,
+      township_id: townshipId,
+      visitor_name: "Sample Visitor",
+      vehicle_plate: "ABC1234",
+      purpose: "Sample gate visit",
+      valid_from: new Date(now - 30 * 60 * 1000).toISOString(),
+      valid_until: new Date(now + 6 * 60 * 60 * 1000).toISOString(),
+      max_entries: 1,
+      entries_used: 0,
+      status: "active",
+      source: "resident",
+      token_hash: `\\x${tokenHash}`,
+      short_code_hash: `\\x${shortHash}`,
+    })
+    .select("id")
+    .single()
+  if (error || !data) throw new Error(`Could not seed guest pass: ${error?.message}`)
+}
+
 async function ensureEngagementData(
   admin: SupabaseClient<Database>,
   townshipId: string,
@@ -286,7 +338,7 @@ async function ensureEngagementData(
   const partnerRows = await admin.from("partners").select("id,name").eq("township_id", townshipId)
   if (partnerRows.error) throw new Error(partnerRows.error.message)
   const partnerId = (name: string) => partnerRows.data?.find((partner) => partner.name === name)?.id
-  const partnerUserId = userIds["kopi@borrowbetter.demo"]
+  const partnerUserId = userIds["kopi@borrowlah.demo"]
   const kopiPartnerId = partnerId("Kopi Kita")
   if (partnerUserId && kopiPartnerId) {
     await admin.from("partner_accounts").upsert(
@@ -327,14 +379,14 @@ async function ensureEngagementData(
   }))
   await admin.from("challenges").upsert(challenges, { onConflict: "township_id,title" })
 
-  const office = userIds["office@borrowbetter.demo"]
-  const siti = userIds["siti@borrowbetter.demo"]
+  const office = userIds["office@borrowlah.demo"]
+  const siti = userIds["siti@borrowlah.demo"]
   await admin.from("announcements").upsert(
     [{
       township_id: townshipId,
       author_id: office,
       title: "Welcome to Harmoni Heights",
-      body: "BorrowBetter is a fictional demo township. Meet in shared spaces and look out for one another.",
+      body: "BorrowLah is a fictional demo township. Meet in shared spaces and look out for one another.",
       pinned: true,
     }],
     { onConflict: "township_id,title" }
@@ -548,8 +600,8 @@ async function ensureDemandDemoData(
   itemCategoryId: (slug: string) => string,
   now: number
 ) {
-  const aisyah = userIds["aisyah@borrowbetter.demo"]
-  const farah = userIds["farah@borrowbetter.demo"]
+  const aisyah = userIds["aisyah@borrowlah.demo"]
+  const farah = userIds["farah@borrowlah.demo"]
 
   const skillRows = [
     {
@@ -572,7 +624,7 @@ async function ensureDemandDemoData(
       township_id: townshipId,
       owner_id: rajIdForSeed(userIds),
       title: skill.title,
-      description: "A fictional skill session for the BorrowBetter demo.",
+      description: "A fictional skill session for the BorrowLah demo.",
       category_id: skill.categoryId,
       kind: "skill",
       condition: "good",
@@ -765,11 +817,11 @@ async function ensureDemandDemoData(
   }
 
   const alertUsers = [
-    "aisyah@borrowbetter.demo",
-    "farah@borrowbetter.demo",
-    "mei@borrowbetter.demo",
-    "siti@borrowbetter.demo",
-    "kumar@borrowbetter.demo",
+    "aisyah@borrowlah.demo",
+    "farah@borrowlah.demo",
+    "mei@borrowlah.demo",
+    "siti@borrowlah.demo",
+    "kumar@borrowlah.demo",
   ]
   for (const email of alertUsers) {
     const { error } = await admin.from("item_request_alert_opt_ins").upsert(
@@ -786,7 +838,7 @@ async function ensureDemandDemoData(
 }
 
 function rajIdForSeed(userIds: Record<string, string>): string {
-  const id = userIds["raj@borrowbetter.demo"]
+  const id = userIds["raj@borrowlah.demo"]
   if (!id) throw new Error("Raj demo user missing")
   return id
 }
@@ -892,6 +944,7 @@ export async function seedDemo(): Promise<void> {
   const neighbourhoodId = neighbourhoods.find((row: { name: string }) => row.name === "Anggun")?.id
   if (!neighbourhoodId) throw new Error("Anggun neighbourhood missing")
   await ensureProfilesAndMembers(admin, townshipId, userIds, neighbourhoodId)
+  await ensureGuestPassData(admin, townshipId, userIds)
   await ensureEngagementData(admin, townshipId, userIds)
 
   const categories = await admin.from("event_categories").select("id,slug")
@@ -911,9 +964,9 @@ export async function seedDemo(): Promise<void> {
     return row.id as string
   }
 
-  const aisyah = userIds["aisyah@borrowbetter.demo"]
-  const raj = userIds["raj@borrowbetter.demo"]
-  const office = userIds["office@borrowbetter.demo"]
+  const aisyah = userIds["aisyah@borrowlah.demo"]
+  const raj = userIds["raj@borrowlah.demo"]
+  const office = userIds["office@borrowlah.demo"]
   const now = Date.now()
   const eventTitles = [
     ["Saturday gotong-royong", "gotong-royong"],
@@ -943,7 +996,7 @@ export async function seedDemo(): Promise<void> {
     "Aisyah's welcome tea",
     hostedEventStart
   )
-  const farah = userIds["farah@borrowbetter.demo"]
+  const farah = userIds["farah@borrowlah.demo"]
   for (const attendee of [raj, office, farah]) {
     await ensureRsvpAndCheckIn(admin, hostedEventId, attendee, hostedEventStart + 30 * 60 * 1000, "qr")
   }
@@ -1059,7 +1112,7 @@ export async function seedDemo(): Promise<void> {
   if (points.error) throw new Error(points.error.message)
   const balance = (points.data ?? []).reduce((sum, row: { delta: number }) => sum + row.delta, 0)
 
-  console.log(`Demo data ready. Aisyah balance: ${balance} BP.`)
+  console.log(`Sample data ready. Aisyah balance: ${balance} BP.`)
 }
 
 async function ensureEngagementV2DemoData(
@@ -1068,8 +1121,8 @@ async function ensureEngagementV2DemoData(
   userIds: Record<string, string>,
   now: number
 ) {
-  const aisyah = userIds["aisyah@borrowbetter.demo"]
-  const raj = userIds["raj@borrowbetter.demo"]
+  const aisyah = userIds["aisyah@borrowlah.demo"]
+  const raj = userIds["raj@borrowlah.demo"]
   const currentMonth = new Date(now)
   currentMonth.setDate(1)
   const monthStart = currentMonth.toISOString().slice(0, 10)
@@ -1171,7 +1224,7 @@ async function ensureAdminIntelligenceDemoData(
     normalized_term: "drill",
     requested_label: "Cordless drills for the shared library",
     is_demo: true,
-    created_by: userIds["office@borrowbetter.demo"],
+    created_by: userIds["office@borrowlah.demo"],
   })
   if (error) throw new Error(`Could not seed demo wishlist: ${error.message}`)
 }
@@ -1181,9 +1234,9 @@ async function ensureSupportDemoData(
   townshipId: string,
   userIds: Record<string, string>
 ) {
-  const aisyah = userIds["aisyah@borrowbetter.demo"]
-  const raj = userIds["raj@borrowbetter.demo"]
-  const office = userIds["office@borrowbetter.demo"]
+  const aisyah = userIds["aisyah@borrowlah.demo"]
+  const raj = userIds["raj@borrowlah.demo"]
+  const office = userIds["office@borrowlah.demo"]
 
   const completedBooking = await findOne(admin, "bookings", {
     township_id: townshipId,
@@ -1258,12 +1311,12 @@ async function ensureDetailedOperationsDemoData(
   userIds: Record<string, string>,
   now: number
 ) {
-  const aisyah = userIds["aisyah@borrowbetter.demo"]
-  const raj = userIds["raj@borrowbetter.demo"]
-  const office = userIds["office@borrowbetter.demo"]
-  const farah = userIds["farah@borrowbetter.demo"]
-  const kumar = userIds["kumar@borrowbetter.demo"]
-  const siti = userIds["siti@borrowbetter.demo"]
+  const aisyah = userIds["aisyah@borrowlah.demo"]
+  const raj = userIds["raj@borrowlah.demo"]
+  const office = userIds["office@borrowlah.demo"]
+  const farah = userIds["farah@borrowlah.demo"]
+  const kumar = userIds["kumar@borrowlah.demo"]
+  const siti = userIds["siti@borrowlah.demo"]
 
   const completedBooking = await findOne(admin, "bookings", {
     township_id: townshipId,

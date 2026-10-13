@@ -1,4 +1,4 @@
-const CACHE_NAME = "borrowbetter-handover-v1"
+const CACHE_NAME = "borrowlah-handover-v1"
 const OFFLINE_URL = "/offline/handover"
 
 self.addEventListener("install", (event) => {
@@ -48,14 +48,15 @@ self.addEventListener("fetch", (event) => {
 
   if (event.request.mode !== "navigate") return
   const isHandover = url.pathname.startsWith("/borrow/bookings/")
+  const isGuestPass = url.pathname.startsWith("/pass/")
   event.respondWith(
     caches.open(CACHE_NAME).then(async (cache) => {
       try {
         const response = await fetch(event.request)
-        if (isHandover && response.ok) await cache.put(event.request, response.clone())
+        if ((isHandover || isGuestPass) && response.ok) await cache.put(event.request, response.clone())
         return response
       } catch {
-        if (isHandover) {
+        if (isHandover || isGuestPass) {
           const cached = await cache.match(event.request)
           if (cached) return cached
         }

@@ -1,4 +1,4 @@
-# BorrowBetter demo script
+# BorrowLah demo script
 
 Three-minute walkthrough of the verified core loop. Use a phone-sized window and a laptop-sized window. The seeded demo is fictional and labelled in the UI.
 

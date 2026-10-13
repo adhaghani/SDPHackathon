@@ -1,6 +1,6 @@
 import Link from "next/link"
 
-import { TownshipLine } from "@/components/shared/township-line"
+import { PillarStrip } from "@/components/block/pillar-strip"
 import { authContent } from "@/content/auth"
 import { marketingContent } from "@/content/marketing"
 
@@ -15,27 +15,22 @@ export default function AuthLayout({
       >
         Skip to content
       </a>
-      <aside className="bb-band bb-safe-top flex flex-col rounded-b-band px-5 pt-6 pb-8 sm:px-8 lg:sticky lg:top-0 lg:h-svh lg:rounded-none lg:rounded-r-band lg:px-12 lg:py-10">
-        <Link href="/" className="w-fit font-display text-xl font-extrabold text-surface">
+      <aside className="bb-safe-top flex flex-col rounded-b-[32px] bg-lime px-5 pt-6 pb-8 text-ink sm:px-8 lg:sticky lg:top-0 lg:h-svh lg:rounded-none lg:rounded-r-[32px] lg:px-12 lg:py-10">
+        <Link href="/" className="w-fit font-display text-xl font-extrabold text-ink">
           {authContent.brand}
         </Link>
         <div className="mt-6 lg:mt-auto">
-          <p className="font-display text-[28px] leading-tight font-extrabold text-balance text-surface sm:text-4xl lg:text-5xl">
+          <p className="font-display text-[28px] leading-tight font-extrabold text-balance text-ink sm:text-4xl lg:text-5xl">
             {authContent.tagline}
           </p>
-          <p className="mt-3 max-w-[48ch] text-band-eyebrow max-lg:hidden">
+          <p className="mt-3 max-w-[48ch] text-ink-soft max-lg:hidden">
             Borrow and lend, join neighbourhood events and help nearby residents. Recognition comes only from verified activity.
           </p>
         </div>
-        <TownshipLine
-          tone="ink"
-          current="Tolong"
-          details={Object.fromEntries(marketingContent.stops.map((stop) => [stop.line, stop.label]))}
-          className="mt-8 max-lg:hidden lg:mt-12 lg:mb-auto"
-        />
+        <PillarStrip className="mt-8 max-lg:hidden lg:mt-12 lg:mb-auto" />
       </aside>
       <main id="main-content" className="flex items-start justify-center px-4 py-8 sm:px-6 lg:items-center lg:py-12">
-        <section className="bb-card w-full max-w-md p-5 sm:p-7">{children}</section>
+        <section className="w-full max-w-md rounded-[22px] bg-white p-5 shadow-none sm:p-7">{children}</section>
       </main>
     </div>
   )

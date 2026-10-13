@@ -1,8 +1,8 @@
-# BorrowBetter Feature Pack v2 — final report
+# BorrowLah Feature Pack v2 — final report
 
 ## Delivered
 
-All 16 requested features are implemented with demo data:
+All 16 requested features are implemented with sample data:
 
 1. Borrower trust score, tiers, high-value gates, deposit waivers, condition ratings and contests.
 2. Estimated money/value shared across bookings, item history and Impact.

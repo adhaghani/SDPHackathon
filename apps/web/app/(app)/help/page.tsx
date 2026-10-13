@@ -12,7 +12,7 @@ export default async function HelpPage({
   const params = await searchParams
   const supabase = await createClient()
   const articlesResult = await supabase.rpc("search_help_articles", {
-    p_query: "help BorrowBetter",
+    p_query: "help BorrowLah",
     p_limit: 8,
   })
   if (articlesResult.error) throw new Error(articlesResult.error.message)

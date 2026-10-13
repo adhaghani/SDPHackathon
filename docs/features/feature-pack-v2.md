@@ -1,4 +1,4 @@
-# BorrowBetter Feature Pack v2 — implementation plan
+# BorrowLah Feature Pack v2 — implementation plan
 
 Status: **Complete and verified.** All Phase 1–6 gates, build, responsive, accessibility and end-to-end checks pass. See `feature-pack-v2-final-report.md`.
 

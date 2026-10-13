@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Illustration of a board game bundle">
   <rect width="800" height="500" fill="#CFF0E0"/>
   <path d="M92 386h616" stroke="#E7E2F7" stroke-width="8" stroke-linecap="round"/>
-  <rect x="246" y="196" width="300" height="150" rx="16" fill="#FFFFFF" stroke="#1B1340" stroke-width="8"/>
-  <path d="M292 236h208M292 286h208M342 216v110m56-110v110m56-110v110" stroke="#C9B8FF" stroke-width="8"/>
-  <circle cx="342" cy="236" r="15" fill="#FF6B4A"/>
-  <circle cx="454" cy="286" r="15" fill="#FFD23F"/>
-  <path d="M276 346h240" stroke="#1B1340" stroke-width="8" stroke-linecap="round"/>
+  <rect x="246" y="196" width="300" height="150" rx="16" fill="#FFFFFF" stroke="#111111" stroke-width="8"/>
+  <path d="M292 236h208M292 286h208M342 216v110m56-110v110m56-110v110" stroke="#8FD3FF" stroke-width="8"/>
+  <circle cx="342" cy="236" r="15" fill="#FF5A36"/>
+  <circle cx="454" cy="286" r="15" fill="#F2B33D"/>
+  <path d="M276 346h240" stroke="#111111" stroke-width="8" stroke-linecap="round"/>
 </svg>

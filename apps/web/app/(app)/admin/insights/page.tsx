@@ -5,6 +5,7 @@ import { requireActiveMember } from "@/lib/data"
 import { createClient } from "@/lib/supabase/server"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
+import { ScrollArea } from "@workspace/ui/components/scroll-area"
 
 type InsightPayload = {
   attendance_grid?: Array<{ weekday: string; slot: string; count: number }>
@@ -54,8 +55,8 @@ export default async function AdminInsightsPage({
 
       <section className="mt-7 bb-card p-5">
         <h2 className="font-display text-lg font-bold">Attendance by weekday and time</h2>
-        <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[480px] border-collapse text-sm">
+        <ScrollArea orientation="horizontal" className="mt-4 h-[22rem]">
+          <table className="w-max min-w-[480px] border-collapse text-sm">
             <thead><tr><th className="border-b border-border py-2 text-left font-medium">Weekday</th>{["Morning", "Afternoon", "Evening"].map((slot) => <th key={slot} className="border-b border-border py-2 text-left font-medium">{slot}</th>)}</tr></thead>
             <tbody>
               {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((weekday) => (
@@ -63,7 +64,7 @@ export default async function AdminInsightsPage({
               ))}
             </tbody>
           </table>
-        </div>
+        </ScrollArea>
         <p className="mt-3 text-xs text-muted-foreground">Counts are verified check-ins. Use the numbers as planning signals, not causal proof.</p>
       </section>
 
@@ -87,14 +88,14 @@ export default async function AdminInsightsPage({
 
       <section className="mt-6 bb-card p-5">
         <h2 className="font-display text-lg font-bold">Facility utilisation</h2>
-        <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[520px] border-collapse text-sm">
+        <ScrollArea orientation="horizontal" className="mt-4 h-[18rem]">
+          <table className="w-max min-w-[520px] border-collapse text-sm">
             <thead><tr><th className="border-b border-border py-2 text-left font-medium">Facility</th><th className="border-b border-border py-2 text-left font-medium">Event hours</th><th className="border-b border-border py-2 text-left font-medium">Available hours</th><th className="border-b border-border py-2 text-left font-medium">Signal</th></tr></thead>
             <tbody>
               {(insights.facility_utilisation ?? []).map((row) => <tr key={row.facility}><th className="border-b border-border py-3 text-left font-medium">{row.facility}</th><td className="border-b border-border py-3 tabular-nums">{row.event_hours}</td><td className="border-b border-border py-3 tabular-nums">{row.available_hours}</td><td className="border-b border-border py-3">{row.underused ? <Badge variant="outline" className="text-ink-muted">Underused</Badge> : <Badge variant="secondary">In use</Badge>}</td></tr>)}
             </tbody>
           </table>
-        </div>
+        </ScrollArea>
       </section>
 
       <section className="mt-6 bb-card bg-muted/40 p-5">

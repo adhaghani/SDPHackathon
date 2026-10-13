@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Illustration of a projector">
   <rect width="800" height="500" fill="#FFF0B8"/>
   <path d="M92 386h616" stroke="#E7E2F7" stroke-width="8" stroke-linecap="round"/>
-  <rect x="222" y="190" width="340" height="148" rx="18" fill="#FFFFFF" stroke="#1B1340" stroke-width="8"/>
-  <circle cx="470" cy="264" r="54" fill="#C9B8FF" stroke="#1B1340" stroke-width="8"/>
-  <circle cx="470" cy="264" r="24" fill="#FF6B4A"/>
-  <path d="M274 236h76m-76 40h48" stroke="#1B1340" stroke-width="8" stroke-linecap="round"/>
-  <path d="M290 338v34m202-34v34" stroke="#1B1340" stroke-width="8" stroke-linecap="round"/>
+  <rect x="222" y="190" width="340" height="148" rx="18" fill="#FFFFFF" stroke="#111111" stroke-width="8"/>
+  <circle cx="470" cy="264" r="54" fill="#8FD3FF" stroke="#111111" stroke-width="8"/>
+  <circle cx="470" cy="264" r="24" fill="#FF5A36"/>
+  <path d="M274 236h76m-76 40h48" stroke="#111111" stroke-width="8" stroke-linecap="round"/>
+  <path d="M290 338v34m202-34v34" stroke="#111111" stroke-width="8" stroke-linecap="round"/>
 </svg>

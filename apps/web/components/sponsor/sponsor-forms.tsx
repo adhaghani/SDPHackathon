@@ -8,6 +8,7 @@ import { getBrowserClient } from "@/lib/supabase/browser"
 import { Alert, AlertDescription } from "@workspace/ui/components/alert"
 import { Button } from "@workspace/ui/components/button"
 import { Field, FieldError, FieldGroup, FieldLabel } from "@workspace/ui/components/field"
+import { DateField } from "@/components/forms/date-field"
 import { Input } from "@workspace/ui/components/input"
 import { Spinner } from "@workspace/ui/components/spinner"
 import { Textarea } from "@workspace/ui/components/textarea"
@@ -89,7 +90,7 @@ export function SponsorChallengeForm() {
         <div className="grid gap-4 sm:grid-cols-3">
           <Field><FieldLabel htmlFor="sponsor-challenge-target">Target</FieldLabel><Input id="sponsor-challenge-target" name="target" type="number" min="1" required /></Field>
           <Field><FieldLabel htmlFor="sponsor-challenge-reward">Reward BP</FieldLabel><Input id="sponsor-challenge-reward" name="rewardPoints" type="number" min="0" defaultValue="100" required /></Field>
-          <Field><FieldLabel htmlFor="sponsor-challenge-ends">Ends</FieldLabel><Input id="sponsor-challenge-ends" name="endsAt" type="date" required /></Field>
+          <DateField id="sponsor-challenge-ends" name="endsAt" label="Ends" required />
         </div>
       </FieldGroup>
       {state.message ? <Alert variant={state.status === "error" ? "destructive" : "default"}><AlertDescription>{state.message}</AlertDescription></Alert> : null}

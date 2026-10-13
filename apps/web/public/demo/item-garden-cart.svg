@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Illustration of a garden cart">
   <rect width="800" height="500" fill="#FFD6CB"/>
   <path d="M92 386h616" stroke="#F2C6BC" stroke-width="8" stroke-linecap="round"/>
-  <path d="M248 212h270l-30 118H278Z" fill="#FFFFFF" stroke="#1B1340" stroke-width="8" stroke-linejoin="round"/>
-  <path d="M518 232h66" stroke="#1B1340" stroke-width="10" stroke-linecap="round"/>
-  <circle cx="324" cy="352" r="30" fill="#C9B8FF" stroke="#1B1340" stroke-width="8"/>
-  <circle cx="468" cy="352" r="30" fill="#C9B8FF" stroke="#1B1340" stroke-width="8"/>
-  <path d="M304 250h154" stroke="#7BE0B0" stroke-width="14" stroke-linecap="round"/>
+  <path d="M248 212h270l-30 118H278Z" fill="#FFFFFF" stroke="#111111" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M518 232h66" stroke="#111111" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="324" cy="352" r="30" fill="#8FD3FF" stroke="#111111" stroke-width="8"/>
+  <circle cx="468" cy="352" r="30" fill="#8FD3FF" stroke="#111111" stroke-width="8"/>
+  <path d="M304 250h154" stroke="#D9F45A" stroke-width="14" stroke-linecap="round"/>
 </svg>

@@ -1,5 +1,5 @@
 export const marketingContent = {
-  brand: "BorrowBetter",
+  brand: "BorrowLah",
   tagline: "Share more. Connect more. Live better.",
   headline: "Your township, connected through real-world activity.",
   description:

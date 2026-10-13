@@ -1,7 +1,5 @@
-import Image from "next/image"
-
 import { RedeemButton } from "@/components/rewards/redeem-button"
-import { DemoLabel } from "@/components/shared/demo-label"
+import { cn } from "@workspace/ui/lib/utils"
 
 const kindLabels: Record<string, string> = {
   voucher: "Voucher",
@@ -21,10 +19,8 @@ export function RewardCard({
   partnerName,
   kind,
   costBp,
-  imagePath,
   balance,
   stock,
-  isDemo = false,
 }: {
   id: string
   title: string
@@ -37,29 +33,21 @@ export function RewardCard({
   isDemo?: boolean
 }) {
   const missing = Math.max(0, costBp - balance)
+  const affordable = missing === 0 && stock !== 0
+
   return (
-    <li className="bb-card flex h-full min-w-0 flex-col overflow-hidden">
-      <div className="relative aspect-[4/3] bg-sun-tint">
-        <Image
-          src={imagePath ?? rewardImageFor(kind)}
-          alt=""
-          fill
-          sizes="(min-width: 1024px) 25vw, 50vw"
-          className="object-cover"
-        />
-        {isDemo ? <DemoLabel className="absolute top-2 left-2 bg-surface" /> : null}
-      </div>
-      <div className="flex flex-1 flex-col p-3 sm:p-4">
-        <p className="text-eyebrow text-[11px] text-ink-muted">
-          {partnerName ?? "Township"} · {kindLabels[kind] ?? kind}
-        </p>
-        <p className="mt-1 font-display text-base leading-snug font-bold text-ink">{title}</p>
-        <p className="mt-1 text-sm text-ink-muted tabular-nums">
-          {costBp.toLocaleString("en-MY")} BP{typeof stock === "number" ? ` · ${stock} left` : ""}
-        </p>
-        <div className="mt-auto pt-3">
-          <RedeemButton rewardId={id} costBp={costBp} missingBp={missing} soldOut={stock === 0} />
-        </div>
+    <li
+      className={cn(
+        "flex h-[184px] min-w-[200px] max-w-[200px] flex-col gap-2 overflow-hidden rounded-[22px] p-3.5 text-ink",
+        affordable ? "bg-mustard" : "bg-paper"
+      )}
+    >
+      <p className="truncate text-xs font-bold tracking-[0.06em] uppercase">
+        {partnerName ?? "Township"} · {kindLabels[kind] ?? kind}
+      </p>
+      <p className="line-clamp-2 min-h-[48px] text-[22px] leading-6 font-extrabold text-balance">{title}</p>
+      <div className="mt-auto min-h-[44px] pt-1">
+        <RedeemButton rewardId={id} costBp={costBp} missingBp={missing} soldOut={stock === 0} />
       </div>
     </li>
   )

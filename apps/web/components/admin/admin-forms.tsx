@@ -6,6 +6,7 @@ import { resolveDisputeAction, reversePointsAction, saveProgrammeCost } from "@/
 import { Alert, AlertDescription } from "@workspace/ui/components/alert"
 import { Button } from "@workspace/ui/components/button"
 import { Field, FieldLabel } from "@workspace/ui/components/field"
+import { DateField } from "@/components/forms/date-field"
 import { Input } from "@workspace/ui/components/input"
 import { Spinner } from "@workspace/ui/components/spinner"
 
@@ -17,8 +18,7 @@ export function ProgrammeCostForm({ month }: { month: string }) {
   return (
     <form action={action} className="flex flex-col gap-4">
       <Field>
-        <FieldLabel htmlFor="programme-month">Month</FieldLabel>
-        <Input id="programme-month" name="month" type="date" defaultValue={month} required />
+        <DateField id="programme-month" name="month" label="Month" defaultValue={month} required />
       </Field>
       <Field>
         <FieldLabel htmlFor="programme-label">Label</FieldLabel>

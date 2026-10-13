@@ -1,11 +1,11 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { CalendarDaysIcon, ChevronLeftIcon, MapPinIcon, UserRoundIcon, UsersRoundIcon } from "lucide-react"
+import { CalendarDaysIcon, MapPinIcon, UserRoundIcon, UsersRoundIcon } from "lucide-react"
 
 import { EventRsvpActions } from "@/components/events/event-rsvp-actions"
 import { LazyEventMap } from "@/components/map/lazy-event-map"
 import { ReportForm } from "@/components/reports/report-form"
-import { DemoLabel } from "@/components/shared/demo-label"
+import { PageBand } from "@/components/shared/page-band"
 import { MediaPoster } from "@/components/shared/media-poster"
 import { requireActiveMember } from "@/lib/data"
 import { isDemoMode } from "@/lib/env"
@@ -85,15 +85,14 @@ export default async function EventDetailPage({
 
   return (
     <div className="mx-auto w-full max-w-6xl">
-      <div className="flex items-center gap-3">
-        <Button render={<Link href="/events" />} variant="outline" size="icon" aria-label="Back to events">
-          <ChevronLeftIcon aria-hidden="true" className="size-5" />
-        </Button>
-        <p className="text-title text-ink">Event</p>
-        {isDemoMode() ? <DemoLabel className="ml-auto" /> : null}
-      </div>
+      <PageBand
+        back={{ href: "/events", label: "Events" }}
+        eyebrow={`JOM · ${event.event_categories?.name ?? "Event"}`}
+        title={event.title}
+        description={`${date} · ${time} · ${where}`}
+      />
 
-      <section className="mt-5 grid gap-6 md:grid-cols-[minmax(0,17rem)_minmax(0,1fr)] lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] lg:gap-10">
+      <section className="grid gap-6 md:grid-cols-[minmax(0,17rem)_minmax(0,1fr)] lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] lg:gap-10">
         <MediaPoster
           src={event.cover_path ?? "/demo/event-placeholder.svg"}
           alt=""
@@ -108,9 +107,9 @@ export default async function EventDetailPage({
           <div>
             <div className="flex flex-wrap gap-2">
               {event.status !== "published" ? <Badge variant="outline" className="capitalize">{event.status.replace("_", " ")}</Badge> : null}
-              {event.event_categories?.counts_as_sustainability ? <Badge className="bg-mint-tint text-ink">Rimba · Sustainability</Badge> : null}
+              {event.event_categories?.counts_as_sustainability ? <Badge className="bg-lime text-ink">RIMBA · Sustainability</Badge> : null}
             </div>
-            <h1 className="text-display-lg mt-2 text-balance text-ink lg:text-[40px] lg:leading-[44px]">{event.title}</h1>
+            <h2 className="text-h2 mt-2 text-balance">Event details</h2>
           </div>
 
           <dl className="grid gap-x-6 gap-y-4 sm:grid-cols-2">
@@ -184,7 +183,7 @@ export default async function EventDetailPage({
 
       <section
         aria-label="Registration"
-        className="sticky bottom-[calc(env(safe-area-inset-bottom)+5.25rem)] z-20 -mx-4 mt-8 border-t border-hairline bg-surface px-4 py-3 sm:-mx-6 sm:px-6 md:hidden"
+        className="on-dark fixed right-4 bottom-[calc(env(safe-area-inset-bottom)+18px)] left-4 z-50 rounded-[26px] bg-ink py-2 pr-2 pl-5 text-white shadow-dock md:hidden"
       >
         {registration}
       </section>

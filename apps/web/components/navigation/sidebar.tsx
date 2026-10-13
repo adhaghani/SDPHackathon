@@ -2,11 +2,13 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useState } from "react"
-import { ActivityIcon, ArrowLeftIcon, PanelLeftCloseIcon, PanelLeftOpenIcon } from "lucide-react"
+import { ActivityIcon, ArrowLeftIcon, CalendarDays, GiftIcon, House, Leaf, Package } from "lucide-react"
 
-import { SIDEBAR_COOKIE, isActivePath } from "@/components/navigation/nav-utils"
+import { isActivePath } from "@/components/navigation/nav-utils"
+import { NotificationBell } from "@/components/navigation/notification-bell"
 import { SignOutButton } from "@/components/navigation/sign-out-button"
+import { BetterPointsChip } from "@/components/shared/better-points-chip"
+import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { adminNavigation, sidebarNavigation } from "@/content/navigation"
 import { cn } from "@workspace/ui/lib/utils"
 
@@ -16,135 +18,138 @@ type NavItem = {
   icon: React.ComponentType<{ className?: string; strokeWidth?: number; "aria-hidden"?: boolean }>
 }
 
+const primaryItems: NavItem[] = [
+  { href: "/home", label: "Block", icon: House },
+  { href: "/borrow", label: "Borrow", icon: Package },
+  { href: "/events", label: "Events", icon: CalendarDays },
+  { href: "/rewards", label: "Impact", icon: Leaf },
+]
+
+const secondaryItems: NavItem[] = sidebarNavigation
+  .filter((item) => !primaryItems.some((primary) => primary.href === item.href))
+  .map(({ href, label, icon }) => ({ href, label, icon }))
 
 export function Sidebar({
   isAdmin = false,
   displayName,
   townshipName,
   enabledFlags = [],
-  defaultCollapsed = false,
+  balance = 0,
+  unreadCount = 0,
 }: {
   isAdmin?: boolean
   displayName: string
   townshipName: string
   enabledFlags?: string[]
-  defaultCollapsed?: boolean
+  balance?: number
+  unreadCount?: number
 }) {
   const pathname = usePathname()
-  const [collapsed, setCollapsed] = useState(defaultCollapsed)
   const adminMode = isAdmin && (pathname === "/admin" || pathname.startsWith("/admin/"))
-  const items: NavItem[] = adminMode
-    ? adminNavigation.filter((item) => !("flag" in item) || enabledFlags.includes(item.flag))
-    : [...sidebarNavigation]
-
-  function toggle() {
-    const next = !collapsed
-    setCollapsed(next)
-    document.cookie = `${SIDEBAR_COOKIE}=${next ? "collapsed" : "expanded"}; path=/; max-age=31536000; samesite=lax`
-  }
-
-  const ToggleIcon = collapsed ? PanelLeftOpenIcon : PanelLeftCloseIcon
+  const adminItems: NavItem[] = adminMode
+    ? adminNavigation
+        .filter((item) => !("flag" in item) || enabledFlags.includes(item.flag))
+        .map(({ href, label, icon }) => ({ href, label, icon }))
+    : []
 
   return (
-    <nav
-      id="app-sidebar"
-      aria-label="Primary"
-      data-collapsed={collapsed ? "true" : undefined}
-      className={cn(
-        "sticky top-0 hidden h-svh shrink-0 flex-col border-r border-hairline bg-surface transition-[width] duration-200 ease-out md:flex",
-        collapsed ? "w-[4.75rem]" : "w-60 lg:w-64"
-      )}
-    >
-      <div className={cn("bb-safe-top flex min-h-24 items-center gap-2 pt-6 pb-4", collapsed ? "flex-col justify-center px-3" : "px-5")}>
-        <Link
-          href="/home"
-          aria-label="BorrowBetter home"
-          className={cn("min-w-0 flex-1 rounded-md", collapsed && "flex-none")}
-        >
-          {collapsed ? (
-            <span aria-hidden="true" className="grid size-10 place-items-center rounded-lg bg-ink font-display text-lg font-extrabold text-surface">
-              B
-            </span>
-          ) : (
-            <>
-              <span className="block truncate font-display text-xl font-extrabold text-ink">BorrowBetter</span>
-              {adminMode ? <span className="mt-0.5 block text-eyebrow text-ink-muted">Township office</span> : null}
-            </>
-          )}
-        </Link>
-        <button
-          type="button"
-          onClick={toggle}
-          aria-expanded={!collapsed}
-          aria-controls="app-sidebar"
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          className="grid size-10 shrink-0 place-items-center rounded-lg text-ink-muted transition-colors duration-150 ease-out hover:bg-ground hover:text-ink"
-        >
-          <ToggleIcon aria-hidden="true" className="size-5" strokeWidth={1.8} />
-        </button>
+    <aside id="app-sidebar" className="on-dark fixed top-5 bottom-5 left-5 z-40 hidden w-[252px] flex-col overflow-hidden rounded-[28px] bg-ink text-white shadow-dock md:flex">
+      <Link href="/home" className="flex items-center gap-3 px-5 pt-6 pb-5">
+        <span aria-hidden="true" className="grid size-11 place-items-center rounded-full bg-lime font-display text-lg font-extrabold text-ink">B</span>
+        <span>
+          <span className="block font-display text-lg leading-none font-extrabold">BorrowLah</span>
+          <span className="mt-1 block text-xs text-on-dark-muted">{adminMode ? "Township office" : townshipName}</span>
+        </span>
+      </Link>
+
+      <div className="flex items-center gap-2 px-4 pb-4">
+        <BetterPointsChip balance={balance} className="min-w-0 flex-1" />
+        <NotificationBell count={unreadCount} />
       </div>
 
-      <ul className={cn("flex flex-1 flex-col gap-1 overflow-x-hidden overflow-y-auto py-2", collapsed ? "px-3" : "px-3")}>
-        {items.map((item) => (
-          <li key={item.href}>
-            <SidebarLink item={item} active={isActivePath(pathname, item.href)} collapsed={collapsed} />
-          </li>
-        ))}
-        {isAdmin ? (
-          <li className="mt-3 border-t border-hairline pt-3">
-            <SidebarLink
-              item={adminMode ? { href: "/home", label: "Resident view", icon: ArrowLeftIcon } : { href: "/admin", label: "Township Pulse", icon: ActivityIcon }}
-              active={false}
-              collapsed={collapsed}
-            />
-          </li>
-        ) : null}
-      </ul>
+      <nav aria-label="Primary" className="px-3">
+        <ul className="flex flex-col gap-1">
+          {primaryItems.map((item) => (
+            <li key={item.href}>
+              <SidebarLink item={item} active={isActivePath(pathname, item.href)} />
+            </li>
+          ))}
+        </ul>
+      </nav>
 
-      <div className={cn("flex border-t border-hairline p-3", collapsed ? "flex-col items-center gap-1" : "items-center gap-2")}>
+      <div className="mx-5 my-4 h-px bg-white/15" />
+
+      <ScrollArea className="min-h-0 flex-1 px-3 pb-3" contentClassName="min-h-full">
+      <nav className="w-full" aria-label={adminMode ? "Township tools" : "More"}>
+        <p className="px-3 pb-2 text-[11px] font-bold tracking-[0.08em] text-on-dark-muted uppercase">
+          {adminMode ? "Township tools" : "More"}
+        </p>
+        <ul className="flex flex-col gap-1">
+          {(adminMode ? adminItems : secondaryItems).map((item) => (
+            <li key={item.href}>
+              <SidebarLink item={item} active={isActivePath(pathname, item.href)} compact />
+            </li>
+          ))}
+          {isAdmin ? (
+            <li className="mt-3 border-t border-white/15 pt-3">
+              <SidebarLink
+                item={
+                  adminMode
+                    ? { href: "/home", label: "Resident view", icon: ArrowLeftIcon }
+                    : { href: "/admin", label: "Township Pulse", icon: ActivityIcon }
+                }
+                active={false}
+                compact
+              />
+            </li>
+          ) : null}
+        </ul>
+      </nav>
+      </ScrollArea>
+
+      <div className="border-t border-white/15 p-3">
         <Link
           href="/profile"
           aria-current={isActivePath(pathname, "/profile") ? "page" : undefined}
-          aria-label={collapsed ? `${displayName}, profile and settings` : undefined}
-          title={collapsed ? displayName : undefined}
-          className={cn(
-            "flex min-h-12 min-w-0 items-center gap-3 rounded-lg transition-colors duration-150 ease-out hover:bg-ground aria-[current=page]:bg-lilac-tint",
-            collapsed ? "justify-center p-1.5" : "flex-1 px-2"
-          )}
+          className="flex min-h-14 items-center gap-3 rounded-[18px] px-2 text-white transition-colors duration-150 ease-out hover:bg-ink-raised aria-[current=page]:bg-lime aria-[current=page]:text-ink"
         >
-          <span aria-hidden="true" className="grid size-9 shrink-0 place-items-center rounded-full bg-lilac font-display text-sm font-extrabold text-ink">
+          <span aria-hidden="true" className="grid size-10 shrink-0 place-items-center rounded-full bg-sky font-display text-sm font-extrabold text-ink">
             {displayName.slice(0, 1).toUpperCase()}
           </span>
-          {collapsed ? null : (
-            <span className="min-w-0">
-              <span className="block truncate text-sm font-bold text-ink">{displayName}</span>
-              <span className="block truncate text-xs text-ink-muted">{adminMode ? townshipName : "Profile & settings"}</span>
-            </span>
-          )}
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-sm font-bold">{displayName}</span>
+            <span className="block truncate text-xs text-on-dark-muted">Profile & settings</span>
+          </span>
+          <GiftIcon aria-hidden="true" className="size-4 text-on-dark-muted" />
         </Link>
-        <SignOutButton compact className="text-ink-muted hover:text-ink" />
+        <SignOutButton compact className="mt-1 w-full justify-start px-3 text-on-dark-muted hover:bg-ink-raised hover:text-white" />
       </div>
-    </nav>
+    </aside>
   )
 }
 
-function SidebarLink({ item, active, collapsed }: { item: NavItem; active: boolean; collapsed: boolean }) {
+function SidebarLink({
+  item,
+  active,
+  compact = false,
+}: {
+  item: NavItem
+  active: boolean
+  compact?: boolean
+}) {
   const Icon = item.icon
   return (
     <Link
       href={item.href}
       aria-current={active ? "page" : undefined}
-      aria-label={collapsed ? item.label : undefined}
-      title={collapsed ? item.label : undefined}
       className={cn(
-        "flex min-h-11 items-center gap-3 rounded-lg text-sm font-medium text-ink transition-colors duration-150 ease-out hover:bg-ground",
-        collapsed ? "justify-center" : "px-3",
-        active && "bg-lilac-tint font-bold hover:bg-lilac-tint"
+        "flex min-h-12 items-center gap-3 rounded-[17px] px-3 text-sm font-semibold text-white transition-colors duration-150 ease-out hover:bg-ink-raised",
+        compact ? "min-h-11 text-[13px]" : "text-[15px]",
+        active && "bg-lime text-ink hover:bg-lime"
       )}
     >
-      <Icon aria-hidden={true} className="size-5 shrink-0" strokeWidth={active ? 2.3 : 1.7} />
-      {collapsed ? null : <span className="truncate">{item.label}</span>}
+      <Icon aria-hidden={true} className="size-5 shrink-0" strokeWidth={active ? 2.4 : 1.8} />
+      <span className="truncate">{item.label}</span>
     </Link>
   )
 }

@@ -41,7 +41,7 @@ export async function GET() {
   return new NextResponse(csv, {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": `attachment; filename="borrowbetter-impact-${new Date().toISOString().slice(0, 10)}.csv"`,
+      "Content-Disposition": `attachment; filename="borrowlah-impact-${new Date().toISOString().slice(0, 10)}.csv"`,
       "Cache-Control": "private, no-store",
     },
   })

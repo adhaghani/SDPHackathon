@@ -13,6 +13,7 @@ import {
   ShieldCheckIcon,
   StarIcon,
   UsersRoundIcon,
+  UserRoundIcon,
   WalletIcon,
   WarehouseIcon,
   GiftIcon,
@@ -31,6 +32,7 @@ export const sidebarNavigation = [
   { href: "/borrow", label: "Borrow", icon: Package },
   { href: "/events", label: "Events", icon: CalendarDays },
   { href: "/community", label: "Community", icon: HandHelpingIcon },
+  { href: "/guests", label: "Guest passes", icon: UserRoundIcon },
   { href: "/challenges", label: "Challenges", icon: StarIcon },
   { href: "/rewards", label: "Impact & rewards", icon: Leaf },
   { href: "/help", label: "Help", icon: MessageCircleIcon },
@@ -49,6 +51,7 @@ export const adminNavigation = [
   { href: "/admin/rewards", label: "Rewards economy", icon: GiftIcon },
   { href: "/admin/badges", label: "Awards", icon: AwardIcon },
   { href: "/admin/methodology", label: "Methodology", icon: BookOpenIcon },
+  { href: "/admin/guests", label: "Guest access", icon: UserRoundIcon },
   { href: "/help", label: "Help", icon: MessageCircleIcon },
 ] as const
 

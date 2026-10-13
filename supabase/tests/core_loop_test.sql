@@ -29,12 +29,12 @@ insert into public.events (
 select t.id, r.id, 'Isolation test event', 'test', c.id,
        now() + interval '2 days', now() + interval '3 days', 'Shared space', 'published'
 from public.townships t
-join auth.users r on r.email = 'raj@borrowbetter.demo'
+join auth.users r on r.email = 'raj@borrowlah.demo'
 join public.event_categories c on c.slug = 'social'
 where t.slug = 'isolation-test'
 on conflict do nothing;
 
-select id as aisyah_id from auth.users where email = 'aisyah@borrowbetter.demo' \gset
+select id as aisyah_id from auth.users where email = 'aisyah@borrowlah.demo' \gset
 set local role authenticated;
 select set_config(
   'request.jwt.claims',
@@ -60,13 +60,13 @@ insert into public.events (
 select t.id, r.id, 'Capacity test event', 'test', c.id,
        now() + interval '4 days', now() + interval '5 days', 'Shared space', 1, 'published'
 from public.townships t
-join auth.users r on r.email = 'raj@borrowbetter.demo'
+join auth.users r on r.email = 'raj@borrowlah.demo'
 join public.event_categories c on c.slug = 'social'
 where t.slug = 'harmoni-heights-demo'
 returning id as capacity_event_id \gset
 
-select id as capacity_aisyah_id from auth.users where email = 'aisyah@borrowbetter.demo' \gset
-select id as capacity_raj_id from auth.users where email = 'raj@borrowbetter.demo' \gset
+select id as capacity_aisyah_id from auth.users where email = 'aisyah@borrowlah.demo' \gset
+select id as capacity_raj_id from auth.users where email = 'raj@borrowlah.demo' \gset
 
 set local role authenticated;
 select set_config(
@@ -97,8 +97,8 @@ insert into public.bookings (
 )
 select i.id, i.township_id, a.id, r.id, current_date + 90, current_date + 93, 'approved'
 from public.items i
-join auth.users a on a.email = 'aisyah@borrowbetter.demo'
-join auth.users r on r.email = 'raj@borrowbetter.demo'
+join auth.users a on a.email = 'aisyah@borrowlah.demo'
+join auth.users r on r.email = 'raj@borrowlah.demo'
 where i.title = 'Pressure washer'
 limit 1;
 
@@ -109,8 +109,8 @@ select throws_ok(
     )
       select i.id, i.township_id, a.id, r.id, current_date + 91, current_date + 94, 'approved'
     from public.items i
-    join auth.users a on a.email = 'aisyah@borrowbetter.demo'
-    join auth.users r on r.email = 'raj@borrowbetter.demo'
+    join auth.users a on a.email = 'aisyah@borrowlah.demo'
+    join auth.users r on r.email = 'raj@borrowlah.demo'
     where i.title = 'Pressure washer'
     limit 1
   $$,
@@ -122,7 +122,7 @@ select throws_ok(
 select lives_ok(
   $$
     select public.award_points(
-      (select id from auth.users where email = 'aisyah@borrowbetter.demo'),
+      (select id from auth.users where email = 'aisyah@borrowlah.demo'),
       (select id from public.townships where slug = 'harmoni-heights-demo'),
       'item_lent_completed',
       'test_idempotency',
@@ -139,7 +139,7 @@ select is(
   (select count(*)
    from public.points_ledger
    where source_type = 'test_idempotency'
-     and user_id = (select id from auth.users where email = 'aisyah@borrowbetter.demo')),
+     and user_id = (select id from auth.users where email = 'aisyah@borrowlah.demo')),
   1::bigint,
   'ledger award is idempotent per source'
 );
@@ -153,12 +153,12 @@ select is(
 select is(
   (select count(*)
    from public.points_ledger l
-   where l.user_id = (select id from auth.users where email = 'aisyah@borrowbetter.demo')
+   where l.user_id = (select id from auth.users where email = 'aisyah@borrowlah.demo')
      and l.action_type = 'event_attendance'
      and l.source_type = 'event_rsvp'),
   (select count(*)
    from public.points_ledger l
-   where l.user_id = (select id from auth.users where email = 'aisyah@borrowbetter.demo')
+   where l.user_id = (select id from auth.users where email = 'aisyah@borrowlah.demo')
      and l.action_type = 'event_attendance'
      and l.source_type = 'event_rsvp'),
   'attendance ledger rows are reproducible'
@@ -168,7 +168,7 @@ select isnt_empty(
   $$
     select l.id
     from public.points_ledger l
-    where l.user_id = (select id from auth.users where email = 'aisyah@borrowbetter.demo')
+    where l.user_id = (select id from auth.users where email = 'aisyah@borrowlah.demo')
       and l.action_type in ('event_attendance', 'item_lent_completed')
   $$,
   'Aisyah has verified core-loop activity'

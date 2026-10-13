@@ -4,13 +4,11 @@ import { PlusIcon, SearchIcon } from "lucide-react"
 import { PageBand } from "@/components/shared/page-band"
 import { MediaPoster } from "@/components/shared/media-poster"
 import { Pagination } from "@/components/shared/pagination"
+import { EventFilterDialog } from "@/components/shared/filter-dialog"
 import { LazyEventMap } from "@/components/map/lazy-event-map"
 import { requireActiveMember } from "@/lib/data"
 import { createClient } from "@/lib/supabase/server"
 import { formatEventDate, formatEventTime } from "@/lib/format"
-import { isDemoMode } from "@/lib/env"
-import { DemoLabel } from "@/components/shared/demo-label"
-import { cn } from "@workspace/ui/lib/utils"
 import { Button } from "@workspace/ui/components/button"
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@workspace/ui/components/empty"
 
@@ -55,18 +53,6 @@ export default async function EventsPage({
   }))
 
   const categories = categoriesResult.data ?? []
-  const chipHref = (category?: string) => {
-    const next = new URLSearchParams()
-    if (params.q) next.set("q", params.q)
-    if (category) next.set("category", category)
-    const query = next.toString()
-    return query ? `/events?${query}` : "/events"
-  }
-  const chipClass = (active: boolean) =>
-    cn(
-      "inline-flex min-h-11 shrink-0 items-center rounded-full px-4 text-sm font-bold transition-colors duration-150 ease-out",
-      active ? "bg-ink text-surface" : "bg-lilac-tint text-ink hover:bg-lilac"
-    )
   const events = eventsResult.data ?? []
 
   return (
@@ -87,42 +73,30 @@ export default async function EventsPage({
         }
       />
 
-      <form action="/events" method="get" role="search">
-        {params.category ? <input type="hidden" name="category" value={params.category} /> : null}
-        <label className="sr-only" htmlFor="q">Search events</label>
-        <div className="flex h-13 w-full items-center gap-3 rounded-lg border border-ink-muted bg-surface px-4 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ink">
-          <SearchIcon aria-hidden="true" className="size-5 shrink-0 text-ink-muted" strokeWidth={1.8} />
-          <input
-            id="q"
-            name="q"
-            type="search"
-            defaultValue={params.q ?? ""}
-            placeholder="Search clean-ups, repair cafés, markets…"
-            className="h-full min-w-0 flex-1 bg-transparent text-base text-ink outline-none placeholder:text-ink-muted focus-visible:outline-none"
-          />
-          <Button type="submit" variant="ghost" size="sm" className="shrink-0">Search</Button>
-        </div>
-      </form>
-
-      <nav aria-label="Event categories" className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-        <Link href={chipHref()} aria-current={!params.category ? "true" : undefined} className={chipClass(!params.category)}>All</Link>
-        {categories.map((category) => (
-          <Link
-            key={category.id}
-            href={chipHref(category.slug)}
-            aria-current={params.category === category.slug ? "true" : undefined}
-            className={chipClass(params.category === category.slug)}
-          >
-            {category.name}
-          </Link>
-        ))}
-      </nav>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <form action="/events" method="get" role="search" className="min-w-0 flex-1">
+          {params.category ? <input type="hidden" name="category" value={params.category} /> : null}
+          <label className="sr-only" htmlFor="q">Search events</label>
+          <div className="flex h-13 w-full items-center gap-3 rounded-lg border border-ink-muted bg-surface px-4 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ink">
+            <SearchIcon aria-hidden="true" className="size-5 shrink-0 text-ink-muted" strokeWidth={1.8} />
+            <input
+              id="q"
+              name="q"
+              type="search"
+              defaultValue={params.q ?? ""}
+              placeholder="Search clean-ups, repair cafés, markets…"
+              className="h-full min-w-0 flex-1 bg-transparent text-base text-ink outline-none placeholder:text-ink-muted focus-visible:outline-none"
+            />
+            <Button type="submit" variant="ghost" size="sm" className="shrink-0">Search</Button>
+          </div>
+        </form>
+        <EventFilterDialog categories={categories} activeCategory={params.category} query={params.q} />
+      </div>
 
       <div className="flex items-center justify-between gap-3 border-t border-hairline pt-4">
         <p className="text-ink-muted tabular-nums">
           {(eventsResult.count ?? 0).toLocaleString("en-MY")} upcoming {eventsResult.count === 1 ? "event" : "events"}
         </p>
-        {isDemoMode() ? <DemoLabel /> : null}
       </div>
 
       {events.length ? (

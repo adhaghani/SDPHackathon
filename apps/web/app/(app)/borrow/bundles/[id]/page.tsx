@@ -4,7 +4,6 @@ import { notFound } from "next/navigation"
 import { BundleBookingForm } from "@/components/borrow/bundle-booking-form"
 import { BundleEditForm } from "@/components/borrow/bundle-edit-form"
 import { DeleteBundleButton } from "@/components/borrow/delete-bundle-button"
-import { DemoLabel } from "@/components/shared/demo-label"
 import { MediaPoster } from "@/components/shared/media-poster"
 import { PageBand } from "@/components/shared/page-band"
 import { requireActiveMember } from "@/lib/data"
@@ -41,7 +40,6 @@ export default async function BundlePage({ params }: { params: Promise<{ id: str
         eyebrow="Pinjam · Bundle"
         title={bundle.title}
         description={bundle.description}
-        actions={bundle.is_demo ? <DemoLabel /> : undefined}
       />
       <div className="grid gap-7 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
         <section aria-labelledby="bundle-items-heading">

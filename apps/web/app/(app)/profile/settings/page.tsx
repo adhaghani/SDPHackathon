@@ -20,7 +20,7 @@ export default async function ProfileSettingsPage() {
         back={{ href: "/profile", label: "Profile" }}
         eyebrow="Settings"
         title="Profile and comfort"
-        description="Choose how BorrowBetter shows your name and supports your comfort."
+        description="Choose how BorrowLah shows your name and supports your comfort."
       />
       <div className="bb-card p-5 sm:p-7">
         <ProfileForm profile={{ ...profile.data, interests: profile.data.interests ?? [] }} />

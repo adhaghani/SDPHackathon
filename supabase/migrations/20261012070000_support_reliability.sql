@@ -398,7 +398,7 @@ as $$
 declare
   v_user_id uuid := auth.uid();
   v_township_id uuid;
-  v_subject text := coalesce(nullif(trim(p_subject), ''), 'BorrowBetter help request');
+  v_subject text := coalesce(nullif(trim(p_subject), ''), 'BorrowLah help request');
   v_ticket_id uuid;
 begin
   if v_user_id is null then
@@ -446,7 +446,7 @@ values
   ('bp-reasons', 'Why does my BP activity show a reason?', 'Every ledger entry explains the verified action, for example “Return confirmed by both sides”. Points are never given just for opening the app.', 'points'),
   ('trust-tiers', 'What are trust tiers?', 'Trust tiers are Building, Trusted and Highly trusted. The score is based on verified returns, on-time returns, active sharing months and dispute outcomes.', 'trust'),
   ('high-value-items', 'Why do some items need a Trusted neighbour?', 'Items at or above the high-value threshold require a Trusted or higher borrower. Owners may also set a minimum tier on their listing.', 'trust'),
-  ('deposits', 'How do deposits work?', 'Deposits are an in-person agreement recorded on the booking. BorrowBetter never processes money. Eligible Highly trusted borrowers may be waived when the owner allows it.', 'deposits'),
+  ('deposits', 'How do deposits work?', 'Deposits are an in-person agreement recorded on the booking. BorrowLah never processes money. Eligible Highly trusted borrowers may be waived when the owner allows it.', 'deposits'),
   ('deposit-waiver', 'Can a deposit be waived?', 'Only when the owner enables waiver and the borrower is Highly trusted. The booking records whether the deposit was waived.', 'deposits'),
   ('handover-basics', 'How does handover work?', 'The owner approves the request, both people confirm handover, then both confirm the return. Points are awarded after the return is confirmed.', 'handover'),
   ('offline-qr', 'Can I use the handover QR offline?', 'The owner can prepare a signed QR while online. A borrower scan can wait in the device queue and sync when the connection returns. Expired or replayed tokens are rejected.', 'handover'),

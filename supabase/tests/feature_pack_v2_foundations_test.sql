@@ -52,7 +52,7 @@ where slug = 'feature-pack-v2'
 on conflict (township_id, name) do nothing;
 
 select id as fp_township_id from public.townships where slug = 'feature-pack-v2' \gset
-select id as fp_aisyah_id from auth.users where email = 'aisyah@borrowbetter.demo' \gset
+select id as fp_aisyah_id from auth.users where email = 'aisyah@borrowlah.demo' \gset
 
 insert into public.township_members (township_id, user_id, role, status)
 values (:'fp_township_id', :'fp_aisyah_id', 'resident', 'active')
@@ -103,7 +103,7 @@ select is(
   'all Feature Pack point rules are seeded idempotently'
 );
 
-select id as fp_rule_user_id from auth.users where email = 'raj@borrowbetter.demo' \gset
+select id as fp_rule_user_id from auth.users where email = 'raj@borrowlah.demo' \gset
 select gen_random_uuid() as fp_award_source \gset
 
 select is(

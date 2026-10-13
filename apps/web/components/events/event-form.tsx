@@ -17,6 +17,8 @@ import {
   FieldLabel,
   FieldSet,
 } from "@workspace/ui/components/field"
+import { DateField } from "@/components/forms/date-field"
+import { DateTimeField } from "@/components/forms/date-time-field"
 import { Input } from "@workspace/ui/components/input"
 import { NativeSelect, NativeSelectOption } from "@workspace/ui/components/native-select"
 import { Spinner } from "@workspace/ui/components/spinner"
@@ -91,16 +93,20 @@ export function EventForm({
           <FieldError>{state.fieldErrors?.categorySlug?.[0]}</FieldError>
         </Field>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field data-invalid={Boolean(state.fieldErrors?.startsAt)}>
-            <FieldLabel htmlFor="startsAt">Starts</FieldLabel>
-            <Input id="startsAt" name="startsAt" type="datetime-local" required />
-            <FieldError>{state.fieldErrors?.startsAt?.[0]}</FieldError>
-          </Field>
-          <Field data-invalid={Boolean(state.fieldErrors?.endsAt)}>
-            <FieldLabel htmlFor="endsAt">Ends</FieldLabel>
-            <Input id="endsAt" name="endsAt" type="datetime-local" required />
-            <FieldError>{state.fieldErrors?.endsAt?.[0]}</FieldError>
-          </Field>
+          <DateTimeField
+            id="startsAt"
+            name="startsAt"
+            label="Starts"
+            required
+            error={state.fieldErrors?.startsAt?.[0]}
+          />
+          <DateTimeField
+            id="endsAt"
+            name="endsAt"
+            label="Ends"
+            required
+            error={state.fieldErrors?.endsAt?.[0]}
+          />
         </div>
         <div className="grid gap-4 sm:grid-cols-3">
           <Field>
@@ -113,7 +119,7 @@ export function EventForm({
           </Field>
           <Field>
             <FieldLabel htmlFor="event-recurrence-until">Repeat until</FieldLabel>
-            <Input id="event-recurrence-until" name="recurrenceUntil" type="date" />
+            <DateField id="event-recurrence-until" name="recurrenceUntil" label="Repeat until" />
           </Field>
           <Field>
             <FieldLabel htmlFor="event-recurrence-interval">Interval days</FieldLabel>

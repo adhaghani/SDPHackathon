@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Illustration of a kids scooter">
   <rect width="800" height="500" fill="#FFF0B8"/>
   <path d="M92 386h616" stroke="#E7E2F7" stroke-width="8" stroke-linecap="round"/>
-  <circle cx="292" cy="332" r="42" fill="#FFFFFF" stroke="#1B1340" stroke-width="8"/>
-  <circle cx="536" cy="332" r="42" fill="#FFFFFF" stroke="#1B1340" stroke-width="8"/>
-  <path d="M292 332h244l-50-108H370" fill="none" stroke="#1B1340" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M486 224h80" stroke="#FF6B4A" stroke-width="12" stroke-linecap="round"/>
-  <path d="M430 224v-72" stroke="#1B1340" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="292" cy="332" r="42" fill="#FFFFFF" stroke="#111111" stroke-width="8"/>
+  <circle cx="536" cy="332" r="42" fill="#FFFFFF" stroke="#111111" stroke-width="8"/>
+  <path d="M292 332h244l-50-108H370" fill="none" stroke="#111111" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M486 224h80" stroke="#FF5A36" stroke-width="12" stroke-linecap="round"/>
+  <path d="M430 224v-72" stroke="#111111" stroke-width="10" stroke-linecap="round"/>
 </svg>

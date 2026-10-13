@@ -1,10 +1,10 @@
-# BorrowBetter design plan
+# BorrowLah design plan
 
 This plan implements section 8 of the build brief. It is reviewed against the pinned direction and the "generated-page tells" checklist before any UI is built.
 
 ## 1. Design premise
 
-BorrowBetter should feel like a well-used neighbourhood noticeboard crossed with a transit map: civic, legible, practical and distinctly Malaysian without using real brands, logos or people. The one memorable element is **the township line**. Everything else is quiet, disciplined and optimized for older readers, shared phones and quick task completion.
+BorrowLah should feel like a well-used neighbourhood noticeboard crossed with a transit map: civic, legible, practical and distinctly Malaysian without using real brands, logos or people. The one memorable element is **the township line**. Everything else is quiet, disciplined and optimized for older readers, shared phones and quick task completion.
 
 The interface is mobile-first. Residents act from lists, rows and clear next steps; managers get denser desktop tables and charts. No page is a grid of identical rounded cards.
 
@@ -117,7 +117,7 @@ Rules:
 
 ```text
 +--------------------------------------------------+
-| Harmoni Heights            Demo data       o o o |
+| Harmoni Heights            Sample data       o o o |
 +--------------------------------------------------+
 | To do                                             |
 | o Confirm pressure washer return        [Open ]  |
@@ -217,7 +217,7 @@ Rules:
 - Errors explain what happened and how to fix it, without apologizing.
 - Empty states invite action: “No events this week. Host one or browse next week.”
 - Use light Malaysian flavour with a plain gloss: “gotong-royong (community clean-up)”.
-- Estimated values always say “estimated”. Demo data always says “Demo data”.
+- Estimated values always say “estimated”. Sample data always says “Sample data”.
 - Copy lives centrally in `src/content/` (mapped to `apps/web/content/` in this monorepo).
 
 ## 9. Motion specification

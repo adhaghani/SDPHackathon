@@ -10,10 +10,10 @@ select has_table('public', 'monthly_highlights', 'monthly highlight table exists
 select has_table('public', 'township_goals', 'township goal table exists');
 
 select id as engage_township_id from public.townships where slug = 'harmoni-heights-demo' \gset
-select id as engage_aisyah_id from auth.users where email = 'aisyah@borrowbetter.demo' \gset
-select id as engage_raj_id from auth.users where email = 'raj@borrowbetter.demo' \gset
-select id as engage_farah_id from auth.users where email = 'farah@borrowbetter.demo' \gset
-select id as engage_office_id from auth.users where email = 'office@borrowbetter.demo' \gset
+select id as engage_aisyah_id from auth.users where email = 'aisyah@borrowlah.demo' \gset
+select id as engage_raj_id from auth.users where email = 'raj@borrowlah.demo' \gset
+select id as engage_farah_id from auth.users where email = 'farah@borrowlah.demo' \gset
+select id as engage_office_id from auth.users where email = 'office@borrowlah.demo' \gset
 select id as engage_item_id from public.items where title = 'Pressure washer' limit 1 \gset
 
 set local role authenticated;
@@ -53,8 +53,8 @@ select lives_ok(
     select
       (select id from public.items where title = 'Pressure washer' limit 1),
       (select id from public.townships where slug = 'harmoni-heights-demo'),
-      (select id from auth.users where email = 'aisyah@borrowbetter.demo'),
-      (select id from auth.users where email = 'raj@borrowbetter.demo'),
+      (select id from auth.users where email = 'aisyah@borrowlah.demo'),
+      (select id from auth.users where email = 'raj@borrowlah.demo'),
       (date_trunc('month', now() at time zone 'Asia/Kuala_Lumpur') - (i || ' months')::interval)::date,
       (date_trunc('month', now() at time zone 'Asia/Kuala_Lumpur') - (i || ' months')::interval + interval '2 days')::date,
       'completed',

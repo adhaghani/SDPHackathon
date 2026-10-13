@@ -9,8 +9,8 @@ select has_table('public', 'festival_uplifts', 'festival uplift table exists');
 select has_table('public', 'shared_library_wishlists', 'shared wishlist table exists');
 
 select id as intel_township_id from public.townships where slug = 'harmoni-heights-demo' \gset
-select id as intel_office_id from auth.users where email = 'office@borrowbetter.demo' \gset
-select id as intel_aisyah_id from auth.users where email = 'aisyah@borrowbetter.demo' \gset
+select id as intel_office_id from auth.users where email = 'office@borrowlah.demo' \gset
+select id as intel_aisyah_id from auth.users where email = 'aisyah@borrowlah.demo' \gset
 select id as intel_home_tools_id from public.item_categories where slug = 'home-tools' \gset
 
 set local role authenticated;

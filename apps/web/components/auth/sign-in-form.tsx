@@ -108,7 +108,7 @@ export function SignInForm({ next = "/home" }: { next?: string }) {
         </form>
 
         <p className="text-center text-sm text-muted-foreground">
-          New to BorrowBetter?{" "}
+          New to BorrowLah?{" "}
           <Link
             className="font-medium text-foreground underline"
             href="/sign-up"

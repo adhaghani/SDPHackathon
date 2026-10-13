@@ -9,7 +9,7 @@ async function signIn(page: import("@playwright/test").Page, email: string) {
   } else {
     await page.goto("/sign-in")
     await page.locator("#email").fill(email)
-    await page.locator("#password").fill("BorrowBetter-Demo-2026!")
+    await page.locator("#password").fill("BorrowLah-Demo-2026!")
     await page.getByRole("button", { name: "Sign in", exact: true }).click()
   }
   await page.waitForURL("**/home")
@@ -21,7 +21,7 @@ test("seeded booking flow reaches completed with two-sided confirmation", async 
   const raj = await rajContext.newPage()
   const aisyah = await aisyahContext.newPage()
 
-  await signIn(raj, "raj@borrowbetter.demo")
+  await signIn(raj, "raj@borrowlah.demo")
   await raj.goto("/borrow/mine")
   await raj.getByRole("tab", { name: "I'm lending" }).click()
   await raj.getByRole("link", { name: /Pressure washer for the next clean-up/ }).click()
@@ -30,7 +30,7 @@ test("seeded booking flow reaches completed with two-sided confirmation", async 
   await raj.getByRole("button", { name: "Approve request" }).click()
   await expect(raj.getByText("approved")).toBeVisible()
 
-  await signIn(aisyah, "aisyah@borrowbetter.demo")
+  await signIn(aisyah, "aisyah@borrowlah.demo")
   await aisyah.goto(bookingUrl)
   await expect(aisyah.getByRole("button", { name: "Confirm handover" })).toBeVisible()
   await aisyah.getByRole("button", { name: "Confirm handover" }).click()

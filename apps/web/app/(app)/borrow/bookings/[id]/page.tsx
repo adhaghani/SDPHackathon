@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 
+import { HandoverSteps } from "@/components/block/handover-steps"
 import { BookingActions } from "@/components/borrow/booking-actions"
 import { BookingChat } from "@/components/borrow/booking-chat"
 import { HandoverPanel } from "@/components/borrow/handover-panel"
@@ -10,7 +11,6 @@ import { requireActiveMember } from "@/lib/data"
 import { formatEventDate } from "@/lib/format"
 import { createClient } from "@/lib/supabase/server"
 import { StatusPill } from "@/components/shared/status-pill"
-import { cn } from "@workspace/ui/lib/utils"
 
 const timeline = [
   { key: "requested", label: "Requested" },
@@ -85,28 +85,16 @@ export default async function BookingPage({
         <div className="flex min-w-0 flex-col gap-6">
           <section aria-labelledby="progress-heading" className="bb-card p-5">
             <h2 id="progress-heading" className="text-title text-ink">Progress</h2>
-            <ol className="mt-4 flex flex-col">
-              {timeline.map((step, index) => {
-                const complete = booking.status === "completed" || index <= currentIndex || (step.key === "returned" && returned)
-                const current = !complete && (index === currentIndex + 1)
-                return (
-                  <li key={step.key} aria-current={current ? "step" : undefined} className="relative flex items-center gap-3 pb-4 last:pb-0">
-                    {index < timeline.length - 1 ? (
-                      <span aria-hidden="true" className="absolute top-6 left-[11px] h-[calc(100%-1rem)] w-1 rounded-full bg-lilac" />
-                    ) : null}
-                    <span
-                      aria-hidden="true"
-                      className={cn(
-                        "relative size-6 shrink-0 rounded-full border-[3px]",
-                        complete ? "border-ink bg-ink" : current ? "border-ink bg-coral" : "border-ink bg-surface"
-                      )}
-                    />
-                    <span className={cn("flex-1", complete || current ? "font-bold text-ink" : "text-ink-muted")}>{step.label}</span>
-                    <span className="text-xs font-bold text-ink-muted">{complete ? "Done" : current ? "Next" : ""}</span>
-                  </li>
-                )
-              })}
-            </ol>
+            <div className="mt-4">
+              <HandoverSteps
+                completed={
+                  booking.status === "completed"
+                    ? [0, 1, 2]
+                    : Array.from({ length: Math.max(0, currentIndex + 1) }, (_, index) => index)
+                }
+                currentStep={Math.min(2, Math.max(0, currentIndex + 1)) as 0 | 1 | 2}
+              />
+            </div>
           </section>
 
           <section aria-labelledby="actions-heading" className="bb-card p-5">

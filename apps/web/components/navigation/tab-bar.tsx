@@ -18,35 +18,36 @@ const labelKeys = {
 export function TabBar({ locale = "en" }: { locale?: "en" | "ms" }) {
   const pathname = usePathname()
   const localized = copy[locale]
+  const onInkScreen = pathname.includes("/ticket")
+  const eventDetail = /^\/events\/[^/]+$/.test(pathname)
+  const hasActionDock = pathname.includes("/borrow/items/") || pathname.includes("/borrow/bookings/") || eventDetail
+
+  if (hasActionDock) return null
 
   return (
     <nav
       aria-label="Primary"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-hairline bg-surface pt-2 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] md:hidden"
+      className={`on-dark fixed right-4 bottom-[calc(env(safe-area-inset-bottom)+18px)] left-4 z-50 grid grid-cols-4 gap-1 rounded-[26px] p-1.5 shadow-dock md:hidden ${onInkScreen ? "bg-ink-raised" : "bg-ink"}`}
     >
-      <ul className="mx-auto grid max-w-lg grid-cols-4 gap-1 px-2">
-        {residentNavigation.map(({ href, icon: Icon }) => {
-          const active = isActivePath(pathname, href)
+      {residentNavigation.map(({ href, icon: Icon }) => {
+        const active = isActivePath(pathname, href)
+        const label = href === "/home" ? "Block" : localized[labelKeys[href]]
 
-          return (
-            <li key={href} className="min-w-0">
-              <Link
-                href={href}
-                aria-current={active ? "page" : undefined}
-                className={cn(
-                  "flex min-h-14 flex-col items-center justify-center gap-1 rounded-lg px-1 text-ink-muted transition-colors duration-150 ease-out hover:text-ink",
-                  active && "bg-lilac-tint text-ink"
-                )}
-              >
-                <Icon aria-hidden="true" className="size-6" strokeWidth={active ? 2.4 : 1.7} />
-                <span className={cn("max-w-full truncate text-xs leading-none", active ? "font-bold" : "font-medium")}>
-                  {localized[labelKeys[href]]}
-                </span>
-              </Link>
-            </li>
-          )
-        })}
-      </ul>
+        return (
+          <Link
+            key={href}
+            href={href}
+            aria-current={active ? "page" : undefined}
+            className={cn(
+              "flex h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-[20px] text-xs font-semibold text-white transition-colors duration-150 ease-out",
+              active && "bg-lime font-bold text-ink"
+            )}
+          >
+            <Icon aria-hidden="true" className="size-[22px]" strokeWidth={active ? 2.4 : 1.75} />
+            <span className="max-w-full truncate">{label}</span>
+          </Link>
+        )
+      })}
     </nav>
   )
 }

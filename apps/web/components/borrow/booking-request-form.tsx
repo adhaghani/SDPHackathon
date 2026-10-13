@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation"
 import { requestBooking } from "@/actions/borrow"
 import { Alert, AlertDescription } from "@workspace/ui/components/alert"
 import { Button } from "@workspace/ui/components/button"
+import { DateRangeField } from "@/components/forms/date-range-field"
 import { Field, FieldError, FieldGroup, FieldLabel } from "@workspace/ui/components/field"
-import { Input } from "@workspace/ui/components/input"
 import { Spinner } from "@workspace/ui/components/spinner"
 
 const idleState = { status: "idle" } as const
@@ -28,18 +28,16 @@ export function BookingRequestForm({
     <form action={action} className="flex flex-col gap-5">
       <input type="hidden" name="itemId" value={itemId} />
       <FieldGroup>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field data-invalid={Boolean(state.fieldErrors?.startDate)}>
-            <FieldLabel htmlFor="start-date">Start date</FieldLabel>
-            <Input id="start-date" name="startDate" type="date" required />
-            <FieldError>{state.fieldErrors?.startDate?.[0]}</FieldError>
-          </Field>
-          <Field data-invalid={Boolean(state.fieldErrors?.endDate)}>
-            <FieldLabel htmlFor="end-date">End date</FieldLabel>
-            <Input id="end-date" name="endDate" type="date" required />
-            <FieldError>{state.fieldErrors?.endDate?.[0]}</FieldError>
-          </Field>
-        </div>
+        <DateRangeField
+          id="booking-dates"
+          startName="startDate"
+          endName="endDate"
+          label="Borrowing dates"
+          required
+          maxRangeDays={maxLoanDays}
+          startError={state.fieldErrors?.startDate?.[0]}
+          endError={state.fieldErrors?.endDate?.[0]}
+        />
         <Field>
           <FieldLabel htmlFor="handover-method">Handover option</FieldLabel>
           <select

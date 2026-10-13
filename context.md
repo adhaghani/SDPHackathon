@@ -1,4 +1,4 @@
-# BorrowBetter — Simplified System Context
+# BorrowLah — Simplified System Context
 
 > This file is a handoff context for an AI Design partner. It describes the product, routes, visual system, interaction rules, data model and current implementation state in simplified language.
 
@@ -6,7 +6,7 @@
 
 ## 1. Product in one paragraph
 
-BorrowBetter is a demo-ready community participation and sustainability system for Malaysian townships. Residents borrow and lend useful items, join neighbourhood events, help neighbours and earn **BetterPoints (BP)** for verified real-world activity. Township admins see aggregate participation and planning signals, not private resident activity. Sponsor partners can create rewards and challenges.
+BorrowLah is a demo-ready community participation and sustainability system for Malaysian townships. Residents borrow and lend useful items, join neighbourhood events, help neighbours and earn **BetterPoints (BP)** for verified real-world activity. Township admins see aggregate participation and planning signals, not private resident activity. Sponsor partners can create rewards and challenges.
 
 The core promise is:
 
@@ -22,7 +22,7 @@ The product is intentionally practical, local and trust-oriented. It should feel
 2. **Privacy by default.** Private messages, unit labels and resident-level activity are not exposed to admins or sponsors.
 3. **Shared spaces first.** Locations should be public/shared spaces, never private addresses.
 4. **Progress is visible.** Residents should always understand what they can do next and what they have earned.
-5. **Demo honesty.** All seeded residents, events, partners, rewards and metrics are fictional/demo data. Estimated impact figures must stay labelled as estimates.
+5. **Demo honesty.** All seeded residents, events, partners, rewards and metrics are fictional/sample data. Estimated impact figures must stay labelled as estimates.
 6. **Township line is the signature motif.** The route/line metaphor represents movement through Pinjam, Jom, Tolong and Rimba.
 
 ---
@@ -311,7 +311,7 @@ Current limitation:
 
 ---
 
-## 11. Demo data
+## 11. Sample data
 
 The seed script is:
 
@@ -348,7 +348,7 @@ Do not present demo names, metrics or estimated impact as real-world claims.
 8. Buttons should have clear action names and stable dimensions.
 9. Loading, empty, error and permission states should live in the interface, not rely only on alerts.
 10. Never expose private resident details in admin or sponsor views.
-11. Keep demo data visibly labelled.
+11. Keep sample data visibly labelled.
 12. Do not add new infrastructure beyond Next.js and Supabase.
 
 ---

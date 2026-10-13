@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache"
 
+import { requireActiveMember } from "@/lib/data"
 import { createClient } from "@/lib/supabase/server"
 
 export type NotificationActionState = {
@@ -13,6 +14,15 @@ export async function markNotificationRead(formData: FormData): Promise<void> {
   if (typeof id !== "string") return
   const supabase = await createClient()
   await supabase.rpc("mark_notification_read", { p_notification_id: id })
+  revalidatePath("/notifications")
+  revalidatePath("/home")
+}
+
+export async function markAllNotificationsRead(): Promise<void> {
+  await requireActiveMember()
+  const supabase = await createClient()
+  const { error } = await supabase.rpc("mark_all_notifications_read")
+  if (error) throw new Error(error.message)
   revalidatePath("/notifications")
   revalidatePath("/home")
 }

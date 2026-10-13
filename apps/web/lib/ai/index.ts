@@ -81,7 +81,7 @@ export async function generateHelpAnswer(
     .map((article, index) => `[${index + 1}] ${article.title}\n${article.body}`)
     .join("\n\n")
   const text = await complete(
-    "Answer BorrowBetter how-to questions ONLY from the supplied help articles. Cite article titles in the answer. Never invent features, people, locations or account details. If the articles do not answer the question, say so and list the closest articles.",
+    "Answer BorrowLah how-to questions ONLY from the supplied help articles. Cite article titles in the answer. Never invent features, people, locations or account details. If the articles do not answer the question, say so and list the closest articles.",
     `Question: ${question}\n\nCurrent booking statuses, context only: ${statusContext || "none"}\n\nHelp articles:\n${articleContext}`
   )
   return text || null
