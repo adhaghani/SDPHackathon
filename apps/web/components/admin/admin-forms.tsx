@@ -66,6 +66,10 @@ export function ResolveDisputeForm({ disputeId }: { disputeId: string }) {
         <FieldLabel htmlFor={`dispute-note-${disputeId}`}>Resolution note</FieldLabel>
         <Input id={`dispute-note-${disputeId}`} name="note" placeholder="Reviewed with both parties" />
       </Field>
+      <label className="flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border border-input bg-background px-3 text-sm font-medium">
+        <input type="checkbox" name="borrowerAtFault" className="size-4 accent-ink" />
+        Borrower at fault
+      </label>
       <Button type="submit" variant="cta" name="resolution" value="completed" className="h-11" disabled={pending}>
         {pending ? <Spinner data-icon="inline-start" /> : null}
         Complete

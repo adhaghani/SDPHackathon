@@ -11,7 +11,7 @@
     "test": "turbo test",
     "test:watch": "npm run test --workspace web -- --watch",
     "test:e2e": "npm run test:e2e --workspace web",
-    "test:db": "supabase test db",
+    "test:db": "npm run demo:reset && supabase test db",
     "types:gen": "mkdir -p apps/web/types && supabase gen types typescript --local > apps/web/types/database.ts",
     "db:push": "supabase db push --local",
     "db:push:remote": "supabase db push",

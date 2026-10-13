@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server"
 
 import { createClient } from "@/lib/supabase/server"
+import { getSessionContext } from "@/lib/data"
 
 export const dynamic = "force-dynamic"
 
@@ -11,21 +12,18 @@ export async function GET(request: NextRequest) {
   } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: "authentication_required" }, { status: 401 })
 
-  const member = await supabase
-    .from("township_members")
-    .select("township_id,role,status")
-    .eq("user_id", user.id)
-    .eq("role", "township_admin")
-    .eq("status", "active")
-    .limit(1)
-    .maybeSingle()
-  if (!member.data) return NextResponse.json({ error: "admin_required" }, { status: 403 })
+  const context = await getSessionContext()
+  const member = context.membership
+  if (!member || member.role !== "township_admin" || member.status !== "active") {
+    return NextResponse.json({ error: "admin_required" }, { status: 403 })
+  }
+  const townshipId = member.township_id
 
   const [pulseResult, economyResult, demandResult, forecastResult] = await Promise.all([
-    supabase.rpc("township_pulse", { p_township_id: member.data.township_id, p_days: 90 }),
-    supabase.rpc("admin_rewards_economy", { p_township_id: member.data.township_id, p_days: 90 }),
-    supabase.rpc("admin_demand_gaps", { p_township_id: member.data.township_id }),
-    supabase.rpc("predictive_demand", { p_township_id: member.data.township_id }),
+    supabase.rpc("township_pulse", { p_township_id: townshipId, p_days: 90 }),
+    supabase.rpc("admin_rewards_economy", { p_township_id: townshipId, p_days: 90 }),
+    supabase.rpc("admin_demand_gaps", { p_township_id: townshipId }),
+    supabase.rpc("predictive_demand", { p_township_id: townshipId }),
   ])
   if (pulseResult.error || economyResult.error || demandResult.error || forecastResult.error) {
     return NextResponse.json({ error: "export_failed" }, { status: 500 })

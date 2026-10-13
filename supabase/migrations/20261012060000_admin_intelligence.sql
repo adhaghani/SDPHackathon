@@ -236,7 +236,7 @@ begin
   select * into v_event
   from public.calendar_events
   where official_source = true
-    and verification_status <> 'rejected'
+    and verification_status = 'verified'
     and starts_on >= current_date
     and starts_on <= current_date + 14
   order by starts_on

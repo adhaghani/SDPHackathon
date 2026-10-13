@@ -44,6 +44,9 @@ export async function createEvent(
     volunteerSlots: formData.get("volunteerSlots") || undefined,
     accessibilityTags: formData.getAll("accessibilityTags").map(String),
     languages: formData.getAll("languages").map(String),
+    recurrence: formData.get("recurrence") || "none",
+    recurrenceIntervalDays: formData.get("recurrenceIntervalDays") || undefined,
+    recurrenceUntil: formData.get("recurrenceUntil") || undefined,
   })
 
   if (!parsed.success) {
@@ -67,34 +70,61 @@ export async function createEvent(
       return { status: "error", message: "Choose a valid category." }
     }
 
-    const { data, error } = await supabase.rpc("create_event", {
-      p_payload: {
+    const occurrences = parsed.data.recurrence === "none"
+      ? 1
+      : Math.min(8, Math.max(1, Math.ceil(
+        (new Date(parsed.data.recurrenceUntil as string).getTime() - new Date(parsed.data.startsAt).getTime()) /
+        ((parsed.data.recurrence === "weekly" ? 7 : 30) * 24 * 60 * 60 * 1000)
+      )))
+    let firstEventId: string | undefined
+    let firstStatus: string | undefined
+    for (let index = 0; index < occurrences; index += 1) {
+      const startsAt = new Date(parsed.data.startsAt)
+      const endsAt = new Date(parsed.data.endsAt)
+      if (index > 0) {
+        if (parsed.data.recurrence === "weekly") {
+          const interval = parsed.data.recurrenceIntervalDays ?? 7
+          startsAt.setDate(startsAt.getDate() + interval * index)
+          endsAt.setDate(endsAt.getDate() + interval * index)
+        } else {
+          startsAt.setMonth(startsAt.getMonth() + index)
+          endsAt.setMonth(endsAt.getMonth() + index)
+        }
+      }
+      const { data, error } = await supabase.rpc("create_event", {
+        p_payload: {
         township_id: active.townshipId,
-        title: parsed.data.title,
+        title: occurrences > 1 ? `${parsed.data.title} · ${index + 1}` : parsed.data.title,
         description: parsed.data.description,
         category_id: category.data.id,
-        starts_at: new Date(parsed.data.startsAt).toISOString(),
-        ends_at: new Date(parsed.data.endsAt).toISOString(),
+        starts_at: startsAt.toISOString(),
+        ends_at: endsAt.toISOString(),
         location_text: parsed.data.locationText,
         cover_path: parsed.data.coverPath ?? null,
         capacity: parsed.data.capacity ?? null,
         volunteer_slots: parsed.data.volunteerSlots ?? null,
         accessibility_tags: parsed.data.accessibilityTags,
         languages: parsed.data.languages,
-      },
-    })
+        recurrence: parsed.data.recurrence,
+        recurrence_interval_days: parsed.data.recurrenceIntervalDays ?? (parsed.data.recurrence === "weekly" ? 7 : 30),
+        recurrence_until: parsed.data.recurrenceUntil ?? null,
+        },
+      })
+      if (error) return { status: "error", message: errorMessage(error) }
+      const result = data as { event_id?: string; status?: string }
+      firstEventId ??= result.event_id
+      firstStatus ??= result.status
+    }
 
-    if (error) return { status: "error", message: errorMessage(error) }
-    const result = data as { event_id?: string; status?: string }
     revalidatePath("/events")
     revalidatePath("/home")
     return {
       status: "success",
       message:
-        result.status === "pending_approval"
+        firstStatus === "pending_approval"
           ? "Event submitted for approval."
-          : "Event published.",
-      eventId: result.event_id,
+          : occurrences > 1 ? `Created ${occurrences} recurring events.` : "Event published.",
+      eventId: firstEventId,
     }
   } catch (error) {
     return {

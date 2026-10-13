@@ -2,6 +2,7 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 
 import { WishlistForm } from "@/components/admin/wishlist-form"
+import { CalendarVerificationActions } from "@/components/admin/calendar-verification-actions"
 import { PageBand } from "@/components/shared/page-band"
 import { requireActiveMember } from "@/lib/data"
 import { createClient } from "@/lib/supabase/server"
@@ -177,6 +178,7 @@ export default async function AdminDemandPage() {
                       {event.verification_status === "verified" ? "Verified" : "Needs review"}
                     </Badge>
                   </div>
+                  <CalendarVerificationActions eventId={event.id} currentStatus={event.verification_status} />
                 </li>
               ))}
             </ul>

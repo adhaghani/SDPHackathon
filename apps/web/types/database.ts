@@ -889,6 +889,9 @@ export type Database = {
           languages: string[]
           location_text: string
           neighbourhood_id: string | null
+          recurrence: string
+          recurrence_interval_days: number | null
+          recurrence_until: string | null
           starts_at: string
           status: string
           title: string
@@ -913,6 +916,9 @@ export type Database = {
           languages?: string[]
           location_text: string
           neighbourhood_id?: string | null
+          recurrence?: string
+          recurrence_interval_days?: number | null
+          recurrence_until?: string | null
           starts_at: string
           status?: string
           title: string
@@ -936,6 +942,9 @@ export type Database = {
           languages?: string[]
           location_text?: string
           neighbourhood_id?: string | null
+          recurrence?: string
+          recurrence_interval_days?: number | null
+          recurrence_until?: string | null
           starts_at?: string
           status?: string
           title?: string
@@ -1208,6 +1217,9 @@ export type Database = {
           kind: string
           needed_by: string | null
           neighbourhood_id: string | null
+          recurrence: string
+          recurrence_interval_days: number | null
+          recurrence_until: string | null
           requester_id: string
           status: string
           title: string
@@ -1224,6 +1236,9 @@ export type Database = {
           kind?: string
           needed_by?: string | null
           neighbourhood_id?: string | null
+          recurrence?: string
+          recurrence_interval_days?: number | null
+          recurrence_until?: string | null
           requester_id: string
           status?: string
           title: string
@@ -1239,6 +1254,9 @@ export type Database = {
           kind?: string
           needed_by?: string | null
           neighbourhood_id?: string | null
+          recurrence?: string
+          recurrence_interval_days?: number | null
+          recurrence_until?: string | null
           requester_id?: string
           status?: string
           title?: string
@@ -2819,6 +2837,10 @@ export type Database = {
         Args: { p_month_start: string; p_reason: string; p_resident_id: string }
         Returns: Json
       }
+      attach_item_to_offer: {
+        Args: { p_item_id: string; p_offer_id: string }
+        Returns: Json
+      }
       award_points: {
         Args: {
           p_action_type: string
@@ -2874,6 +2896,7 @@ export type Database = {
         }
         Returns: Json
       }
+      create_bundle: { Args: { p_payload: Json }; Returns: Json }
       create_bundle_booking: {
         Args: {
           p_bundle_id: string
@@ -2895,6 +2918,7 @@ export type Database = {
         Args: { p_conversation_id?: string; p_subject?: string }
         Returns: Json
       }
+      delete_bundle: { Args: { p_bundle_id: string }; Returns: Json }
       delete_my_account: { Args: Record<PropertyKey, never>; Returns: Json }
       evaluate_badges: {
         Args: { p_township_id: string; p_user_id: string }
@@ -3004,6 +3028,10 @@ export type Database = {
             }
             Returns: Json
           }
+      resolve_support_ticket: {
+        Args: { p_status: string; p_ticket_id: string }
+        Returns: Json
+      }
       reverse_points: {
         Args: { p_ledger_id: string; p_reason: string }
         Returns: Json
@@ -3039,6 +3067,24 @@ export type Database = {
         Args: { p_conversation_id?: string; p_question?: string }
         Returns: Json
       }
+      set_calendar_event_verification: {
+        Args: {
+          p_event_id: string
+          p_note?: string
+          p_status: string
+          p_township_id?: string
+        }
+        Returns: Json
+      }
+      set_item_category_co2e: {
+        Args: {
+          p_factor: number
+          p_slug: string
+          p_source: string
+          p_township_id?: string
+        }
+        Returns: Json
+      }
       set_notification_preference: {
         Args: { p_enabled: boolean; p_type: string }
         Returns: Json
@@ -3068,6 +3114,19 @@ export type Database = {
           p_booking_id: string
           p_occurred_at?: string
           p_payload?: Json
+        }
+        Returns: Json
+      }
+      trust_tier_distribution: {
+        Args: { p_township_id: string }
+        Returns: Json
+      }
+      update_bundle: {
+        Args: {
+          p_bundle_id: string
+          p_description?: string
+          p_item_ids?: Json
+          p_title: string
         }
         Returns: Json
       }

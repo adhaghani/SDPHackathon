@@ -62,6 +62,9 @@ export async function createHelpRequest(
     details: formData.get("details"),
     kind: formData.get("kind") || "other",
     neededBy: formData.get("neededBy") || undefined,
+    recurrence: formData.get("recurrence") || "none",
+    recurrenceIntervalDays: formData.get("recurrenceIntervalDays") || undefined,
+    recurrenceUntil: formData.get("recurrenceUntil") || undefined,
   })
   if (!parsed.success) {
     return { status: "error", fieldErrors: parsed.error.flatten().fieldErrors, message: "Check the helping request fields." }
@@ -69,18 +72,39 @@ export async function createHelpRequest(
 
   const active = await requireActiveMember()
   const supabase = await createClient()
-  const { error } = await supabase.rpc("create_help_request", {
-    p_payload: {
+  const occurrences = parsed.data.recurrence === "none"
+    ? 1
+    : Math.min(8, Math.max(1, Math.ceil(
+      (new Date(parsed.data.recurrenceUntil as string).getTime() - new Date().getTime()) /
+      ((parsed.data.recurrence === "weekly" ? 7 : 30) * 24 * 60 * 60 * 1000)
+    )))
+  let firstRequestId: string | undefined
+  for (let index = 0; index < occurrences; index += 1) {
+    const neededBy = parsed.data.neededBy
+      ? new Date(`${parsed.data.neededBy}T12:00:00+08:00`)
+      : new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
+    if (index > 0) {
+      if (parsed.data.recurrence === "weekly") neededBy.setDate(neededBy.getDate() + (parsed.data.recurrenceIntervalDays ?? 7) * index)
+      else neededBy.setMonth(neededBy.getMonth() + index)
+    }
+    const { data, error } = await supabase.rpc("create_help_request", {
+      p_payload: {
       township_id: active.townshipId,
-      title: parsed.data.title,
+      title: occurrences > 1 ? `${parsed.data.title} · ${index + 1}` : parsed.data.title,
       details: parsed.data.details,
       kind: parsed.data.kind,
-      needed_by: parsed.data.neededBy ?? null,
-    },
-  })
-  if (error) return { status: "error", message: communityErrorMessage(error) }
+      needed_by: neededBy.toISOString().slice(0, 10),
+      recurrence: parsed.data.recurrence,
+      recurrence_interval_days: parsed.data.recurrenceIntervalDays ?? (parsed.data.recurrence === "weekly" ? 7 : 30),
+      recurrence_until: parsed.data.recurrenceUntil ?? null,
+      },
+    })
+    if (error) return { status: "error", message: communityErrorMessage(error) }
+    const result = data as { request_id?: string }
+    firstRequestId ??= result.request_id
+  }
   revalidatePath("/community")
-  return { status: "success", message: "Helping request posted." }
+  return { status: "success", message: occurrences > 1 ? `Created ${occurrences} recurring helping requests.` : "Helping request posted." }
 }
 
 export async function acceptHelpRequest(

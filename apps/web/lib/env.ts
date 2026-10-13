@@ -36,5 +36,14 @@ export function isDemoMode(): boolean {
 }
 
 export function isFeatureEnabled(name: string): boolean {
-  return process.env[`NEXT_PUBLIC_ENABLE_${name.toUpperCase()}`] === "true"
+  const value = process.env[`NEXT_PUBLIC_ENABLE_${name.toUpperCase()}`]
+  if (value === "true") return true
+  if (value === "false") return false
+  // Demo mode intentionally exposes every implemented stretch feature so the
+  // complete product can be audited without editing the local environment.
+  return isDemoMode()
+}
+
+export function isRealtimeEnabled(): boolean {
+  return process.env.NEXT_PUBLIC_ENABLE_REALTIME === "true"
 }

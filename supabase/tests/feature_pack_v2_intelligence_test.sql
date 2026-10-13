@@ -102,6 +102,12 @@ select set_config(
   json_build_object('sub', :'intel_office_id', 'role', 'authenticated')::text,
   true
 );
+select public.set_calendar_event_verification(
+  (select id from public.calendar_events where name = 'Hari Deepavali' and starts_on = current_date + 7),
+  'verified',
+  'Verified for forecast test.',
+  :'intel_township_id'::uuid
+);
 select public.predictive_demand(:'intel_township_id'::uuid) as intel_forecast \gset
 select is(
   (:'intel_forecast'::jsonb ->> 'available')::boolean,
@@ -140,8 +146,8 @@ select is(
    from public.calendar_events
    where name = 'Hari Deepavali'
      and starts_on = current_date + 7),
-  'needs_review',
-  'official-source dates remain marked for user review'
+  'verified',
+  'official-source dates can be verified before forecast use'
 );
 reset role;
 select set_config('request.jwt.claims', '', true);

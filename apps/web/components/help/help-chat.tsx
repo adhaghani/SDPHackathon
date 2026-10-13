@@ -14,14 +14,19 @@ type Article = { id: string; slug: string; title: string; body: string; category
 
 export function HelpChat({
   initialArticles,
+  initialConversationId = "",
+  initialMessages = [],
 }: {
   initialArticles: Article[]
+  initialConversationId?: string
+  initialMessages?: Array<{ id: string; role: string; content: string; created_at: string }>
 }) {
   const [state, askAction, pending] = useActionState(askHelp, idleState)
   const [ticketState, ticketAction, ticketPending] = useActionState(talkToOrganiser, idleState)
   const [expanded, setExpanded] = useState<string | null>(null)
   const articles = state.articles ?? initialArticles
-  const conversationId = state.conversationId ?? ""
+  const conversationId = state.conversationId ?? initialConversationId
+  const messages = state.messages ?? initialMessages
 
   return (
     <div className="grid gap-7 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
@@ -58,10 +63,10 @@ export function HelpChat({
             <p className="mt-2 whitespace-pre-line text-ink">{state.answer}</p>
           </div>
         ) : null}
-        {state.messages?.length ? (
+        {messages.length ? (
           <div className="mt-5 max-h-72 overflow-y-auto border-t border-hairline pt-4">
             <ul className="space-y-2">
-              {state.messages.map((message, index) => (
+              {messages.map((message, index) => (
                 <li
                   key={message.id ?? index}
                   className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${

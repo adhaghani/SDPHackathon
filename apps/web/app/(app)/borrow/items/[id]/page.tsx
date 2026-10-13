@@ -4,6 +4,7 @@ import { CalendarRangeIcon, HandshakeIcon, ShieldCheckIcon, TagIcon, WalletIcon 
 
 import { BookingRequestForm } from "@/components/borrow/booking-request-form"
 import { ItemGuideForm } from "@/components/borrow/item-guide-form"
+import { AvailabilityCalendar } from "@/components/borrow/availability-calendar"
 import { ReportForm } from "@/components/reports/report-form"
 import { DemoLabel } from "@/components/shared/demo-label"
 import { MediaPoster } from "@/components/shared/media-poster"
@@ -72,7 +73,7 @@ export default async function ItemDetailPage({
     borrow_count?: number
     unique_borrowers?: number
     lifetime_saved_rm?: number
-    timeline?: Array<{ date?: string; type?: string; display_name?: string }>
+    timeline?: Array<{ date?: string; type?: string; display_name?: string; condition?: string | null }>
   } | null
   if (valueResult.error) throw new Error(valueResult.error.message)
   const guide = guideResult.data
@@ -217,6 +218,8 @@ export default async function ItemDetailPage({
             </section>
           ) : null}
 
+          <AvailabilityCalendar bookings={bookingsResult.data ?? []} maxLoanDays={item.max_loan_days} />
+
           <section aria-labelledby="history-heading">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <h2 id="history-heading" className="text-title text-ink">Item history</h2>
@@ -237,7 +240,10 @@ export default async function ItemDetailPage({
                     <p className="font-bold text-ink">
                       {event.type === "listed" ? "Listed" : event.type === "guide_added" ? "How-to guide added" : event.type === "returned" ? "Returned" : "Borrowed"}
                     </p>
-                    <p className="text-ink-muted">{event.date} · {event.display_name}</p>
+                    <p className="text-ink-muted">
+                      {event.date} · {event.display_name}
+                      {event.condition ? ` · condition: ${event.condition.replace("_", " ")}` : ""}
+                    </p>
                   </li>
                 ))}
               </ol>
@@ -246,6 +252,18 @@ export default async function ItemDetailPage({
                 No borrowing history yet. This item&apos;s first loan will start the timeline.
               </p>
             )}
+            {(valueResult.data ?? []).length ? (
+              <ul className="mt-4 space-y-2 border-t border-hairline pt-4">
+                {(valueResult.data ?? []).map((row, index) => (
+                  <li key={`${row.estimated_value_saved_rm}-${index}`} className="flex items-center justify-between gap-3 text-sm">
+                    <span className="text-ink-muted">Completed borrow #{index + 1}</span>
+                    <strong className="text-ink">
+                      RM {Math.round(Number(row.estimated_value_saved_rm ?? 0)).toLocaleString("en-MY")} estimated value shared
+                    </strong>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
           </section>
 
           {item.kind === "skill" && item.guardian_acknowledgement ? (

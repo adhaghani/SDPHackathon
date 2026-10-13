@@ -11,6 +11,7 @@ import { requireActiveMember } from "@/lib/data"
 import { isDemoMode } from "@/lib/env"
 import { createClient } from "@/lib/supabase/server"
 import { Badge } from "@workspace/ui/components/badge"
+import { Button } from "@workspace/ui/components/button"
 
 export default async function RewardsPage() {
   const active = await requireActiveMember()
@@ -145,6 +146,17 @@ export default async function RewardsPage() {
       </section>
 
       <div className="grid gap-9 lg:grid-cols-2 lg:gap-8">
+        <section aria-labelledby="impact-report-heading" className="bb-card p-5">
+          <h2 id="impact-report-heading" className="text-title text-ink">Your impact report</h2>
+          <p className="mt-1 text-sm text-ink-muted">Download your personal verified activity and impact data.</p>
+          <Button render={<a href="/api/profile/export" download />} variant="outline" className="mt-4">
+            Download JSON export
+          </Button>
+          <Button render={<a href="/rewards/impact-report" download />} variant="ghost" className="mt-2">
+            Download impact CSV
+          </Button>
+        </section>
+
         <section aria-labelledby="streak-heading" className="bb-card p-5">
           <div className="flex items-start justify-between gap-4">
             <div>

@@ -7,6 +7,7 @@ import { requireActiveMember } from "@/lib/data"
 import { createClient } from "@/lib/supabase/server"
 import {
   acceptOfferSchema,
+  attachOfferItemSchema,
   itemOfferSchema,
   itemRequestSchema,
 } from "@/lib/validation/demand"
@@ -148,4 +149,26 @@ export async function acceptItemOffer(
   revalidatePath("/borrow/requests")
   const result = data as { booking_id?: string }
   redirect(result.booking_id ? `/borrow/bookings/${result.booking_id}` : "/borrow/requests")
+}
+
+export async function attachItemToOffer(
+  _state: RequestActionState,
+  formData: FormData
+): Promise<RequestActionState> {
+  const parsed = attachOfferItemSchema.safeParse({
+    offerId: formData.get("offerId"),
+    itemId: formData.get("itemId"),
+  })
+  if (!parsed.success) return { status: "error", message: "Choose an item to attach." }
+
+  await requireActiveMember()
+  const supabase = await createClient()
+  const { error } = await supabase.rpc("attach_item_to_offer", {
+    p_offer_id: parsed.data.offerId,
+    p_item_id: parsed.data.itemId,
+  })
+  if (error) return { status: "error", message: "That item cannot be attached to this offer." }
+
+  revalidatePath("/borrow/requests")
+  return { status: "success", message: "Item attached. The requester can now accept the offer." }
 }

@@ -25,7 +25,7 @@ export default async function AdminModerationPage() {
         back={{ href: "/admin", label: "Township Pulse" }}
         eyebrow="Township office"
         title="Moderation"
-        description="Review reports and hide content when three open reports point to the same target."
+        description="Review reports and hide content when it violates township safety rules."
       />
       {(reports.data ?? []).length ? (
         <ul className="mt-6 divide-y divide-border border-y border-border">

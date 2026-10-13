@@ -77,6 +77,22 @@ export function CommunityForms({ role }: { role: string }) {
               <FieldLabel htmlFor="help-needed-by">Needed by</FieldLabel>
               <Input id="help-needed-by" name="neededBy" type="date" />
             </Field>
+            <Field>
+              <FieldLabel htmlFor="help-recurrence">Repeat</FieldLabel>
+              <select id="help-recurrence" name="recurrence" className="h-11 w-full rounded-lg border border-input bg-background px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50">
+                <option value="none">Does not repeat</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+              </select>
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="help-recurrence-until">Repeat until</FieldLabel>
+              <Input id="help-recurrence-until" name="recurrenceUntil" type="date" />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="help-recurrence-interval">Interval days</FieldLabel>
+              <Input id="help-recurrence-interval" name="recurrenceIntervalDays" type="number" min="1" max="60" placeholder="7" />
+            </Field>
             </div>
           </FieldGroup>
           {helpState.message ? <Alert variant={helpState.status === "error" ? "destructive" : "default"}><AlertDescription>{helpState.message}</AlertDescription></Alert> : null}

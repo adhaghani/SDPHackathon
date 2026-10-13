@@ -27,9 +27,15 @@ export function SwitchTownshipButton({
   }
 
   return (
-    <form action={action} className="flex items-center gap-2">
+    <form action={action} className="flex min-w-0 max-w-full items-center gap-2">
       <input type="hidden" name="townshipId" value={townshipId} />
-      <Button type="submit" variant="outline" className="h-11" onClick={() => router.refresh()} disabled={pending}>
+      <Button
+        type="submit"
+        variant="outline"
+        className="h-auto min-h-11 max-w-full whitespace-normal px-3 py-2 text-left"
+        onClick={() => router.refresh()}
+        disabled={pending}
+      >
         {pending ? <Spinner data-icon="inline-start" /> : null}
         Switch to {name}
       </Button>

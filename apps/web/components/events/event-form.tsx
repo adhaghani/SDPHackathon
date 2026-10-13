@@ -102,6 +102,24 @@ export function EventForm({
             <FieldError>{state.fieldErrors?.endsAt?.[0]}</FieldError>
           </Field>
         </div>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Field>
+            <FieldLabel htmlFor="event-recurrence">Repeat</FieldLabel>
+            <NativeSelect id="event-recurrence" name="recurrence" defaultValue="none" className="w-full">
+              <NativeSelectOption value="none">Does not repeat</NativeSelectOption>
+              <NativeSelectOption value="weekly">Weekly</NativeSelectOption>
+              <NativeSelectOption value="monthly">Monthly</NativeSelectOption>
+            </NativeSelect>
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="event-recurrence-until">Repeat until</FieldLabel>
+            <Input id="event-recurrence-until" name="recurrenceUntil" type="date" />
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="event-recurrence-interval">Interval days</FieldLabel>
+            <Input id="event-recurrence-interval" name="recurrenceIntervalDays" type="number" min="1" max="60" placeholder="7" />
+          </Field>
+        </div>
         <Field data-invalid={Boolean(state.fieldErrors?.locationText)}>
           <FieldLabel htmlFor="locationText">Shared location</FieldLabel>
           <Input id="locationText" name="locationText" placeholder="Clubhouse lawn" required />

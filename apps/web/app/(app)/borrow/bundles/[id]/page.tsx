@@ -2,11 +2,14 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 
 import { BundleBookingForm } from "@/components/borrow/bundle-booking-form"
+import { BundleEditForm } from "@/components/borrow/bundle-edit-form"
+import { DeleteBundleButton } from "@/components/borrow/delete-bundle-button"
 import { DemoLabel } from "@/components/shared/demo-label"
 import { MediaPoster } from "@/components/shared/media-poster"
 import { PageBand } from "@/components/shared/page-band"
 import { requireActiveMember } from "@/lib/data"
 import { createClient } from "@/lib/supabase/server"
+import { Button } from "@workspace/ui/components/button"
 
 export default async function BundlePage({ params }: { params: Promise<{ id: string }> }) {
   const active = await requireActiveMember()
@@ -25,6 +28,11 @@ export default async function BundlePage({ params }: { params: Promise<{ id: str
     .filter((item): item is NonNullable<typeof item> => Boolean(item))
     .sort((left, right) => (left.title ?? "").localeCompare(right.title ?? ""))
   const handoverOptions = Array.from(new Set(items.flatMap((item) => item.handover_options ?? [])))
+  const isOwner = bundle.owner_id === active.user.id
+  const ownerItemsResult = isOwner
+    ? await supabase.from("items").select("id,title").eq("owner_id", active.user.id).eq("township_id", active.townshipId).eq("status", "active").eq("hidden", false).order("title")
+    : { data: [], error: null }
+  if (ownerItemsResult.error) throw new Error(ownerItemsResult.error.message)
 
   return (
     <div className="mx-auto w-full max-w-5xl">
@@ -62,6 +70,18 @@ export default async function BundlePage({ params }: { params: Promise<{ id: str
           </div>
         </section>
       </div>
+      {isOwner ? (
+        <div className="mt-8">
+          <BundleEditForm
+            bundleId={bundle.id}
+            title={bundle.title}
+            description={bundle.description ?? ""}
+            items={ownerItemsResult.data ?? []}
+            selectedIds={items.map((item) => item.id)}
+          />
+          <DeleteBundleButton bundleId={bundle.id} />
+        </div>
+      ) : null}
     </div>
   )
 }

@@ -13,6 +13,8 @@ import {
   badgeSchema,
   carbonGoalSchema,
   highlightSchema,
+  carbonFactorSchema,
+  calendarVerificationSchema,
 } from "@/lib/validation/admin"
 
 export type AdminActionState = {
@@ -148,6 +150,7 @@ export async function resolveDisputeAction(
     disputeId: formData.get("disputeId"),
     resolution: formData.get("resolution"),
     note: formData.get("note"),
+    borrowerAtFault: formData.get("borrowerAtFault") === "on",
   })
   if (!parsed.success) return { status: "error", message: "Check the dispute resolution fields." }
 
@@ -156,6 +159,7 @@ export async function resolveDisputeAction(
     p_dispute_id: parsed.data.disputeId,
     p_resolution: parsed.data.resolution,
     p_note: parsed.data.note,
+    p_borrower_at_fault: parsed.data.borrowerAtFault,
   })
   if (error) return { status: "error", message: "Only the township office can resolve disputes." }
 
@@ -208,4 +212,80 @@ export async function saveCarbonGoalAction(
   revalidatePath("/admin/engagement")
   revalidatePath("/home")
   return { status: "success", message: "Carbon goal saved." }
+}
+
+export async function saveCarbonFactorAction(
+  _state: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  const parsed = carbonFactorSchema.safeParse({
+    categorySlug: formData.get("categorySlug"),
+    factorKg: formData.get("factorKg"),
+    source: formData.get("source"),
+  })
+  if (!parsed.success) return { status: "error", message: "Check the CO₂e factor fields." }
+
+  const supabase = await createClient()
+  const active = await requireActiveMember()
+  const { error } = await supabase.rpc("set_item_category_co2e", {
+    p_slug: parsed.data.categorySlug,
+    p_factor: parsed.data.factorKg,
+    p_source: parsed.data.source,
+    p_township_id: active.townshipId,
+  })
+  if (error) return { status: "error", message: "Only the township office can save CO₂e factors." }
+
+  revalidatePath("/admin/engagement")
+  revalidatePath("/home")
+  return { status: "success", message: "CO₂e factor saved." }
+}
+
+export async function verifyCalendarEventAction(
+  _state: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  const parsed = calendarVerificationSchema.safeParse({
+    eventId: formData.get("eventId"),
+    status: formData.get("status") || "verified",
+    note: formData.get("note") || "",
+  })
+  if (!parsed.success) return { status: "error", message: "That calendar date is not available." }
+
+  const supabase = await createClient()
+  const active = await requireActiveMember()
+  const { error } = await supabase.rpc("set_calendar_event_verification", {
+    p_event_id: parsed.data.eventId,
+    p_status: parsed.data.status,
+    p_note: parsed.data.note,
+    p_township_id: active.townshipId,
+  })
+  if (error) return { status: "error", message: "Only the township office can verify calendar dates." }
+
+  revalidatePath("/admin/demand")
+  return {
+    status: "success",
+    message: parsed.data.status === "verified" ? "Calendar date verified." : "Calendar date rejected.",
+  }
+}
+
+export async function resolveSupportTicketAction(
+  _state: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  const ticketId = formData.get("ticketId")
+  const status = formData.get("status")
+  if (typeof ticketId !== "string" || !["open", "in_progress", "resolved"].includes(String(status))) {
+    return { status: "error", message: "That support ticket is not available." }
+  }
+  const validatedStatus = String(status) as "open" | "in_progress" | "resolved"
+
+  const supabase = await createClient()
+  const { error } = await supabase.rpc("resolve_support_ticket", {
+    p_ticket_id: ticketId,
+    p_status: validatedStatus,
+  })
+  if (error) return { status: "error", message: "Only the township office can update support tickets." }
+
+  revalidatePath("/admin/support")
+  return { status: "success", message: "Support ticket updated." }
 }

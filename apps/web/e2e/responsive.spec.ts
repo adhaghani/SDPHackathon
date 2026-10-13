@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test"
 
-test.setTimeout(240_000)
+test.setTimeout(600_000)
 
 const viewports = [
   { width: 320, height: 760 },

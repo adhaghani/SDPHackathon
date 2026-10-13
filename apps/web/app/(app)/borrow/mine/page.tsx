@@ -52,6 +52,13 @@ export default async function BorrowMinePage() {
         </TabsContent>
         <TabsContent value="items">
           <div className="flex flex-col gap-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-lilac-tint p-4">
+              <div>
+                <p className="font-bold text-ink">Bundle your items</p>
+                <p className="text-sm text-ink-muted">Let neighbours request several of your items together.</p>
+              </div>
+              <Button render={<Link href="/borrow/bundles/new" />} variant="outline">Create bundle</Button>
+            </div>
             <ul className="bb-card mt-4 divide-y divide-hairline">
               {(itemsResult.data ?? []).map((item) => (
                 <li key={item.id} className="flex items-center justify-between gap-3 px-4 py-3.5">

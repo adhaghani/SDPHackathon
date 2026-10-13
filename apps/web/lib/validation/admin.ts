@@ -25,6 +25,7 @@ export const resolveDisputeSchema = z.object({
   disputeId: z.uuid({ error: "Dispute not found." }),
   resolution: z.enum(["completed", "closed"]),
   note: z.string().trim().max(600).default(""),
+  borrowerAtFault: z.boolean().default(false),
 })
 
 export const badgeSchema = z.object({
@@ -43,4 +44,16 @@ export const highlightSchema = z.object({
 export const carbonGoalSchema = z.object({
   year: z.coerce.number().int().min(2020).max(2100),
   targetKg: z.coerce.number().positive().max(1_000_000),
+})
+
+export const carbonFactorSchema = z.object({
+  categorySlug: z.string().trim().min(1),
+  factorKg: z.coerce.number().min(0).max(100000),
+  source: z.string().trim().min(3).max(500),
+})
+
+export const calendarVerificationSchema = z.object({
+  eventId: z.uuid(),
+  status: z.enum(["needs_review", "verified", "rejected"]),
+  note: z.string().trim().max(500).default(""),
 })

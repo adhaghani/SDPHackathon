@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { OfflineHandoverSync } from "@/components/borrow/offline-handover-sync"
 
 export default function OfflineHandoverPage() {
   return (
@@ -13,6 +14,7 @@ export default function OfflineHandoverPage() {
           <p className="font-bold">No connection right now</p>
           <p className="mt-1 text-band-eyebrow">Tokens are checked again on the server before a handover is recorded. Expired or replayed codes are rejected.</p>
         </div>
+        <OfflineHandoverSync />
         <Link
           href="/borrow/mine"
           className="mt-7 inline-flex min-h-12 items-center rounded-full bg-surface px-6 font-bold text-ink"

@@ -43,6 +43,7 @@ export const adminNavigation = [
   { href: "/admin/hubs", label: "Hubs", icon: WarehouseIcon, flag: "equipment_hubs" },
   { href: "/admin/members", label: "Members", icon: UsersRoundIcon },
   { href: "/admin/moderation", label: "Moderation", icon: ShieldCheckIcon },
+  { href: "/admin/support", label: "Support", icon: MessageCircleIcon },
   { href: "/admin/disputes", label: "Disputes", icon: ScaleIcon },
   { href: "/admin/budget", label: "Budget", icon: WalletIcon },
   { href: "/admin/rewards", label: "Rewards economy", icon: GiftIcon },

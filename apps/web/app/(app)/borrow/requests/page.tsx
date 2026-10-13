@@ -2,6 +2,7 @@ import Link from "next/link"
 
 import { AcceptOfferButton } from "@/components/borrow/accept-offer-button"
 import { ItemOfferForm } from "@/components/borrow/item-offer-form"
+import { AttachOfferItemForm } from "@/components/borrow/attach-offer-item-form"
 import { ItemRequestForm } from "@/components/borrow/item-request-form"
 import { DemoLabel } from "@/components/shared/demo-label"
 import { PageBand } from "@/components/shared/page-band"
@@ -114,6 +115,13 @@ export default async function ItemRequestsPage({
 
                     {!ownRequest && request.status === "open" ? (
                       <ItemOfferForm requestId={request.id} items={(itemsResult.data ?? []).filter((item) => !requestOffers.some((offer) => String(offer.item_id) === item.id))} />
+                    ) : null}
+
+                    {requestOffers.some((offer) => offer.offerer_id === active.user.id && !offer.item_id) ? (
+                      <AttachOfferItemForm
+                        offerId={String(requestOffers.find((offer) => offer.offerer_id === active.user.id && !offer.item_id)?.id)}
+                        items={itemsResult.data ?? []}
+                      />
                     ) : null}
 
                     {ownRequest && requestOffers.length ? (

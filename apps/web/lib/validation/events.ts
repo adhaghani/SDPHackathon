@@ -13,10 +13,17 @@ export const eventFormSchema = z
     volunteerSlots: z.coerce.number().int().min(0).max(100).optional(),
     accessibilityTags: z.array(z.string()).default([]),
     languages: z.array(z.string()).min(1, { error: "Choose at least one language." }),
+    recurrence: z.enum(["none", "weekly", "monthly"]).default("none"),
+    recurrenceIntervalDays: z.coerce.number().int().min(1).max(60).optional(),
+    recurrenceUntil: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().or(z.literal("")),
   })
   .refine((value) => new Date(value.endsAt) > new Date(value.startsAt), {
     error: "End time must be after the start time.",
     path: ["endsAt"],
+  })
+  .refine((value) => value.recurrence === "none" || Boolean(value.recurrenceUntil), {
+    error: "Choose an end date for a recurring event.",
+    path: ["recurrenceUntil"],
   })
 
 export const rsvpSchema = z.object({
