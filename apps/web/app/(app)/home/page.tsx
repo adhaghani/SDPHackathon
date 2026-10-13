@@ -165,14 +165,17 @@ export default async function HomePage() {
 
         <SavedItemsSection items={savedItems} />
 
-        <div className="mt-8 grid gap-3 sm:grid-cols-3">
+        <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Link href="/borrow" className="rounded-[20px] bg-sky p-4 text-sm font-bold text-ink">
             Browse all PINJAM items <span aria-hidden="true">›</span>
           </Link>
           <Link href="/events" className="rounded-[20px] bg-lime p-4 text-sm font-bold text-ink">
             See what&apos;s happening <span aria-hidden="true">›</span>
           </Link>
-          <Link href="/community" className="rounded-[20px] bg-mustard p-4 text-sm font-bold text-ink">
+          <Link href="/giveaway" className="rounded-[20px] bg-mustard p-4 text-sm font-bold text-ink">
+            Pass something on <span aria-hidden="true">›</span>
+          </Link>
+          <Link href="/community" className="rounded-[20px] bg-mint-tint p-4 text-sm font-bold text-ink">
             Lend a hand nearby <span aria-hidden="true">›</span>
           </Link>
         </div>

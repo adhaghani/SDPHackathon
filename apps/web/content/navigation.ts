@@ -23,6 +23,7 @@ import {
 export const residentNavigation = [
   { href: "/home", label: "Home", icon: House },
   { href: "/borrow", label: "Borrow", icon: Package },
+  { href: "/giveaway", label: "Giveaway", icon: HandHelpingIcon },
   { href: "/events", label: "Events", icon: CalendarDays },
   { href: "/rewards", label: "Impact", icon: Leaf },
 ] as const
@@ -30,6 +31,7 @@ export const residentNavigation = [
 export const sidebarNavigation = [
   { href: "/home", label: "Home", icon: House },
   { href: "/borrow", label: "Borrow", icon: Package },
+  { href: "/giveaway", label: "Giveaway", icon: HandHelpingIcon },
   { href: "/events", label: "Events", icon: CalendarDays },
   { href: "/community", label: "Community", icon: HandHelpingIcon },
   { href: "/guests", label: "Guest passes", icon: UserRoundIcon },

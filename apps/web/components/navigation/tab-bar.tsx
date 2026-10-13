@@ -11,6 +11,7 @@ import { cn } from "@workspace/ui/lib/utils"
 const labelKeys = {
   "/home": "home",
   "/borrow": "borrow",
+  "/giveaway": "giveaway",
   "/events": "events",
   "/rewards": "impact",
 } as const
@@ -27,7 +28,7 @@ export function TabBar({ locale = "en" }: { locale?: "en" | "ms" }) {
   return (
     <nav
       aria-label="Primary"
-      className={`on-dark fixed right-4 bottom-[calc(env(safe-area-inset-bottom)+18px)] left-4 z-50 grid grid-cols-4 gap-1 rounded-[26px] p-1.5 shadow-dock md:hidden ${onInkScreen ? "bg-ink-raised" : "bg-ink"}`}
+      className={`on-dark fixed right-4 bottom-[calc(env(safe-area-inset-bottom)+18px)] left-4 z-50 grid grid-cols-5 gap-1 rounded-[26px] p-1.5 shadow-dock md:hidden ${onInkScreen ? "bg-ink-raised" : "bg-ink"}`}
     >
       {residentNavigation.map(({ href, icon: Icon }) => {
         const active = isActivePath(pathname, href)

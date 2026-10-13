@@ -14,6 +14,8 @@ export const POINT_RULES = {
   item_returned_on_time: "Returned on time and confirmed",
   event_hosted: "Event completed with at least three verified attendees",
   help_completed: "Help completed and confirmed",
+  giveaway_given: "Giveaway completed by both sides",
+  giveaway_taken: "Giveaway received and confirmed by both sides",
   event_volunteer: "Volunteer hours verified by event staff",
   item_request_fulfilled: "Request fulfilled and confirmed by both sides",
   item_guide_added: "How-to guide added to an item",

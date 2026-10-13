@@ -493,6 +493,32 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"giveaways": {
+                  Row: {
+                    "category_id": string | null,"claimed_at": string | null,"completed_at": string | null,"condition": string,"created_at": string,"description": string,"giver_confirmed_at": string | null,"giver_id": string,"handover_location": string,"handover_notes": string,"id": string,"photo_path": string,"status": string,"taker_confirmed_at": string | null,"taker_id": string | null,"title": string,"township_id": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "category_id"?: string | null,"claimed_at"?: string | null,"completed_at"?: string | null,"condition"?: string,"created_at"?: string,"description"?: string,"giver_confirmed_at"?: string | null,"giver_id": string,"handover_location"?: string,"handover_notes"?: string,"id"?: string,"photo_path"?: string,"status"?: string,"taker_confirmed_at"?: string | null,"taker_id"?: string | null,"title": string,"township_id": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "category_id"?: string | null,"claimed_at"?: string | null,"completed_at"?: string | null,"condition"?: string,"created_at"?: string,"description"?: string,"giver_confirmed_at"?: string | null,"giver_id"?: string,"handover_location"?: string,"handover_notes"?: string,"id"?: string,"photo_path"?: string,"status"?: string,"taker_confirmed_at"?: string | null,"taker_id"?: string | null,"title"?: string,"township_id"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "giveaways_category_id_fkey"
+      columns: ["category_id"]
+isOneToOne: false
+      referencedRelation: "item_categories"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "giveaways_township_id_fkey"
+      columns: ["township_id"]
+isOneToOne: false
+      referencedRelation: "townships"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"group_members": {
                   Row: {
                     "created_at": string,"group_id": string,"user_id": string
@@ -1480,6 +1506,9 @@ isOneToOne: false
 "checkout_hub_inventory":
 { Args: { "p_inventory_id": string }; Returns: Json
                            },
+"claim_giveaway":
+{ Args: { "p_giveaway_id": string }; Returns: Json
+                           },
 "complete_event":
 { Args: { "p_event_id": string,"p_occurred_at"?: string }; Returns: Json
                            },
@@ -1514,6 +1543,9 @@ isOneToOne: false
 { Args: { "p_payload": Json }; Returns: Json
                            },
 "create_event":
+{ Args: { "p_payload": Json }; Returns: Json
+                           },
+"create_giveaway":
 { Args: { "p_payload": Json }; Returns: Json
                            },
 "create_help_request":
@@ -1805,6 +1837,9 @@ isOneToOne: false
                            },
 "transition_booking":
 { Args: { "p_action": string,"p_actor_id"?: string,"p_booking_id": string,"p_occurred_at"?: string,"p_payload"?: Json }; Returns: Json
+                           },
+"transition_giveaway":
+{ Args: { "p_action": string,"p_giveaway_id": string,"p_payload"?: Json }; Returns: Json
                            },
 "trust_tier_distribution":
 { Args: { "p_township_id": string }; Returns: Json

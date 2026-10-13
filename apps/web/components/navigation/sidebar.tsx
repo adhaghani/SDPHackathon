@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ActivityIcon, ArrowLeftIcon, CalendarDays, GiftIcon, House, Leaf, Package } from "lucide-react"
+import { ActivityIcon, ArrowLeftIcon, CalendarDays, GiftIcon, HandHelpingIcon, House, Leaf, Package } from "lucide-react"
 
 import { isActivePath } from "@/components/navigation/nav-utils"
 import { NotificationBell } from "@/components/navigation/notification-bell"
@@ -21,6 +21,7 @@ type NavItem = {
 const primaryItems: NavItem[] = [
   { href: "/home", label: "Block", icon: House },
   { href: "/borrow", label: "Borrow", icon: Package },
+  { href: "/giveaway", label: "Giveaway", icon: HandHelpingIcon },
   { href: "/events", label: "Events", icon: CalendarDays },
   { href: "/rewards", label: "Impact", icon: Leaf },
 ]

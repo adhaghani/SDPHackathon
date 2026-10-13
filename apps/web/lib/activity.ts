@@ -7,6 +7,8 @@ const activityLabels: Record<string, string> = {
   item_lent_completed: "Lend completed and confirmed",
   item_returned_on_time: "Returned a borrow on time",
   help_completed: "Helped a neighbour, confirmed",
+  giveaway_given: "Passed something on",
+  giveaway_taken: "Received a neighbour giveaway",
   challenge_completed: "Challenge completed",
   redemption: "Redeemed a reward",
   reversal: "Points adjusted by the township",
@@ -19,6 +21,8 @@ const activityLines: Record<string, StationName | "Reward"> = {
   event_hosted: "Jom",
   event_volunteer: "Jom",
   help_completed: "Tolong",
+  giveaway_given: "Tolong",
+  giveaway_taken: "Tolong",
   challenge_completed: "Rimba",
   redemption: "Reward",
 }
