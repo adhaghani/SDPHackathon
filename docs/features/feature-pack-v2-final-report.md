@@ -34,6 +34,7 @@ Every new table has RLS and demo rows are labelled where seeded. Admin/sponsor a
 - Responsive coverage: 320, 390, 768 and 1440px with no horizontal overflow.
 - Accessibility: landing, resident Home and admin Township Pulse have no WCAG A/AA violations.
 - The local database was reset and reseeded after browser tests, leaving a clean demo state.
+- `scripts/seed-demo.ts` now seeds at least one row in every public table, including disputes, moderation reports, booking comments, blocks, audit entries, programme costs, pilot baselines, redemptions, challenge progress, group memberships, notification preferences, item guides, equipment hubs and hub inventory. Re-running the seed is idempotent.
 
 ## Changes from the literal specification
 
