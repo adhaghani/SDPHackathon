@@ -22,7 +22,7 @@ flowchart LR
 - Borrow/share: `item_categories`, `items`, `bookings`, `booking_messages`, `disputes`.
 - Community: `announcements`, `help_requests`, `interest_groups`, `group_members`, `reports`, `blocks`.
 - Gamification: `reward_rules`, `points_ledger`, `v_member_points`, `levels`, `badges`, `user_badges`, `challenges`, `challenge_progress`, `partners`, `rewards`, `redemptions`.
-- Impact: `notifications`, `programme_costs`, `pilot_baselines`.
+- Impact: `notifications`, `programme_costs`, `pilot_baselines`, `recycling_materials`, `recycling_units`, `recycling_logs`, `recycling_log_items`, `recycling_campaigns`.
 
 ## Booking state machine
 
@@ -44,6 +44,12 @@ Verified event check-in / completed lend / help / challenge
   → points_ledger append-only row
   → badges and challenge progress
   → notification and Rewards/Home route
+
+Resident recycling estimate
+  → SECURITY DEFINER log_recycling()
+  → recycling_logs + recycling_log_items (self-reported kg and optional EXIF-stripped photos)
+  → material factors convert to estimated CO₂e and kWh on read
+  → active campaign refresh → idempotent recycling_goal_completed award (50 BP)
 ```
 
 `points_ledger` has no update or delete grants for `authenticated`. Corrections use negative `reversal` rows and `audit_log`.

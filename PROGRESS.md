@@ -71,6 +71,13 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` complete · `[!]` blocke
 
 ## Phase 5 — Stretch
 
+### Resident recycling tracking
+
+- [x] Self-reported count/custom-kg logging, lifetime impact metrics and cited CO₂e/kWh factors
+- [x] Popup estimate composer with current-date-only logging and optional EXIF-stripped photos
+- [x] Township recycling campaign with sea-turtle progress and idempotent 50 BP contributor reward
+- [x] Resident home, `/recycling`, Engagement admin controls, methodology and tests
+
 - [x] Recommendations v1 behind `NEXT_PUBLIC_ENABLE_RECOMMENDATIONS`
 - [x] Rotating event QR and QR handover/return behind `NEXT_PUBLIC_ENABLE_ROTATING_QR`
 - [x] Sponsor portal behind `NEXT_PUBLIC_ENABLE_SPONSOR_PORTAL`
@@ -108,6 +115,15 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` complete · `[!]` blocke
 | 2026-10-11 | Local performance measurement | Home FCP/LCP ≈ 256 ms; Pulse load ≈ 536 ms |
 | 2026-10-11 | `npm run test:e2e` | Pass — 5 tests: accessibility, booking flow, core loop, auth |
 | 2026-10-11 | `npm run lint && npm run typecheck && npm test && npm run test:db && npm run build` | Pass |
+| 2026-10-14 | `npx supabase db reset && npm run seed && npm run test:db` | Pass — 28 recycling pgTAP tests |
+| 2026-10-14 | `npm run lint && npm run typecheck && npm test && npm run build` | Pass |
+| 2026-10-14 | `npx playwright test e2e/recycling.spec.ts` | Pass — logging, home refresh and reduced motion |
+| 2026-10-14 | Full `npm run test:e2e` | Recycling, accessibility and responsive suites pass; booking-flow and sign-out auth failures reproduce independently and are outside recycling scope |
+| 2026-10-14 | Navigation route audit | Resident and admin sidebar/drawer routes expanded; mobile bottom nav verified at exactly five primary tabs |
+| 2026-10-14 | `npx playwright test e2e/navigation.spec.ts` | Pass — fixed top-right mobile drawer, route links and admin tools |
+| 2026-10-14 | `npx playwright test e2e/responsive.spec.ts` | Pass — 320/390/768/1440px route overflow audit |
+| 2026-10-14 | `npx playwright test e2e/recycling.spec.ts` | Pass — popup composer, current-date-only input, photo upload and persistence |
+| 2026-10-14 | `npm run test:db` | Pass — 192 tests including photo-path validation and persistence |
 | 2026-10-11 | Fresh clone `npm ci --ignore-scripts` | Blocked by npm `ECONNRESET`; local install and all gates pass |
 | 2026-10-11 | Fresh clone retry `npm ci --ignore-scripts --prefer-offline` | Pass — install in 29s |
 | 2026-10-11 | Fresh clone lint/typecheck/test/build | Pass |

@@ -38,8 +38,8 @@ export function GuestAdminControls({
   const [settingsState, settingsAction, settingsPending] = useActionState(saveGuestPassSettings, idle)
 
   return (
-    <div className="grid gap-5 xl:grid-cols-2">
-      <section className="rounded-[22px] bg-paper p-5" aria-labelledby="guest-settings-heading">
+    <div className="grid min-w-0 gap-5 xl:grid-cols-2">
+      <section className="min-w-0 rounded-[22px] bg-paper p-5" aria-labelledby="guest-settings-heading">
         <h2 id="guest-settings-heading" className="text-h2">Limits and retention</h2>
         <form action={settingsAction} className="mt-4">
           <FieldGroup className="grid gap-4 sm:grid-cols-2">
@@ -56,7 +56,7 @@ export function GuestAdminControls({
         </form>
       </section>
 
-      <section className="rounded-[22px] bg-paper p-5" aria-labelledby="gates-heading">
+      <section className="min-w-0 rounded-[22px] bg-paper p-5" aria-labelledby="gates-heading">
         <h2 id="gates-heading" className="text-h2">Gates</h2>
         <form action={gateAction} className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
           <Field className="flex-1"><FieldLabel htmlFor="gate-name">New gate name</FieldLabel><Input id="gate-name" name="name" maxLength={80} placeholder="Back gate" required /></Field>
@@ -77,18 +77,18 @@ export function GuestAdminControls({
         </ul>
       </section>
 
-      <section className="rounded-[22px] bg-paper p-5 xl:col-span-2" aria-labelledby="guards-heading">
+      <section className="min-w-0 rounded-[22px] bg-paper p-5 xl:col-span-2" aria-labelledby="guards-heading">
         <h2 id="guards-heading" className="text-h2">Guard assignments</h2>
         <p className="mt-1 text-body text-ink-soft">Guards cannot self-register. Assignment is scoped to this township.</p>
         {guardState.message ? <p className="mt-3 text-sm text-ink-soft">{guardState.message}</p> : null}
         <ul className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {members.map((member) => (
-            <li key={member.id} className="flex items-center justify-between gap-3 rounded-[18px] bg-white p-4">
+            <li key={member.id} className="flex min-w-0 items-center justify-between gap-3 rounded-[18px] bg-white p-4">
               <div className="min-w-0">
                 <p className="truncate font-bold">{member.display_name}</p>
                 <p className="text-sm capitalize text-ink-soft">{member.role.replaceAll("_", " ")}</p>
               </div>
-              <form action={guardAction}>
+              <form action={guardAction} className="shrink-0">
                 <input type="hidden" name="memberId" value={member.id} />
                 <input type="hidden" name="assign" value={member.role === "guard" ? "false" : "true"} />
                 <Button type="submit" variant={member.role === "guard" ? "outline" : "cta"} size="sm" disabled={guardPending || member.role === "township_admin"}>

@@ -5,9 +5,12 @@ import { IntentComposer } from "@/components/block/intent-composer"
 import { SavedItemsSection } from "@/components/borrow/saved-items-section"
 import type { SavedItemCardItem } from "@/components/borrow/saved-item-card"
 import { Sheet } from "@/components/block/layout"
+import { RecyclingImpactSummary } from "@/components/recycling/impact-summary"
+import { TurtleGoalCard } from "@/components/recycling/turtle-goal-card"
 import { BetterPointsChip } from "@/components/shared/better-points-chip"
 import { levelProgress, malayGreeting } from "@/lib/activity"
 import { requireActiveMember } from "@/lib/data"
+import { parseRecyclingCampaign, parseRecyclingSummary } from "@/lib/recycling"
 import { getSavedItemIds } from "@/lib/saved-items"
 import { formatEventDate, formatEventTime, formatMoney } from "@/lib/format"
 import { createClient } from "@/lib/supabase/server"
@@ -18,7 +21,14 @@ export default async function HomePage() {
   const now = new Date()
   const savedItemIds = await getSavedItemIds(active.user.id)
 
-  const [itemsResult, eventsResult, helpResult, levelsResult] = await Promise.all([
+  const [
+    itemsResult,
+    eventsResult,
+    helpResult,
+    levelsResult,
+    recyclingSummaryResult,
+    recyclingCampaignResult,
+  ] = await Promise.all([
     supabase
       .from("items")
       .select("id,title,photo_paths,deposit_rm,max_loan_days,owner_id")
@@ -44,12 +54,19 @@ export default async function HomePage() {
       .order("created_at", { ascending: false })
       .limit(3),
     supabase.from("levels").select("level,name,min_lifetime_points").order("level"),
+    supabase.rpc("resident_recycling_summary", {
+      p_township_id: active.townshipId,
+      p_user_id: active.user.id,
+    }),
+    supabase.rpc("township_recycling_progress", { p_township_id: active.townshipId }),
   ])
 
   if (itemsResult.error) throw new Error(itemsResult.error.message)
   if (eventsResult.error) throw new Error(eventsResult.error.message)
   if (helpResult.error) throw new Error(helpResult.error.message)
   if (levelsResult.error) throw new Error(levelsResult.error.message)
+  if (recyclingSummaryResult.error) throw new Error(recyclingSummaryResult.error.message)
+  if (recyclingCampaignResult.error) throw new Error(recyclingCampaignResult.error.message)
 
   const savedItemsResult = savedItemIds.length
     ? await supabase
@@ -95,6 +112,12 @@ export default async function HomePage() {
   const lifetime = active.points?.lifetime_points ?? 0
   const level = levelProgress(lifetime, levelsResult.data ?? [])
   const balance = active.points?.balance ?? 0
+  const recyclingSummary = parseRecyclingSummary(
+    (recyclingSummaryResult.data ?? {}) as Record<string, unknown>
+  )
+  const recyclingCampaign = parseRecyclingCampaign(
+    (recyclingCampaignResult.data ?? {}) as Record<string, unknown>
+  )
 
   const feed = [
     ...items.slice(0, 1).map((item) => ({
@@ -135,7 +158,7 @@ export default async function HomePage() {
   return (
     <div className="-mx-4 overflow-hidden rounded-none bg-lime text-ink sm:-mx-6 md:mx-0 md:rounded-[32px]">
       <div className="px-5 pt-5 pb-8 sm:px-7 md:px-10 md:pt-8">
-        <header className="flex items-center justify-between gap-3">
+        <header className="flex items-center justify-between gap-3 pr-14 md:pr-0">
           <div className="flex min-w-0 items-center gap-2">
             <span aria-hidden="true" className="size-2.5 shrink-0 rounded-full bg-ink" />
             <span className="truncate text-sm font-semibold">{blockName} · {townshipName}</span>
@@ -164,6 +187,11 @@ export default async function HomePage() {
         </div>
 
         <SavedItemsSection items={savedItems} />
+
+        <div className="mt-8 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(320px,.8fr)] lg:items-start">
+          <RecyclingImpactSummary summary={recyclingSummary} />
+          <TurtleGoalCard campaign={recyclingCampaign} />
+        </div>
 
         <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Link href="/borrow" className="rounded-[20px] bg-sky p-4 text-sm font-bold text-ink">

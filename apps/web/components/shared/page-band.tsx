@@ -23,7 +23,7 @@ export function PageBand({
   className?: string
 }) {
   return (
-    <header className={cn("mb-6 overflow-hidden rounded-[22px] bg-lime p-5 text-ink sm:p-6", className)}>
+    <header className={cn("mb-6 overflow-hidden rounded-[22px] bg-lime p-5 pr-14 text-ink sm:p-6 sm:pr-6", className)}>
       {back ? (
         <Link
           href={back.href}

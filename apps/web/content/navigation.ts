@@ -3,6 +3,7 @@ import {
   AwardIcon,
   BarChart3Icon,
   BookOpenIcon,
+  BookmarkIcon,
   CalendarDays,
   HandHelpingIcon,
   House,
@@ -10,6 +11,8 @@ import {
   MapIcon,
   Package,
   ScaleIcon,
+  RecycleIcon,
+  SearchIcon,
   ShieldCheckIcon,
   StarIcon,
   UsersRoundIcon,
@@ -17,13 +20,19 @@ import {
   WalletIcon,
   WarehouseIcon,
   GiftIcon,
+  HistoryIcon,
+  InboxIcon,
+  ListChecksIcon,
+  MegaphoneIcon,
   MessageCircleIcon,
+  SettingsIcon,
+  SparklesIcon,
 } from "lucide-react"
 
 export const residentNavigation = [
   { href: "/home", label: "Home", icon: House },
   { href: "/borrow", label: "Borrow", icon: Package },
-  { href: "/giveaway", label: "Giveaway", icon: HandHelpingIcon },
+  { href: "/recycling", label: "Recycle", icon: RecycleIcon },
   { href: "/events", label: "Events", icon: CalendarDays },
   { href: "/rewards", label: "Impact", icon: Leaf },
 ] as const
@@ -36,13 +45,23 @@ export const sidebarNavigation = [
   { href: "/community", label: "Community", icon: HandHelpingIcon },
   { href: "/guests", label: "Guest passes", icon: UserRoundIcon },
   { href: "/challenges", label: "Challenges", icon: StarIcon },
+  { href: "/recycling", label: "Recycle", icon: RecycleIcon },
   { href: "/rewards", label: "Impact & rewards", icon: Leaf },
+  { href: "/notifications", label: "Notifications", icon: InboxIcon },
+  { href: "/borrow/mine", label: "Your loans", icon: HistoryIcon },
+  { href: "/borrow/saved", label: "Saved items", icon: BookmarkIcon },
+  { href: "/borrow/requests", label: "Requests", icon: ListChecksIcon },
+  { href: "/events/mine", label: "Your events", icon: CalendarDays },
+  { href: "/giveaway/mine", label: "Your giveaways", icon: GiftIcon },
+  { href: "/profile/settings", label: "Settings", icon: SettingsIcon },
   { href: "/help", label: "Help", icon: MessageCircleIcon },
 ] as const
 
 export const adminNavigation = [
   { href: "/admin", label: "Township Pulse", icon: ActivityIcon },
   { href: "/admin/insights", label: "Insights", icon: BarChart3Icon },
+  { href: "/admin/demand", label: "Demand intelligence", icon: SearchIcon },
+  { href: "/admin/engagement", label: "Engagement", icon: MegaphoneIcon },
   { href: "/admin/map", label: "Map", icon: MapIcon, flag: "leaflet" },
   { href: "/admin/hubs", label: "Hubs", icon: WarehouseIcon, flag: "equipment_hubs" },
   { href: "/admin/members", label: "Members", icon: UsersRoundIcon },
@@ -54,6 +73,7 @@ export const adminNavigation = [
   { href: "/admin/badges", label: "Awards", icon: AwardIcon },
   { href: "/admin/methodology", label: "Methodology", icon: BookOpenIcon },
   { href: "/admin/guests", label: "Guest access", icon: UserRoundIcon },
+  { href: "/ai", label: "AI summary", icon: SparklesIcon, flag: "ai_search" },
   { href: "/help", label: "Help", icon: MessageCircleIcon },
 ] as const
 

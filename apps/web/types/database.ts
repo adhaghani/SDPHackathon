@@ -1051,6 +1051,112 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"recycling_campaigns": {
+                  Row: {
+                    "completed_at": string | null,"created_at": string,"created_by": string | null,"ends_on": string,"id": string,"starts_on": string,"status": string,"target_kg": number,"title": string,"township_id": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "completed_at"?: string | null,"created_at"?: string,"created_by"?: string | null,"ends_on": string,"id"?: string,"starts_on": string,"status"?: string,"target_kg": number,"title": string,"township_id": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "completed_at"?: string | null,"created_at"?: string,"created_by"?: string | null,"ends_on"?: string,"id"?: string,"starts_on"?: string,"status"?: string,"target_kg"?: number,"title"?: string,"township_id"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "recycling_campaigns_township_id_fkey"
+      columns: ["township_id"]
+isOneToOne: false
+      referencedRelation: "townships"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"recycling_log_items": {
+                  Row: {
+                    "created_at": string,"estimated_kg": number,"id": string,"log_id": string,"material_id": string,"quantity": number,"unit_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"estimated_kg": number,"id"?: string,"log_id": string,"material_id": string,"quantity"?: number,"unit_id"?: string | null
+                  }
+                  Update: {
+                    "created_at"?: string,"estimated_kg"?: number,"id"?: string,"log_id"?: string,"material_id"?: string,"quantity"?: number,"unit_id"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "recycling_log_items_log_id_fkey"
+      columns: ["log_id"]
+isOneToOne: false
+      referencedRelation: "recycling_logs"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "recycling_log_items_material_id_fkey"
+      columns: ["material_id"]
+isOneToOne: false
+      referencedRelation: "recycling_materials"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "recycling_log_items_unit_id_fkey"
+      columns: ["unit_id"]
+isOneToOne: false
+      referencedRelation: "recycling_units"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"recycling_logs": {
+                  Row: {
+                    "created_at": string,"id": string,"method": string,"occurred_on": string,"photo_paths": (string)[],"source": string,"total_kg": number,"township_id": string,"updated_at": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"id"?: string,"method"?: string,"occurred_on": string,"photo_paths"?: (string)[],"source"?: string,"total_kg": number,"township_id": string,"updated_at"?: string,"user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: string,"method"?: string,"occurred_on"?: string,"photo_paths"?: (string)[],"source"?: string,"total_kg"?: number,"township_id"?: string,"updated_at"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "recycling_logs_township_id_fkey"
+      columns: ["township_id"]
+isOneToOne: false
+      referencedRelation: "townships"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"recycling_materials": {
+                  Row: {
+                    "active": boolean,"co2e_kg_per_kg": number | null,"created_at": string,"energy_kwh_per_kg": number | null,"factor_source": string | null,"id": string,"name": string,"plural_name": string,"slug": string,"sort_order": number,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "active"?: boolean,"co2e_kg_per_kg"?: number | null,"created_at"?: string,"energy_kwh_per_kg"?: number | null,"factor_source"?: string | null,"id"?: string,"name": string,"plural_name": string,"slug": string,"sort_order"?: number,"updated_at"?: string
+                  }
+                  Update: {
+                    "active"?: boolean,"co2e_kg_per_kg"?: number | null,"created_at"?: string,"energy_kwh_per_kg"?: number | null,"factor_source"?: string | null,"id"?: string,"name"?: string,"plural_name"?: string,"slug"?: string,"sort_order"?: number,"updated_at"?: string
+                  }
+                  Relationships: [
+
+                  ]
+                },"recycling_units": {
+                  Row: {
+                    "active": boolean,"created_at": string,"id": string,"kg_per_unit": number,"material_id": string,"name": string,"slug": string,"sort_order": number,"unit_label": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "active"?: boolean,"created_at"?: string,"id"?: string,"kg_per_unit": number,"material_id": string,"name": string,"slug": string,"sort_order"?: number,"unit_label": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "active"?: boolean,"created_at"?: string,"id"?: string,"kg_per_unit"?: number,"material_id"?: string,"name"?: string,"slug"?: string,"sort_order"?: number,"unit_label"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "recycling_units_material_id_fkey"
+      columns: ["material_id"]
+isOneToOne: false
+      referencedRelation: "recycling_materials"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"redemptions": {
                   Row: {
                     "code": string,"cost_bp": number,"created_at": string,"id": string,"reward_id": string,"status": string,"township_id": string,"used_at": string | null,"used_by": string | null,"user_id": string,"valid_until": string | null
@@ -1443,7 +1549,10 @@ isOneToOne: false
                 }
           }
           Functions: {
-            "_trust_score":
+            "_recycling_refresh_campaign":
+{ Args: { "p_township_id": string }; Returns: Json
+                           },
+"_trust_score":
 { Args: { "p_user_id": string }; Returns: Json
                            },
 "_user_streak":
@@ -1689,6 +1798,9 @@ isOneToOne: false
 "log_borrow_search":
 { Args: { "p_available_count"?: number,"p_category_id"?: string,"p_neighbourhood_id"?: string,"p_results_count"?: number,"p_term"?: string,"p_township_id": string }; Returns: Json
                            },
+"log_recycling":
+{ Args: { "p_payload": Json }; Returns: Json
+                           },
 "lookup_walk_in_hosts":
 { Args: { "p_township_id": string,"p_unit_label": string }; Returns: Json
                            },
@@ -1745,6 +1857,9 @@ isOneToOne: false
                            },
 "register_booking_handover_token":
 { Args: { "p_booking_id": string }; Returns: Json
+                           },
+"resident_recycling_summary":
+{ Args: { "p_township_id": string,"p_user_id"?: string }; Returns: Json
                            },
 "resolve_booking_dispute":
 { Args: { "p_dispute_id": string,"p_note"?: string,"p_resolution": string }; Returns: Json
@@ -1814,6 +1929,12 @@ isOneToOne: false
 "set_notification_preference":
 { Args: { "p_enabled": boolean,"p_type": string }; Returns: Json
                            },
+"set_recycling_campaign":
+{ Args: { "p_payload": Json }; Returns: Json
+                           },
+"set_recycling_material_factor":
+{ Args: { "p_co2e_kg_per_kg": number,"p_energy_kwh_per_kg": number,"p_slug": string,"p_source": string,"p_township_id": string }; Returns: Json
+                           },
 "set_township_goal":
 { Args: { "p_target_co2e_kg": number,"p_year": number }; Returns: Json
                            },
@@ -1831,6 +1952,9 @@ isOneToOne: false
                            },
 "township_pulse":
 { Args: { "p_days"?: number,"p_township_id": string }; Returns: Json
+                           },
+"township_recycling_progress":
+{ Args: { "p_township_id": string }; Returns: Json
                            },
 "township_value_shared":
 { Args: { "p_days"?: number,"p_township_id": string }; Returns: Json

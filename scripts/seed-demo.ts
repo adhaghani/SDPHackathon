@@ -380,6 +380,23 @@ async function ensureEngagementData(
   await admin.from("challenges").upsert(challenges, { onConflict: "township_id,title" })
 
   const office = userIds["office@borrowlah.demo"]
+  const existingRecyclingCampaign = await findOne(admin, "recycling_campaigns", {
+    township_id: townshipId,
+    title: "October recycling goal",
+  })
+  if (!existingRecyclingCampaign) {
+    const campaignInsert = await admin.from("recycling_campaigns").insert({
+      township_id: townshipId,
+      title: "October recycling goal",
+      starts_on: new Date(Date.now() - 15 * DAY).toISOString().slice(0, 10),
+      ends_on: new Date(Date.now() + 30 * DAY).toISOString().slice(0, 10),
+      target_kg: 250,
+      status: "active",
+      created_by: office,
+    })
+    if (campaignInsert.error) throw new Error(campaignInsert.error.message)
+  }
+
   const siti = userIds["siti@borrowlah.demo"]
   await admin.from("announcements").upsert(
     [{

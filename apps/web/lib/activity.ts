@@ -10,6 +10,7 @@ const activityLabels: Record<string, string> = {
   giveaway_given: "Passed something on",
   giveaway_taken: "Received a neighbour giveaway",
   challenge_completed: "Challenge completed",
+  recycling_goal_completed: "Township recycling goal completed",
   redemption: "Redeemed a reward",
   reversal: "Points adjusted by the township",
 }
@@ -24,6 +25,7 @@ const activityLines: Record<string, StationName | "Reward"> = {
   giveaway_given: "Tolong",
   giveaway_taken: "Tolong",
   challenge_completed: "Rimba",
+  recycling_goal_completed: "Rimba",
   redemption: "Reward",
 }
 

@@ -17,6 +17,14 @@ test("landing and resident home have no WCAG A/AA violations", async ({ page }) 
   await page.getByRole("button", { name: "Aisyah · resident" }).click()
   await page.waitForURL("**/home", { timeout: 60000 })
   await expectNoViolations(page)
+  await page.goto("/recycling")
+  await expectNoViolations(page)
+  await page
+    .locator('section[aria-labelledby="new-estimate-heading"]')
+    .getByRole("button", { name: "Log recycling" })
+    .click()
+  await expect(page.getByRole("dialog", { name: "New recycling estimate" })).toBeVisible()
+  await expectNoViolations(page)
 })
 
 test("guest pass, public pass and guard screens have no WCAG A/AA violations", async ({ browser }) => {

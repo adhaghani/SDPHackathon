@@ -24,6 +24,7 @@ export const POINT_RULES = {
   streak_milestone_12: "Twelve-month sharing streak reached",
   invite_accepted: "Neighbour joined and completed a first borrow",
   neighbour_of_month: "Selected as Neighbour of the month",
+  recycling_goal_completed: "Township recycling goal completed",
 } as const satisfies Record<string, string>
 
 export type PointActionType = keyof typeof POINT_RULES

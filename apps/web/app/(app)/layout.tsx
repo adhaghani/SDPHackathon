@@ -2,6 +2,7 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 
 import { Sidebar } from "@/components/navigation/sidebar"
+import { MobileNavigation } from "@/components/navigation/mobile-navigation"
 import { TabBar } from "@/components/navigation/tab-bar"
 import { PageSurface } from "@/components/shared/page-surface"
 import { RealtimeRefresh } from "@/components/shared/realtime-refresh"
@@ -45,7 +46,7 @@ export default async function AppLayout({
   const isAdmin = context.membership?.role === "township_admin"
   const displayName = context.profile?.display_name?.split(" ")[0] ?? "Neighbour"
   const townshipName = context.membership?.townships?.name ?? "Your township"
-  const enabledFlags = (["leaflet", "equipment_hubs"] as const).filter((flag) => isFeatureEnabled(flag))
+  const enabledFlags = (["leaflet", "equipment_hubs", "ai_search"] as const).filter((flag) => isFeatureEnabled(flag))
 
   return (
     <div className={cn("min-h-svh bg-paper text-ink", comfortClass)}>
@@ -74,6 +75,14 @@ export default async function AppLayout({
         </div>
       </main>
       <TabBar locale={locale} />
+      <MobileNavigation
+        isAdmin={isAdmin}
+        displayName={displayName}
+        townshipName={townshipName}
+        enabledFlags={[...enabledFlags]}
+        balance={context.points?.balance ?? 0}
+        unreadCount={unread.count ?? 0}
+      />
       <Link
         href="/profile/settings"
         className="sr-only focus:not-sr-only focus:fixed focus:right-4 focus:bottom-24 focus:z-[70] focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-white"

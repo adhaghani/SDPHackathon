@@ -12,6 +12,7 @@ const labelKeys = {
   "/home": "home",
   "/borrow": "borrow",
   "/giveaway": "giveaway",
+  "/recycling": "recycling",
   "/events": "events",
   "/rewards": "impact",
 } as const

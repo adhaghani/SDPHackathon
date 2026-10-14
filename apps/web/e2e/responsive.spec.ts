@@ -35,10 +35,42 @@ test("new Feature Pack screens do not scroll horizontally at target widths", asy
     "/profile",
     "/profile/settings",
     "/rewards",
+    "/recycling",
     "/guests",
+    "/notifications",
+    "/profile/settings",
+    "/borrow/mine",
+    "/borrow/saved",
+    "/borrow/requests",
+    "/borrow/new",
+    "/borrow/bundles/new",
+    "/events/mine",
+    "/events/new",
+    "/giveaway/mine",
+    "/giveaway/new",
+    "/challenges",
+    "/community",
+    "/rewards/activity",
     "/pass/sample-guest-token-128bit",
   ]
-  const adminRoutes = ["/admin", "/admin/demand", "/admin/engagement", "/admin/methodology"]
+  const adminRoutes = [
+    "/admin",
+    "/admin/badges",
+    "/admin/budget",
+    "/admin/demand",
+    "/admin/disputes",
+    "/admin/engagement",
+    "/admin/guests",
+    "/admin/hubs",
+    "/admin/insights",
+    "/admin/map",
+    "/admin/members",
+    "/admin/methodology",
+    "/admin/moderation",
+    "/admin/rewards",
+    "/admin/support",
+    "/ai",
+  ]
 
   for (const viewport of viewports) {
     await resident.setViewportSize(viewport)
