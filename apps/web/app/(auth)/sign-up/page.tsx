@@ -10,12 +10,10 @@ export default async function SignUpPage({
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-display-lg text-ink">
+        <h1 className="font-display text-4xl leading-tight font-extrabold tracking-[-0.03em] text-balance text-ink sm:text-[40px]">
           {authContent.signUp.title}
         </h1>
-        <p className="mt-2 text-ink-muted">
-          {authContent.signUp.description}
-        </p>
+        <p className="mt-2 text-ink-muted">{authContent.signUp.description}</p>
       </div>
       <SignUpForm inviteCode={params.invite} />
     </div>

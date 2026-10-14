@@ -9,7 +9,7 @@ test("a resident can create an account and sign in again", async ({ page }) => {
   await page.goto("/sign-up")
   await page.getByLabel("Display name").fill("Phase Zero")
   await page.locator("#signup-email").fill(email)
-  await page.getByLabel("Password").fill(password)
+  await page.getByLabel("Password", { exact: true }).fill(password)
   await page.locator('label[for="acceptedTerms"]').click()
   await page.locator('label[for="acceptedPrivacy"]').click()
   await page.getByRole("button", { name: "Create account" }).click()

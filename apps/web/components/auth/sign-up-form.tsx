@@ -5,11 +5,13 @@ import Link from "next/link"
 
 import { signUp } from "@/actions/auth"
 import { authContent } from "@/content/auth"
+import { PasswordField } from "@/components/auth/password-field"
 import { Alert, AlertDescription } from "@workspace/ui/components/alert"
 import { Button } from "@workspace/ui/components/button"
 import { Checkbox } from "@workspace/ui/components/checkbox"
 import {
   Field,
+  FieldContent,
   FieldError,
   FieldGroup,
   FieldLabel,
@@ -30,7 +32,9 @@ export function SignUpForm({ inviteCode }: { inviteCode?: string }) {
 
   return (
     <form action={action} className="flex w-full flex-col gap-5">
-      {inviteCode ? <input type="hidden" name="inviteCode" value={inviteCode} /> : null}
+      {inviteCode ? (
+        <input type="hidden" name="inviteCode" value={inviteCode} />
+      ) : null}
       <FieldGroup>
         <Field data-invalid={Boolean(displayNameError)}>
           <FieldLabel htmlFor="displayName">
@@ -42,8 +46,11 @@ export function SignUpForm({ inviteCode }: { inviteCode?: string }) {
             autoComplete="name"
             required
             aria-invalid={Boolean(displayNameError)}
+            aria-describedby={
+              displayNameError ? "displayName-error" : undefined
+            }
           />
-          <FieldError>{displayNameError}</FieldError>
+          <FieldError id="displayName-error">{displayNameError}</FieldError>
         </Field>
         <Field data-invalid={Boolean(emailError)}>
           <FieldLabel htmlFor="signup-email">
@@ -56,50 +63,56 @@ export function SignUpForm({ inviteCode }: { inviteCode?: string }) {
             autoComplete="email"
             required
             aria-invalid={Boolean(emailError)}
+            aria-describedby={emailError ? "signup-email-error" : undefined}
           />
-          <FieldError>{emailError}</FieldError>
+          <FieldError id="signup-email-error">{emailError}</FieldError>
         </Field>
-        <Field data-invalid={Boolean(passwordError)}>
-          <FieldLabel htmlFor="signup-password">
-            {authContent.fields.password}
-          </FieldLabel>
-          <Input
-            id="signup-password"
-            name="password"
-            type="password"
-            autoComplete="new-password"
-            required
-            aria-invalid={Boolean(passwordError)}
-          />
-          <FieldError>
-            {passwordError ??
-              "Use at least 8 characters with a letter and number."}
-          </FieldError>
-        </Field>
+        <PasswordField
+          id="signup-password"
+          autoComplete="new-password"
+          error={passwordError}
+          description="Use at least 8 characters with a letter and number."
+        />
       </FieldGroup>
 
       <FieldSet aria-label="Consent">
-        <Field data-invalid={Boolean(termsError)}>
+        <Field orientation="horizontal" data-invalid={Boolean(termsError)}>
           <Checkbox
             id="acceptedTerms"
+            className="mt-3.5!"
             name="acceptedTerms"
             aria-label={authContent.consent.terms}
+            aria-invalid={Boolean(termsError)}
+            aria-describedby={termsError ? "terms-error" : undefined}
           />
-          <FieldLabel htmlFor="acceptedTerms">
-            {authContent.consent.terms}
-          </FieldLabel>
-          <FieldError>{termsError}</FieldError>
+          <FieldContent>
+            <FieldLabel
+              htmlFor="acceptedTerms"
+              className="min-h-11 items-center"
+            >
+              {authContent.consent.terms}
+            </FieldLabel>
+            <FieldError id="terms-error">{termsError}</FieldError>
+          </FieldContent>
         </Field>
-        <Field data-invalid={Boolean(privacyError)}>
+        <Field orientation="horizontal" data-invalid={Boolean(privacyError)}>
           <Checkbox
             id="acceptedPrivacy"
+            className="mt-3.5!"
             name="acceptedPrivacy"
             aria-label={authContent.consent.privacy}
+            aria-invalid={Boolean(privacyError)}
+            aria-describedby={privacyError ? "privacy-error" : undefined}
           />
-          <FieldLabel htmlFor="acceptedPrivacy">
-            {authContent.consent.privacy}
-          </FieldLabel>
-          <FieldError>{privacyError}</FieldError>
+          <FieldContent>
+            <FieldLabel
+              htmlFor="acceptedPrivacy"
+              className="min-h-11 items-center"
+            >
+              {authContent.consent.privacy}
+            </FieldLabel>
+            <FieldError id="privacy-error">{privacyError}</FieldError>
+          </FieldContent>
         </Field>
       </FieldSet>
 
@@ -109,14 +122,23 @@ export function SignUpForm({ inviteCode }: { inviteCode?: string }) {
         </Alert>
       ) : null}
 
-      <Button type="submit" variant="cta" className="h-11 w-full" disabled={pending}>
+      <Button
+        type="submit"
+        variant="cta"
+        size="cta"
+        className="w-full"
+        disabled={pending}
+      >
         {pending ? <Spinner data-icon="inline-start" /> : null}
         {authContent.signUp.submit}
       </Button>
 
       <p className="text-center text-sm text-muted-foreground">
         Already registered?{" "}
-        <Link className="font-medium text-foreground underline" href="/sign-in">
+        <Link
+          className="inline-flex min-h-11 items-center font-bold text-foreground underline underline-offset-4 hover:decoration-2"
+          href="/sign-in"
+        >
           {authContent.signUp.signInInstead}
         </Link>
       </p>

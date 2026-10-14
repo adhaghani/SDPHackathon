@@ -111,18 +111,18 @@ export function Sidebar({
 
       <ScrollArea
         className="min-h-0 flex-1 px-3 pb-3"
-        contentClassName="min-h-full"
+        contentClassName="min-h-full w-full"
       >
         <nav
-          className="w-full"
+          className="w-full!"
           aria-label={adminMode ? "Township tools" : "More"}
         >
           <p className="px-3 pb-2 text-[11px] font-bold tracking-[0.08em] text-on-dark-muted uppercase">
             {adminMode ? "Township tools" : "More"}
           </p>
-          <ul className="flex flex-col gap-1">
+          <ul className="flex flex-col gap-1 w-full">
             {(adminMode ? adminItems : secondaryItems).map((item) => (
-              <li key={item.href}>
+              <li key={item.href} className="w-full">
                 <SidebarLink
                   item={item}
                   active={isActivePath(pathname, item.href)}
@@ -131,7 +131,7 @@ export function Sidebar({
               </li>
             ))}
             {isAdmin ? (
-              <li className="mt-3 border-t border-white/15 pt-3">
+              <li className="mt-3 border-t border-white/15 pt-3 w-full">
                 <SidebarLink
                   item={
                     adminMode
@@ -159,7 +159,7 @@ export function Sidebar({
         <Link
           href="/profile"
           aria-current={isActivePath(pathname, "/profile") ? "page" : undefined}
-          className="flex min-h-14 items-center gap-3 rounded-[18px] px-2 text-white transition-colors duration-150 ease-out hover:bg-ink-raised aria-[current=page]:bg-lime aria-[current=page]:text-ink"
+          className="group flex min-h-14 items-center gap-3 rounded-[18px] px-2 text-white transition-colors duration-150 ease-out hover:bg-ink-raised aria-[current=page]:bg-lime aria-[current=page]:text-ink"
         >
           <span
             aria-hidden="true"
@@ -171,11 +171,14 @@ export function Sidebar({
             <span className="block truncate text-sm font-bold">
               {displayName}
             </span>
-            <span className="block truncate text-xs text-on-dark-muted">
+            <span className="block truncate text-xs text-on-dark-muted group-aria-[current=page]:text-ink">
               Profile & settings
             </span>
           </span>
-          <GiftIcon aria-hidden="true" className="size-4 text-on-dark-muted" />
+          <GiftIcon
+            aria-hidden="true"
+            className="size-4 text-on-dark-muted group-aria-[current=page]:text-ink"
+          />
         </Link>
         <SignOutButton className="mt-2 w-full justify-start rounded-[17px] border border-white/20 px-3 text-white hover:bg-ink-raised" />
       </div>
@@ -198,7 +201,7 @@ function SidebarLink({
       href={item.href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "flex min-h-12 items-center gap-3 rounded-[17px] px-3 text-sm font-semibold text-white transition-colors duration-150 ease-out hover:bg-ink-raised",
+        "flex min-h-12 w-full items-center gap-3 rounded-[17px] px-3 text-sm font-semibold text-white transition-colors duration-150 ease-out hover:bg-ink-raised",
         compact ? "min-h-11 text-[13px]" : "text-[15px]",
         active && "bg-lime text-ink hover:bg-lime"
       )}
