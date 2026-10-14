@@ -39,7 +39,7 @@ export function BadgeCard({
         className={cn(
           "relative grid aspect-square w-full place-items-center rounded-lg transition-shadow duration-150 ease-out",
           earned
-            ? "border border-hairline bg-surface shadow-card group-hover:shadow-raised"
+            ? "border border-hairline bg-surface shadow-card"
             : "border-2 border-dashed border-ink-muted bg-ground"
         )}
       >

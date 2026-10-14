@@ -36,7 +36,7 @@ export function FeedCard({
     <Link
       href={href}
       className={cn(
-        "group flex min-h-[116px] items-stretch gap-3 overflow-hidden rounded-[20px] p-3 transition-transform duration-150 ease-out hover:-translate-y-0.5",
+        "group flex min-h-[116px] items-stretch gap-3 overflow-hidden rounded-[20px] p-3 transition-transform duration-150 ease-out",
         event ? "bg-ink text-white" : "bg-paper text-ink"
       )}
     >

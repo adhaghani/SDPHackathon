@@ -103,9 +103,9 @@ export default async function AdminDemandPage() {
     <div className="mx-auto w-full max-w-6xl">
       <PageBand
         back={{ href: "/admin", label: "Township Pulse" }}
-        eyebrow="Township office"
         title="Demand intelligence"
-        description="Demand, shared equipment and confirmed returns. Resident demand is shown only for groups of at least five; anonymous legacy demo searches have no resident count."
+        description="Turn resident demand into shared equipment and confirmed loans."
+        className="mb-4 [&_h1]:text-h2"
         actions={
           <Button render={<Link href="/admin/export" />} variant="outline">
             Download CSV
@@ -113,14 +113,19 @@ export default async function AdminDemandPage() {
         }
       />
 
-      <section aria-labelledby="supply-heading" className="bb-card mt-7 p-5">
+      <p className="mb-4 text-sm text-ink-muted">
+        Resident demand is shown only for groups of at least five; anonymous
+        legacy demo searches have no resident count.
+      </p>
+      <section aria-labelledby="supply-heading" className="bb-card p-4">
         <h2 id="supply-heading" className="text-title text-ink">
           Demand → equipment supplied → completed loans
         </h2>
         <p className="mt-2 text-sm text-ink-muted">
           Last 30 days of searches and confirmed shared-library loans. Stock is
           current hub inventory. Repeated searches are counted separately from
-          residents. The category table includes searches with a selected category; uncategorised searches appear in the demand gaps below.
+          residents. The category table includes searches with a selected
+          category; uncategorised searches appear in the demand gaps below.
         </p>
         {supplyResult.error ? (
           <SectionRetry label="Equipment outcomes" />
@@ -151,7 +156,7 @@ export default async function AdminDemandPage() {
                       "Completed loans",
                       "Listing utilisation",
                     ].map((label) => (
-                      <th key={label} className="px-3 py-3">
+                      <th key={label} className="px-3 py-2">
                         {label}
                       </th>
                     ))}
@@ -160,16 +165,16 @@ export default async function AdminDemandPage() {
                 <tbody>
                   {(supply.categories ?? []).map((row) => (
                     <tr key={row.category} className="border-t border-hairline">
-                      <th scope="row" className="px-3 py-3">
+                      <th scope="row" className="px-3 py-2">
                         {row.category}
                       </th>
-                      <td className="px-3 py-3">{row.searches}</td>
-                      <td className="px-3 py-3">
+                      <td className="px-3 py-2">{row.searches}</td>
+                      <td className="px-3 py-2">
                         {row.unique_residents ?? "Fewer than 5 / unrecorded"}
                       </td>
-                      <td className="px-3 py-3">{row.units_supplied}</td>
-                      <td className="px-3 py-3">{row.completed_loans}</td>
-                      <td className="px-3 py-3">
+                      <td className="px-3 py-2">{row.units_supplied}</td>
+                      <td className="px-3 py-2">{row.completed_loans}</td>
+                      <td className="px-3 py-2">
                         {row.stocked_listings
                           ? `${Math.round((100 * row.used_listings) / row.stocked_listings)}%`
                           : "No stock"}
@@ -189,196 +194,201 @@ export default async function AdminDemandPage() {
           </>
         )}
       </section>
-      <div className="mt-7 grid gap-7 lg:grid-cols-2 lg:items-start">
-        <section aria-labelledby="demand-gap-heading" className="bb-card p-5">
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 id="demand-gap-heading" className="text-title text-ink">
-              Most wanted, not available
-            </h2>
-            <span className="text-sm text-ink-muted">Last 30 days</span>
-          </div>
-          {gaps.length ? (
-            <ul className="mt-4 divide-y divide-hairline">
-              {gaps.map((gap) => (
-                <li key={gap.key} className="py-4">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="font-bold text-ink">{gap.label}</p>
-                      <p className="mt-1 text-sm text-ink-muted tabular-nums">
-                        {gap.searches} searches ·{" "}
-                        {gap.unique_residents ?? "not recorded (legacy demo)"}{" "}
-                        distinct residents · {gap.open_requests} open requests ·{" "}
-                        {gap.available_items} available
-                      </p>
-                    </div>
-                    <span className="rounded-full bg-coral-tint px-3 py-1 text-sm font-bold text-ink tabular-nums">
-                      gap {gap.gap}
-                    </span>
-                  </div>
-                  <WishlistForm
-                    categorySlug={gap.category_slug ?? ""}
-                    normalizedTerm={gap.key}
-                    initialLabel={`${gap.label} for the shared library`}
-                  />
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <Empty className="mt-4">
-              <EmptyHeader>
-                <EmptyTitle>No demand gaps yet</EmptyTitle>
-                <EmptyDescription>
-                  At least five distinct residents are needed for a demand
-                  bucket. Legacy demo search counts are labelled separately.
-                </EmptyDescription>
-              </EmptyHeader>
-            </Empty>
-          )}
-        </section>
-
-        <section aria-labelledby="forecast-heading" className="bb-card p-5">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 id="forecast-heading" className="text-title text-ink">
-              Predictive demand
-            </h2>
-            <Badge variant="secondary">Forecast</Badge>
-          </div>
-          {forecast.available && forecast.event ? (
-            <>
-              <p className="mt-3 text-sm text-ink-muted">
-                Expect high demand around{" "}
-                <strong className="text-ink">{forecast.event.name}</strong> on{" "}
-                {forecast.event.starts_on}.
-              </p>
-              <p className="mt-2 text-xs text-ink-muted">
-                Source:{" "}
-                <a
-                  href={forecast.event.source_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="font-bold text-ink underline underline-offset-4"
-                >
-                  {forecast.event.source_name}
-                </a>{" "}
-                ·{" "}
-                {forecast.event.verification_status === "verified"
-                  ? "Date verified"
-                  : "Date needs review"}
-              </p>
+      <div className="mt-4 grid items-start gap-4 lg:grid-cols-2">
+        <div className="grid gap-4">
+          <section aria-labelledby="demand-gap-heading" className="bb-card p-4">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h2 id="demand-gap-heading" className="text-title text-ink">
+                Most wanted, not available
+              </h2>
+              <span className="text-sm text-ink-muted">Last 30 days</span>
+            </div>
+            {gaps.length ? (
               <ul className="mt-4 divide-y divide-hairline">
-                {(forecast.forecasts ?? []).map((row) => (
-                  <li
-                    key={row.category_slug}
-                    className="flex items-center justify-between gap-3 py-3"
-                  >
-                    <div>
-                      <p className="font-bold text-ink">{row.category_name}</p>
-                      <p className="text-xs text-ink-muted tabular-nums">
-                        baseline {row.baseline_weekly_demand.toFixed(1)} / week
-                        · ×{row.uplift} uplift
-                      </p>
+                {gaps.map((gap) => (
+                  <li key={gap.key} className="py-3">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="font-bold text-ink">{gap.label}</p>
+                        <p className="mt-1 text-sm text-ink-muted tabular-nums">
+                          {gap.searches} searches ·{" "}
+                          {gap.unique_residents ?? "not recorded (legacy demo)"}{" "}
+                          distinct residents · {gap.open_requests} open requests
+                          · {gap.available_items} available
+                        </p>
+                      </div>
+                      <span className="rounded-full bg-coral-tint px-3 py-1 text-sm font-bold text-ink tabular-nums">
+                        gap {gap.gap}
+                      </span>
                     </div>
-                    <strong className="tabular-nums">
-                      {row.forecast.toFixed(1)}
-                    </strong>
+                    <WishlistForm
+                      categorySlug={gap.category_slug ?? ""}
+                      normalizedTerm={gap.key}
+                      initialLabel={`${gap.label} for the shared library`}
+                    />
                   </li>
                 ))}
               </ul>
-            </>
-          ) : (
-            <Empty className="mt-4">
-              <EmptyHeader>
-                <EmptyTitle>No forecast window</EmptyTitle>
-                <EmptyDescription>
-                  No official-source festival or school holiday falls in the
-                  next 14 days.
-                </EmptyDescription>
-              </EmptyHeader>
-            </Empty>
-          )}
-          <p className="mt-4 text-xs text-ink-muted">
-            Heuristic baseline from the last eight weeks multiplied by a
-            reviewed festival uplift. Always labelled Forecast.
-          </p>
-        </section>
+            ) : (
+              <Empty className="mt-4">
+                <EmptyHeader>
+                  <EmptyTitle>No demand gaps yet</EmptyTitle>
+                  <EmptyDescription>
+                    At least five distinct residents are needed for a demand
+                    bucket. Legacy demo search counts are labelled separately.
+                  </EmptyDescription>
+                </EmptyHeader>
+              </Empty>
+            )}
+          </section>
 
-        <section aria-labelledby="calendar-heading" className="bb-card p-5">
-          <h2 id="calendar-heading" className="text-title text-ink">
-            Calendar verification queue
-          </h2>
-          <p className="mt-1 text-sm text-ink-muted">
-            Every seeded date points to an official PDF and remains marked for
-            your review.
-          </p>
-          {upcoming.length ? (
-            <ul className="mt-4 divide-y divide-hairline">
-              {upcoming.map((event) => (
-                <li key={event.id} className="py-3">
-                  <div className="flex flex-wrap items-start justify-between gap-2">
-                    <div>
-                      <p className="font-bold text-ink">{event.name}</p>
-                      <p className="text-sm text-ink-muted">
-                        {event.starts_on}
-                        {event.ends_on !== event.starts_on
-                          ? ` – ${event.ends_on}`
-                          : ""}
-                      </p>
-                      <a
-                        href={event.source_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-xs font-bold text-ink underline underline-offset-4"
-                      >
-                        {event.source_name}
-                      </a>
-                    </div>
-                    <Badge
-                      variant={
-                        event.verification_status === "verified"
-                          ? "secondary"
-                          : "outline"
-                      }
+          <section aria-labelledby="wishlist-heading" className="bb-card p-4">
+            <h2 id="wishlist-heading" className="text-title text-ink">
+              Shared library wishlist
+            </h2>
+            {wishlists.length ? (
+              <ul className="mt-4 flex flex-wrap gap-2">
+                {wishlists.map((item) => (
+                  <li
+                    key={item.id}
+                    className="rounded-full bg-lilac-tint px-3 py-1 text-sm font-bold text-ink"
+                  >
+                    {item.requested_label}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-4 rounded-lg bg-surface p-4 text-sm text-ink-muted">
+                Nothing has been added to the shared wishlist.
+              </p>
+            )}
+          </section>
+        </div>
+        <div className="grid gap-4">
+          <section aria-labelledby="forecast-heading" className="bb-card p-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 id="forecast-heading" className="text-title text-ink">
+                Predictive demand
+              </h2>
+              <Badge variant="secondary">Forecast</Badge>
+            </div>
+            {forecast.available && forecast.event ? (
+              <>
+                <p className="mt-3 text-sm text-ink-muted">
+                  Expect high demand around{" "}
+                  <strong className="text-ink">{forecast.event.name}</strong> on{" "}
+                  {forecast.event.starts_on}.
+                </p>
+                <p className="mt-2 text-xs text-ink-muted">
+                  Source:{" "}
+                  <a
+                    href={forecast.event.source_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-bold text-ink underline underline-offset-4"
+                  >
+                    {forecast.event.source_name}
+                  </a>{" "}
+                  ·{" "}
+                  {forecast.event.verification_status === "verified"
+                    ? "Date verified"
+                    : "Date needs review"}
+                </p>
+                <ul className="mt-4 divide-y divide-hairline">
+                  {(forecast.forecasts ?? []).map((row) => (
+                    <li
+                      key={row.category_slug}
+                      className="flex items-center justify-between gap-3 py-3"
                     >
-                      {event.verification_status === "verified"
-                        ? "Verified"
-                        : "Needs review"}
-                    </Badge>
-                  </div>
-                  <CalendarVerificationActions
-                    eventId={event.id}
-                    currentStatus={event.verification_status}
-                  />
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="mt-4 rounded-lg bg-surface p-4 text-sm text-ink-muted">
-              No upcoming calendar entries.
+                      <div>
+                        <p className="font-bold text-ink">
+                          {row.category_name}
+                        </p>
+                        <p className="text-xs text-ink-muted tabular-nums">
+                          baseline {row.baseline_weekly_demand.toFixed(1)} /
+                          week · ×{row.uplift} uplift
+                        </p>
+                      </div>
+                      <strong className="tabular-nums">
+                        {row.forecast.toFixed(1)}
+                      </strong>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : (
+              <Empty className="mt-4">
+                <EmptyHeader>
+                  <EmptyTitle>No forecast window</EmptyTitle>
+                  <EmptyDescription>
+                    No official-source festival or school holiday falls in the
+                    next 14 days.
+                  </EmptyDescription>
+                </EmptyHeader>
+              </Empty>
+            )}
+            <p className="mt-4 text-xs text-ink-muted">
+              Heuristic baseline from the last eight weeks multiplied by a
+              reviewed festival uplift. Always labelled Forecast.
             </p>
-          )}
-        </section>
+          </section>
 
-        <section aria-labelledby="wishlist-heading" className="bb-card p-5">
-          <h2 id="wishlist-heading" className="text-title text-ink">
-            Shared library wishlist
-          </h2>
-          {wishlists.length ? (
-            <ul className="mt-4 flex flex-wrap gap-2">
-              {wishlists.map((item) => (
-                <li
-                  key={item.id}
-                  className="rounded-full bg-lilac-tint px-3 py-1 text-sm font-bold text-ink"
-                >
-                  {item.requested_label}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="mt-4 rounded-lg bg-surface p-4 text-sm text-ink-muted">
-              Nothing has been added to the shared wishlist.
+          <section aria-labelledby="calendar-heading" className="bb-card p-4">
+            <h2 id="calendar-heading" className="text-title text-ink">
+              Calendar verification queue
+            </h2>
+            <p className="mt-1 text-sm text-ink-muted">
+              Every seeded date points to an official PDF and remains marked for
+              your review.
             </p>
-          )}
-        </section>
+            {upcoming.length ? (
+              <ul className="mt-4 divide-y divide-hairline">
+                {upcoming.map((event) => (
+                  <li key={event.id} className="py-3">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div>
+                        <p className="font-bold text-ink">{event.name}</p>
+                        <p className="text-sm text-ink-muted">
+                          {event.starts_on}
+                          {event.ends_on !== event.starts_on
+                            ? ` – ${event.ends_on}`
+                            : ""}
+                        </p>
+                        <a
+                          href={event.source_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-xs font-bold text-ink underline underline-offset-4"
+                        >
+                          {event.source_name}
+                        </a>
+                      </div>
+                      <Badge
+                        variant={
+                          event.verification_status === "verified"
+                            ? "secondary"
+                            : "outline"
+                        }
+                      >
+                        {event.verification_status === "verified"
+                          ? "Verified"
+                          : "Needs review"}
+                      </Badge>
+                    </div>
+                    <CalendarVerificationActions
+                      eventId={event.id}
+                      currentStatus={event.verification_status}
+                    />
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-4 rounded-lg bg-surface p-4 text-sm text-ink-muted">
+                No upcoming calendar entries.
+              </p>
+            )}
+          </section>
+        </div>
       </div>
     </div>
   )

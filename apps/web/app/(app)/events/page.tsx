@@ -103,7 +103,7 @@ export default async function EventsPage({
         <ul className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
           {events.map((event) => (
             <li key={event.id} className="min-w-0">
-              <Link href={`/events/${event.id}`} className="block rounded-lg transition-shadow duration-150 ease-out hover:shadow-raised">
+              <Link href={`/events/${event.id}`} className="block rounded-lg transition-shadow duration-150 ease-out">
                 <MediaPoster
                   src={event.cover_path ?? "/demo/event-placeholder.svg"}
                   alt=""

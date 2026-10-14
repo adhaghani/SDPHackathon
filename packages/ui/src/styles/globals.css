@@ -450,15 +450,7 @@
     border: 1px solid transparent;
     border-radius: var(--bb-radius-card);
     box-shadow: var(--bb-shadow-card);
-    transition:
-      border-color 160ms ease,
-      box-shadow 160ms ease,
-      transform 160ms ease;
-  }
-
-  .bb-card:hover,
-  .bb-card:focus-within {
-    box-shadow: var(--bb-shadow-raised);
+    transition: border-color 160ms ease;
   }
 
   .bb-safe-bottom {

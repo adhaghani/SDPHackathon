@@ -284,7 +284,7 @@ export default async function AdminPage({
                 <li key={row.label}>
                   <Link
                     href={row.href}
-                    className={cn("flex min-h-12 items-center justify-between gap-3 rounded-lg px-4 font-bold text-ink transition-shadow duration-150 ease-out hover:shadow-card", row.count > 0 ? row.tint : "bg-ground")}
+                    className={cn("flex min-h-12 items-center justify-between gap-3 rounded-lg px-4 font-bold text-ink transition-shadow duration-150 ease-out", row.count > 0 ? row.tint : "bg-ground")}
                   >
                     {row.label}
                     <span className="tabular-nums">{row.count}</span>

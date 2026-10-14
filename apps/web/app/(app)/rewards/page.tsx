@@ -8,7 +8,12 @@ import { BadgeCard } from "@/components/rewards/badge-card"
 import { RewardCard } from "@/components/rewards/reward-card"
 import { VoucherCard } from "@/components/rewards/voucher-card"
 import { StatusPill } from "@/components/shared/status-pill"
-import { activityLine, describeActivity, formatRelativeDay, levelProgress } from "@/lib/activity"
+import {
+  activityLine,
+  describeActivity,
+  formatRelativeDay,
+  levelProgress,
+} from "@/lib/activity"
 import { requireActiveMember } from "@/lib/data"
 import { isDemoMode } from "@/lib/env"
 import { formatEventDate } from "@/lib/format"
@@ -20,7 +25,11 @@ export default async function RewardsPage() {
   const active = await requireActiveMember()
   const supabase = await createClient()
   const now = new Date()
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+  const monthStart = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    1
+  ).toISOString()
   const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0)
 
   const [
@@ -63,16 +72,23 @@ export default async function RewardsPage() {
       .select("id,badge_id,earned_at")
       .eq("user_id", active.user.id)
       .eq("township_id", active.townshipId),
-    supabase.from("levels").select("level,name,min_lifetime_points").order("level"),
+    supabase
+      .from("levels")
+      .select("level,name,min_lifetime_points")
+      .order("level"),
     supabase
       .from("rewards")
-      .select("id,title,description,kind,cost_bp,stock,valid_until,image_path,partners(name)")
+      .select(
+        "id,title,description,kind,cost_bp,stock,valid_until,image_path,partners(name)"
+      )
       .eq("township_id", active.townshipId)
       .eq("active", true)
       .order("cost_bp"),
     supabase
       .from("redemptions")
-      .select("id,code,status,cost_bp,created_at,rewards(title,valid_until,partners(name))")
+      .select(
+        "id,code,status,cost_bp,created_at,rewards(title,valid_until,partners(name))"
+      )
       .eq("user_id", active.user.id)
       .eq("township_id", active.townshipId)
       .order("created_at", { ascending: false }),
@@ -117,11 +133,16 @@ export default async function RewardsPage() {
   const level = levelProgress(lifetime, levelsResult.data ?? [])
   const ledger = ledgerResult.data ?? []
   const badgeDefinitions = badgesResult.data ?? []
-  const earnedBadgeIds = new Set((earnedBadgesResult.data ?? []).map((row) => row.badge_id))
-  const actionCounts = (statsResult.data ?? []).reduce<Record<string, number>>((counts, row) => {
-    counts[row.action_type] = (counts[row.action_type] ?? 0) + 1
-    return counts
-  }, {})
+  const earnedBadgeIds = new Set(
+    (earnedBadgesResult.data ?? []).map((row) => row.badge_id)
+  )
+  const actionCounts = (statsResult.data ?? []).reduce<Record<string, number>>(
+    (counts, row) => {
+      counts[row.action_type] = (counts[row.action_type] ?? 0) + 1
+      return counts
+    },
+    {}
+  )
   const demo = isDemoMode()
   const redemptions = redemptionsResult.data ?? []
   const readyVouchers = redemptions.filter((row) => row.status === "issued")
@@ -140,19 +161,27 @@ export default async function RewardsPage() {
     <div className="-mx-4 overflow-hidden rounded-none bg-lime text-ink sm:-mx-6 md:mx-0 md:rounded-[32px]">
       <section className="flex flex-col gap-3.5 px-5 pt-6 pb-7 sm:px-7 md:px-10 md:pt-8">
         <div className="flex items-center justify-between gap-3">
-          <span className="text-sm font-semibold">Your impact</span>
+          <h1 className="text-h2">Your impact</h1>
+          <Button render={<Link href="#vouchers-heading" />} variant="outline">
+            My vouchers ({readyVouchers.length})
+          </Button>
         </div>
 
         <div className="flex items-center gap-[18px]">
-          <ProgressRing value={level.percent} level={level.current?.level ?? 1} />
+          <ProgressRing
+            value={level.percent}
+            level={level.current?.level ?? 1}
+          />
           <div>
             <div className="text-number">{balance.toLocaleString("en-MY")}</div>
             <div className="text-[15px] font-semibold">BetterPoints</div>
             <div className="mt-1 text-sm">
               {level.next ? (
                 <>
-                  <span className="tabular-nums">{level.toNext.toLocaleString("en-MY")}</span> more to{" "}
-                  <strong>{level.next.name}</strong>
+                  <span className="tabular-nums">
+                    {level.toNext.toLocaleString("en-MY")}
+                  </span>{" "}
+                  more to <strong>{level.next.name}</strong>
                 </>
               ) : (
                 <strong>Top level reached</strong>
@@ -164,7 +193,10 @@ export default async function RewardsPage() {
         <ul className="grid grid-cols-3 gap-2">
           {stats.map((stat) => (
             <li key={stat.label}>
-              <StatTile value={stat.value.toLocaleString("en-MY")} label={stat.label} />
+              <StatTile
+                value={stat.value.toLocaleString("en-MY")}
+                label={stat.label}
+              />
             </li>
           ))}
         </ul>
@@ -180,55 +212,148 @@ export default async function RewardsPage() {
           bonusBp={50}
         />
         <p className="mt-2 text-xs text-ink-soft">
-          Aggregate monthly activity only. Target and bonus are illustrative demo figures; current counts come from completed bookings.
+          Aggregate monthly activity only. Target and bonus are illustrative
+          demo figures; current counts come from completed bookings.
         </p>
 
-        <section className="mt-[22px]">
-          <div className="flex items-baseline justify-between gap-3">
-            <h2 className="text-[22px] leading-[26px] font-extrabold">Treat yourself</h2>
-            <Link href="#vouchers-heading" className="text-sm font-semibold underline underline-offset-4">All rewards</Link>
+        <section id="vouchers-heading" className="mt-8">
+          <div className="flex flex-wrap items-baseline justify-between gap-3">
+            <h2 className="text-h2">My vouchers</h2>
+            <p className="text-sm text-ink-soft">
+              Show the code to the partner. Each code works once.
+            </p>
           </div>
-          {(rewardsResult.data ?? []).length ? (
-            <ScrollArea orientation="horizontal" className="-mr-5 mt-3 h-[184px] pr-5">
-            <ul className="flex h-[184px] w-max gap-3">
-              {(rewardsResult.data ?? []).map((reward) => (
-                <RewardCard
-                  key={reward.id}
-                  id={reward.id}
-                  title={reward.title}
-                  partnerName={reward.partners?.name}
-                  kind={reward.kind}
-                  costBp={reward.cost_bp}
-                  imagePath={reward.image_path}
-                  stock={reward.stock}
-                  balance={balance}
+          {readyVouchers.length ? (
+            <ul className="mt-4 grid items-stretch gap-4 lg:grid-cols-2">
+              {readyVouchers.map((redemption) => (
+                <VoucherCard
+                  key={redemption.id}
+                  title={redemption.rewards?.title ?? "Reward"}
+                  partnerName={redemption.rewards?.partners?.name}
+                  code={redemption.code}
+                  costBp={redemption.cost_bp}
+                  redeemedAt={redemption.created_at}
+                  validUntil={redemption.rewards?.valid_until}
                 />
               ))}
             </ul>
+          ) : (
+            <p className="mt-4 rounded-[18px] bg-paper p-4 text-sm text-ink-soft">
+              No vouchers ready to use.
+            </p>
+          )}
+          {pastVouchers.length ? (
+            <details className="group mt-6">
+              <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-2 font-bold">
+                Used and expired
+                <span className="rounded-full bg-paper px-2 text-sm tabular-nums">
+                  {pastVouchers.length}
+                </span>
+              </summary>
+              <ul className="mt-2 divide-y divide-hairline rounded-[20px] bg-paper">
+                {pastVouchers.map((redemption) => (
+                  <li
+                    key={redemption.id}
+                    className="flex flex-wrap items-center justify-between gap-3 px-4 py-3"
+                  >
+                    <div className="min-w-0">
+                      <p className="font-bold">{redemption.rewards?.title}</p>
+                      <p className="text-sm text-ink-soft tabular-nums">
+                        {redemption.rewards?.partners?.name ?? "Township"} ·{" "}
+                        {formatRelativeDay(redemption.created_at)}
+                      </p>
+                    </div>
+                    <StatusPill status={redemption.status} />
+                  </li>
+                ))}
+              </ul>
+            </details>
+          ) : null}
+        </section>
+
+        <section className="mt-[22px]">
+          <div className="flex items-baseline justify-between gap-3">
+            <h2 className="text-[22px] leading-[26px] font-extrabold">
+              Treat yourself
+            </h2>
+            <Link
+              href="#vouchers-heading"
+              className="text-sm font-semibold underline underline-offset-4"
+            >
+              My vouchers ({readyVouchers.length})
+            </Link>
+          </div>
+          {(rewardsResult.data ?? []).length ? (
+            <ScrollArea
+              orientation="horizontal"
+              className="mt-3 -mr-5 h-[184px] pr-5"
+            >
+              <ul className="flex h-[184px] w-max gap-3">
+                {(rewardsResult.data ?? []).map((reward) => (
+                  <RewardCard
+                    key={reward.id}
+                    id={reward.id}
+                    title={reward.title}
+                    partnerName={reward.partners?.name}
+                    kind={reward.kind}
+                    costBp={reward.cost_bp}
+                    imagePath={reward.image_path}
+                    stock={reward.stock}
+                    balance={balance}
+                  />
+                ))}
+              </ul>
             </ScrollArea>
           ) : (
-            <p className="mt-4 rounded-[18px] bg-paper p-4 text-sm text-ink-soft">No rewards are available yet.</p>
+            <p className="mt-4 rounded-[18px] bg-paper p-4 text-sm text-ink-soft">
+              No rewards are available yet.
+            </p>
           )}
         </section>
 
         <div className="mt-8 grid gap-[22px] lg:grid-cols-2">
           <section className="rounded-[20px] bg-paper p-5">
             <h2 className="text-h2">Your impact report</h2>
-            <p className="mt-1 text-sm text-ink-soft">Download your verified activity and impact data.</p>
+            <p className="mt-1 text-sm text-ink-soft">
+              Download your verified activity and impact data.
+            </p>
             <div className="mt-4 flex flex-wrap gap-2">
-              <Button render={<a href="/api/profile/export" download />} variant="outline">Download JSON</Button>
-              <Button render={<a href="/rewards/impact-report" download />} variant="ghost">Impact CSV</Button>
+              <Button
+                render={<a href="/api/profile/export" download />}
+                variant="outline"
+              >
+                Download JSON
+              </Button>
+              <Button
+                render={<a href="/rewards/impact-report" download />}
+                variant="ghost"
+              >
+                Impact CSV
+              </Button>
             </div>
           </section>
 
           <section className="rounded-[20px] bg-sky p-5">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-[12px] font-bold tracking-[0.08em] uppercase">Sharing streak</p>
-                <h2 className="mt-1 text-h2"><span className="tabular-nums">{streak?.streak_months ?? 0}</span> months</h2>
+                <p className="text-[12px] font-bold tracking-[0.08em] uppercase">
+                  Sharing streak
+                </p>
+                <h2 className="mt-1 text-h2">
+                  <span className="tabular-nums">
+                    {streak?.streak_months ?? 0}
+                  </span>{" "}
+                  months
+                </h2>
               </div>
-              <span className={`rounded-full px-3 py-1 text-sm font-bold ${streak?.at_risk ? "bg-tomato" : "bg-lime"}`}>
-                {streak?.at_risk ? "At risk" : streak?.current_month_active ? "Active" : "Start this month"}
+              <span
+                className={`rounded-full px-3 py-1 text-sm font-bold ${streak?.at_risk ? "bg-tomato" : "bg-lime"}`}
+              >
+                {streak?.at_risk
+                  ? "At risk"
+                  : streak?.current_month_active
+                    ? "Active"
+                    : "Start this month"}
               </span>
             </div>
             <p className="mt-3 text-sm">
@@ -245,9 +370,15 @@ export default async function RewardsPage() {
             <ul className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
               {badgeDefinitions.map((badge, index) => {
                 const earned = earnedBadgeIds.has(badge.id)
-                const criteria = badge.criteria as { threshold?: number; action_types?: string[] } | null
+                const criteria = badge.criteria as {
+                  threshold?: number
+                  action_types?: string[]
+                } | null
                 const target = criteria?.threshold ?? 1
-                const current = (criteria?.action_types ?? []).reduce((sum, action) => sum + (actionCounts[action] ?? 0), 0)
+                const current = (criteria?.action_types ?? []).reduce(
+                  (sum, action) => sum + (actionCounts[action] ?? 0),
+                  0
+                )
                 return (
                   <BadgeCard
                     key={badge.id}
@@ -256,20 +387,31 @@ export default async function RewardsPage() {
                     description={badge.description}
                     icon={badge.icon}
                     earned={earned}
-                    progress={earned ? undefined : Math.min(95, Math.round((current / target) * 100))}
+                    progress={
+                      earned
+                        ? undefined
+                        : Math.min(95, Math.round((current / target) * 100))
+                    }
                   />
                 )
               })}
             </ul>
           ) : (
-            <p className="mt-4 text-sm text-ink-soft">Your township hasn&apos;t set up badges yet.</p>
+            <p className="mt-4 text-sm text-ink-soft">
+              Your township hasn&apos;t set up badges yet.
+            </p>
           )}
         </section>
 
         <section className="mt-8">
           <div className="flex items-baseline justify-between gap-3">
             <h2 className="text-h2">Latest activity</h2>
-            <Link href="/rewards/activity" className="text-sm font-bold underline underline-offset-4">All activity</Link>
+            <Link
+              href="/rewards/activity"
+              className="text-sm font-bold underline underline-offset-4"
+            >
+              All activity
+            </Link>
           </div>
           {ledger.length ? (
             <ul className="mt-4 divide-y divide-hairline rounded-[20px] bg-paper">
@@ -283,56 +425,15 @@ export default async function RewardsPage() {
               ))}
             </ul>
           ) : (
-            <p className="mt-4 rounded-[18px] bg-paper p-4 text-sm text-ink-soft">No points yet.</p>
+            <p className="mt-4 rounded-[18px] bg-paper p-4 text-sm text-ink-soft">
+              No points yet.
+            </p>
           )}
         </section>
 
-        <section id="vouchers-heading" className="mt-8">
-          <div className="flex flex-wrap items-baseline justify-between gap-3">
-            <h2 className="text-h2">My vouchers</h2>
-            <p className="text-sm text-ink-soft">Show the code to the partner. Each code works once.</p>
-          </div>
-          {readyVouchers.length ? (
-            <ul className="mt-4 grid items-stretch gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {readyVouchers.map((redemption) => (
-                <VoucherCard
-                  key={redemption.id}
-                  title={redemption.rewards?.title ?? "Reward"}
-                  partnerName={redemption.rewards?.partners?.name}
-                  code={redemption.code}
-                  costBp={redemption.cost_bp}
-                  redeemedAt={redemption.created_at}
-                  validUntil={redemption.rewards?.valid_until}
-                />
-              ))}
-            </ul>
-          ) : (
-            <p className="mt-4 rounded-[18px] bg-paper p-4 text-sm text-ink-soft">No vouchers ready to use.</p>
-          )}
-          {pastVouchers.length ? (
-            <details className="group mt-6">
-              <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-2 font-bold">
-                Used and expired
-                <span className="rounded-full bg-paper px-2 text-sm tabular-nums">{pastVouchers.length}</span>
-              </summary>
-              <ul className="mt-2 divide-y divide-hairline rounded-[20px] bg-paper">
-                {pastVouchers.map((redemption) => (
-                  <li key={redemption.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-                    <div className="min-w-0">
-                      <p className="font-bold">{redemption.rewards?.title}</p>
-                      <p className="text-sm text-ink-soft tabular-nums">
-                        {redemption.rewards?.partners?.name ?? "Township"} · {formatRelativeDay(redemption.created_at)}
-                      </p>
-                    </div>
-                    <StatusPill status={redemption.status} />
-                  </li>
-                ))}
-              </ul>
-            </details>
-          ) : null}
-        </section>
-
-        <p className="mt-8 text-xs text-ink-soft">Goal figures are illustrative.</p>
+        <p className="mt-8 text-xs text-ink-soft">
+          Goal figures are illustrative.
+        </p>
       </section>
     </div>
   )

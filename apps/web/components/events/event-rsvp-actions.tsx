@@ -2,11 +2,19 @@
 
 import { useActionState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 
 import { cancelRsvp, rsvpEvent } from "@/actions/events"
 import { Button } from "@workspace/ui/components/button"
 import { Spinner } from "@workspace/ui/components/spinner"
+
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@workspace/ui/components/dialog"
 
 const idleState = { status: "idle" } as const
 
@@ -19,54 +27,96 @@ export function EventRsvpActions({
   rsvpStatus: string | null
   canVolunteer?: boolean
 }) {
-  const router = useRouter()
-  const [rsvpState, rsvpAction, rsvpPending] = useActionState(rsvpEvent, idleState)
-  const [cancelState, cancelAction, cancelPending] = useActionState(cancelRsvp, idleState)
+  const [rsvpState, rsvpAction, rsvpPending] = useActionState(
+    rsvpEvent,
+    idleState
+  )
+  const [cancelState, cancelAction, cancelPending] = useActionState(
+    cancelRsvp,
+    idleState
+  )
 
-  if (rsvpStatus === "going" || rsvpStatus === "checked_in") {
+  const status = rsvpStatus
+  const cancellation = (
+    <Dialog>
+      <DialogTrigger
+        render={
+          <Button variant="ghost" className="justify-start px-0 text-current" />
+        }
+      >
+        {status === "waitlisted" ? "Leave waitlist" : "Cancel registration"}
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader className="pr-8">
+          <DialogTitle>
+            {status === "waitlisted"
+              ? "Leave the waitlist?"
+              : "Cancel your registration?"}
+          </DialogTitle>
+          <DialogDescription>
+            Your place will be released. You can register again if the event is
+            still open.
+          </DialogDescription>
+        </DialogHeader>
+        <form action={cancelAction}>
+          <input type="hidden" name="eventId" value={eventId} />
+          <Button type="submit" variant="cta" disabled={cancelPending}>
+            {cancelPending ? <Spinner /> : null}Confirm cancellation
+          </Button>
+          {cancelState.message ? (
+            <p role="status" className="mt-3 text-sm">
+              {cancelState.message}
+            </p>
+          ) : null}
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
+
+  if (
+    status === "going" ||
+    status === "checked_in" ||
+    status === "waitlisted"
+  ) {
     return (
-      <div className="flex items-center gap-3">
-        <div className="min-w-0 flex-1">
-          <p className="text-[15px] leading-5 font-bold text-inherit">
-            {rsvpStatus === "checked_in" ? "Checked in" : "You're going"}
-            {rsvpStatus === "going" ? <span className="sr-only">You are going</span> : null}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[15px] font-bold text-inherit">
+            {status === "checked_in"
+              ? "Checked in"
+              : status === "waitlisted"
+                ? "You are on the waitlist"
+                : "You're going"}
           </p>
-          <form action={cancelAction}>
-            <input type="hidden" name="eventId" value={eventId} />
-            <button type="submit" disabled={cancelPending} className="mt-0.5 text-xs text-current opacity-70 underline underline-offset-4">
-              Cancel registration
-            </button>
-          </form>
-          {cancelState.message ? <p className="mt-1 text-xs text-current opacity-70">{cancelState.message}</p> : null}
+          {status === "going" ? (
+            <span className="sr-only">You are going</span>
+          ) : null}
+          {status !== "checked_in" ? cancellation : null}
         </div>
-        <Button render={<Link href={`/events/${eventId}/ticket`} />} variant="cta" size="cta">
-          Open ticket
-        </Button>
-      </div>
-    )
-  }
-
-  if (rsvpStatus === "waitlisted") {
-    return (
-      <div className="flex items-center gap-3">
-        <div className="min-w-0 flex-1">
-          <p className="text-[15px] leading-5 font-bold text-inherit">You are on the waitlist</p>
-          <form action={cancelAction}>
-            <input type="hidden" name="eventId" value={eventId} />
-            <button type="submit" className="mt-0.5 text-xs text-current opacity-70 underline underline-offset-4">Leave waitlist</button>
-          </form>
-        </div>
+        {status !== "waitlisted" ? (
+          <Button
+            render={<Link href={`/events/${eventId}/ticket`} />}
+            variant="cta"
+            size="cta"
+          >
+            Open ticket
+          </Button>
+        ) : null}
       </div>
     )
   }
 
   return (
     <div className="flex flex-col gap-3">
-      <form action={rsvpAction} className="flex items-center gap-3">
+      <form action={rsvpAction} className="grid grid-cols-2 items-center gap-3">
         <input type="hidden" name="eventId" value={eventId} />
-        <div className="min-w-0 flex-1">
-          <p className="text-[15px] leading-5 font-bold text-inherit">Join this event</p>
-          <p className="text-xs text-current opacity-70">Shared space · verified check-in</p>
+        <div className="col-span-2 min-w-0">
+          <p className="text-[15px] leading-5 font-bold text-inherit">
+            Join this event
+          </p>
+          <p className="text-sm text-current opacity-70">
+            Shared space · verified check-in
+          </p>
         </div>
         {canVolunteer ? (
           <Button
@@ -74,7 +124,7 @@ export function EventRsvpActions({
             name="role"
             value="volunteer"
             variant="outline"
-            className="h-[52px] rounded-[20px] border-white/40 bg-transparent text-current hover:bg-white/10 max-sm:hidden"
+            className="min-h-11 border-current bg-transparent text-current hover:bg-current/10"
             disabled={rsvpPending}
           >
             Volunteer
@@ -87,21 +137,17 @@ export function EventRsvpActions({
           aria-label="Register to attend"
           variant="cta"
           size="cta"
-          className="min-w-[112px]"
+          className={canVolunteer ? "min-w-0" : "col-span-2 min-w-0"}
           disabled={rsvpPending}
         >
           {rsvpPending ? <Spinner data-icon="inline-start" /> : null}
           I&apos;m going
         </Button>
       </form>
-      {rsvpState.message ? <p className="text-sm text-current opacity-70">{rsvpState.message}</p> : null}
-      {rsvpState.status === "success" && rsvpState.eventId ? (
-        <>
-        <p className="text-sm font-semibold text-ink">You are going</p>
-        <button type="button" className="h-11 text-sm underline underline-offset-4" onClick={() => router.push(`/events/${rsvpState.eventId}/ticket`)}>
-          Open ticket
-        </button>
-        </>
+      {rsvpState.message ? (
+        <p role="status" className="text-sm text-current opacity-70">
+          {rsvpState.message}
+        </p>
       ) : null}
     </div>
   )

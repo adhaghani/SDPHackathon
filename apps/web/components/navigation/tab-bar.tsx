@@ -21,8 +21,9 @@ export function TabBar({ locale = "en" }: { locale?: "en" | "ms" }) {
   const pathname = usePathname()
   const localized = copy[locale]
   const onInkScreen = pathname.includes("/ticket")
-  const eventDetail = /^\/events\/[^/]+$/.test(pathname)
-  const hasActionDock = pathname.includes("/borrow/items/") || pathname.includes("/borrow/bookings/") || eventDetail
+  const hasActionDock =
+    pathname.includes("/borrow/items/") ||
+    pathname.includes("/borrow/bookings/")
 
   if (hasActionDock) return null
 
@@ -45,7 +46,11 @@ export function TabBar({ locale = "en" }: { locale?: "en" | "ms" }) {
               active && "bg-lime font-bold text-ink"
             )}
           >
-            <Icon aria-hidden="true" className="size-[22px]" strokeWidth={active ? 2.4 : 1.75} />
+            <Icon
+              aria-hidden="true"
+              className="size-[22px]"
+              strokeWidth={active ? 2.4 : 1.75}
+            />
             <span className="max-w-full truncate">{label}</span>
           </Link>
         )
