@@ -1,36 +1,43 @@
-# Pilot plan
+# Small resident pilot
 
-Every number below is an assumption to validate, not a promised outcome.
+Status: **prepared, not run**. No residents have been recruited or contacted by this work. Demo activity is fictional and must be excluded from pilot results.
 
-## Baseline and pilot
+## First two weeks
 
-- **Assumption:** the township operator can provide a four-week baseline of existing event attendance, borrow/help activity and programme costs.
-- **Assumption:** pilot residents join with a township join code and complete onboarding.
-- **Assumption:** at least five residents participate in each neighbourhood included in a breakdown.
-- **Pilot period:** 30 days after the baseline period, with weekly check-ins.
+Recruit 8–12 consenting adults from one township through the operator. Provide one staff owner, published office hours and a dispute contact. Use a separate live township with demo mode disabled. Supply 3–5 low-risk shared items and invite residents to list their own. Record deposits as offline arrangements; agree the amount, waiver and refund expectations before handover.
 
-## Comparison metrics
+Day 1: observe each resident joining and finding or listing one useful item. Days 2–7: let residents request, approve and hand over items themselves. Days 8–14: observe returns and invite a second listing or loan without completing actions for residents. Conduct a 10-minute interview after the first return. Record assistance whenever staff have to intervene.
 
-- Monthly active residents.
-- Repeat event attendance.
-- Verified volunteer hours.
-- Completed borrowing transactions and items reused.
-- Estimated purchases avoided (RM), labelled estimated.
-- Reward redemption rate and points issued versus redeemed.
-- Cost per active resident (RM), excluding sponsor-funded rewards.
+Do not reset or seed the pilot database. Use the local fictional demo for training only. Publish who can see unit labels, operational records and aggregate reporting before consent.
 
-## Method
+## Measures and definitions
 
-1. Capture baseline aggregates before the pilot.
-2. Run the demo reset and confirm the seeded environment is clearly labelled.
-3. Record weekly aggregate metrics from Township Pulse and export CSV.
-4. Compare the pilot period to baseline under the banner: **Observed change during the pilot; not proof of causation.**
-5. Record qualitative feedback from residents, organisers and the township office.
+| Measure | Definition |
+| --- | --- |
+| Listing activation | Residents who publish at least one item ÷ enrolled residents |
+| Borrow activation | Residents who submit a request ÷ enrolled residents |
+| Completion | Completed loans ÷ approved loans whose due date has passed |
+| On-time return | Completed loans marked returned by the due date ÷ completed loans |
+| Repeat participation | Residents with a second completed loan or lend on a later day ÷ residents with a first completion |
+| Trust and friction | Declines, cancellations, deposit concerns and disputes, each with a coded reason |
+| Operational workload | Staff minutes per completed loan, including onboarding, reminders and dispute handling |
+| Demand and supply | Search count, distinct resident demand where reportable, equipment supplied, completed hub loans and listing utilisation |
+| Programme costs | Recorded equipment, staff and operator-funded rewards; report any missing cost categories |
 
-## Risks and mitigations
+Keep unique-resident breakdowns suppressed below five. For this small pilot, use a township-wide total and qualitative themes; avoid identifying neighbourhood or unit comparisons.
 
-- **Small samples:** suppress breakdowns under five residents; report “fewer than 5”.
-- **Self-reported purchase avoidance:** label as estimated and show the methodology.
-- **Low adoption:** keep onboarding short, provide manual check-in and use demo role switchers for training.
-- **Operational load:** audit admin actions, keep notifications deduplicated and use scheduled jobs only for idempotent work.
-- **Privacy concerns:** collect minimum data, publish this document and provide account export/deletion in a later phase.
+## Interview prompts
+
+1. What made you comfortable or uncomfortable lending to this person?
+2. Was the condition and handover arrangement clear?
+3. Did the deposit affect your decision? How did you expect it to be held or refunded?
+4. If an item were late or damaged, who would you expect to resolve it?
+5. Which step needed help, and would you borrow or lend again without staff prompting?
+
+## Operator log
+
+Use `docs/pilot-observations.csv` for coded operational observations. Store consent and resident contact details separately under operator control. Do not put names, unit labels, private chat or free-text allegations into a public repository. Record interview themes without attribution.
+
+Review on days 7 and 14. Provisional success criteria, to agree before recruitment: at least five completed loans, at least three residents returning for a second sharing action, no unresolved safety issue, and a recorded median staff workload that the operator accepts. These are learning thresholds, not promised outcomes.
+
+At the end, report raw numerators and denominators, outstanding returns, missing costs and what staff did on residents' behalf. Decide whether to extend to a 30-day pilot and four-week baseline. Describe observed change without claiming causation. Pause expansion if disputes cannot be handled within the published service commitment.

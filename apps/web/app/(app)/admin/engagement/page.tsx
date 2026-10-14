@@ -181,7 +181,7 @@ export default async function AdminEngagementPage() {
             <div className="min-w-0">
               <h2 id="recycling-goal-heading" className="text-title text-ink">Recycling campaign</h2>
               <p className="mt-1 text-sm text-ink-muted">
-                Set one collective estimated-kg target. Contributors receive 50 BP once when it is reached.
+                Set one collective estimated-kg target. Eligible contributors receive the configured reward-rule amount once when it is reached. These are resident estimates, not staff-measured collections.
               </p>
             </div>
             {recyclingProgress.has_campaign ? (

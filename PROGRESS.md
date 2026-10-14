@@ -1,6 +1,6 @@
 # BorrowLah progress
 
-Status: **Phase 5 stretch complete locally; cloud preview pending**
+Status: **Readiness fixes verified locally; cloud preview and human pilot pending**
 
 Legend: `[ ]` not started · `[~]` in progress · `[x]` complete · `[!]` blocked
 
@@ -142,3 +142,46 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` complete · `[!]` blocke
 | 2026-10-11 | Phase 5.8 Leaflet map | Pass — lazy-loaded neighbourhood-level OSM map and accessibility scan |
 | 2026-10-11 | `npm run test:e2e` | Pass — 5 tests after Phase 5 additions |
 | 2026-10-11 | `npm run lint && npm run typecheck && npm test && npm run test:db && npm run build` | Pass |
+
+
+## Readiness improvements — 14 October 2026
+
+- [x] Fix booking availability: return occupied date windows through a membership-checked RPC instead of querying other residents' private booking rows.
+- [x] Correct two-sided handover progress and waiting states; keep admin review separate from participant confirmation controls.
+- [x] Harden sign-out with unique form IDs, pending/error feedback, local-session sign-out, township-cookie cleanup and layout revalidation. Forward refreshed auth cookies to the current server request.
+- [x] Verify new join → calendar request → approval → two-sided handover → return → exactly-once points at 390px and 1440px.
+- [x] Add Home **Your next step** for approvals, handovers, returns and upcoming tickets, with one action per task.
+- [x] Isolate optional Home service failures and provide section retry controls. Render tests cover rejected recycling requests and error responses while borrowing/events remain usable.
+- [x] Remove illustrative walking times and hardcoded BP amounts from the affected public/Home/admin surfaces. Use active reward rules for event and booking previews and explain verification/caps.
+- [x] Correct search-event counting, separate private 30-day resident deduplication, suppress small distinct-demand groups, and label anonymous legacy demo data honestly.
+- [x] Connect category demand, current hub inventory, confirmed completed hub loans, listing utilisation and current-month programme costs. Document attribution and period limits.
+- [x] Label campaign progress as self-reported estimates and explain that no measured staff collection stream exists. Document requirements for a future separate measured stream.
+- [x] Confirm owner/admin unit-label policy with the project owner; restrict full profiles to their owner and expose co-member names through a narrow view; align conflicting privacy documentation.
+- [x] Prepare a 180-second script centred on borrowing, verified participation, BetterPoints and township outcomes.
+- [x] Prepare cloud configuration/runbook, dedicated preview test support, pilot protocol and blank observation sheet.
+- [!] Cloud preview: no remote Supabase project exists; Vercel CLI has no saved authentication. Project/account setup is required before deployment.
+- [ ] Run physical phone/laptop checks and record an actual spoken rehearsal duration.
+- [ ] Recruit consenting residents and execute the pilot. No real pilot observations have been collected.
+
+### Verification
+
+| Gate | Result |
+| --- | --- |
+| Production build and TypeScript | Pass |
+| ESLint and diff whitespace check | Pass |
+| Vitest | Pass — 83 tests, including Home failure rendering and session-cookie propagation |
+| Supabase pgTAP | Pass — 219 assertions across 12 files |
+| Production Playwright suite | 14 passed in the full run; both corrected organiser tests passed on targeted rerun — all 16 scenarios verified |
+| Resident workflow | Pass at 390px and 1440px, with exactly one lender and borrower award per completed loan |
+| Organiser and office journeys | Pass at 390px and 1440px |
+| Responsive audit | Pass at 320/390/768/1440px |
+| Accessibility, guest passes, navigation, sign-out and recycling | Pass |
+| Visual review | Home and demand dashboard inspected at 390px and 1440px |
+| Cloud, physical devices, spoken timing, resident pilot | Pending; do not describe local browser evidence as completion of these checks |
+
+The dev server showed long action delays under local machine load. Final functional evidence comes from `next build` + `next start`, with `E2E_SKIP_RESET=true E2E_PRODUCTION=true npm run test:e2e --workspace web`. The organiser rerun corrected a test that checked registration before the streamed control was ready and matched hidden accessibility text. The booking test now asserts the actual **With borrower** label and verifies the two-sided state machine rather than assuming the first confirmation completes handover.
+
+
+## Goal handoff — 14 October 2026
+
+The project owner requested that the implementation goal be considered completed and the outstanding work be handed off as todos. The root [README.md](README.md#remaining-todos) now contains the cloud preview, physical-device rehearsal, timed presentation and resident pilot checklists. These external tasks remain uncompleted; closing the goal does not claim that deployment or field validation occurred.

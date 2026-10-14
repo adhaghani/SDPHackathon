@@ -1,5 +1,7 @@
 "use client"
 
+import { useId, useActionState } from "react"
+
 import { LogOutIcon } from "lucide-react"
 
 import { signOut } from "@/actions/auth"
@@ -25,7 +27,8 @@ export function SignOutButton({
   className?: string
   compact?: boolean
 }) {
-  const formId = "sign-out-confirm"
+  const formId = useId()
+  const [state, action, pending] = useActionState(signOut, { status: "idle" })
 
   return (
     <AlertDialog>
@@ -44,14 +47,15 @@ export function SignOutButton({
         }
       />
       <AlertDialogContent>
-        <form id={formId} action={signOut}>
+        <form id={formId} action={action}>
           <AlertDialogHeader>
             <AlertDialogTitle>Sign out?</AlertDialogTitle>
             <AlertDialogDescription>You will need to sign in again to access your township.</AlertDialogDescription>
           </AlertDialogHeader>
+          {state.message ? <p role="alert" className="mt-3 text-sm">{state.message}</p> : null}
           <AlertDialogFooter className="mt-5">
             <AlertDialogCancel>Stay signed in</AlertDialogCancel>
-            <AlertDialogAction type="submit" form={formId} variant="cta" onClick={() => void wipeGuestOfflineData()}>
+            <AlertDialogAction type="submit" form={formId} variant="cta" disabled={pending} onClick={() => void wipeGuestOfflineData().catch(() => undefined)}>
               <LogOutIcon aria-hidden="true" />
               Sign out
             </AlertDialogAction>

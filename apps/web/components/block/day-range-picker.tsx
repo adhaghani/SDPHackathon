@@ -26,6 +26,8 @@ export function DayRangePicker({
   const blockedDates = days.filter((day) => day.blocked).map((day) => day.iso)
   const availableDays = days.filter((day) => !day.blocked)
 
+  if (!availableDays.length) return <p className="text-sm text-ink-soft">No dates are available in this window. Check back later or choose another item.</p>
+
   return (
     <DateRangeField
       id="item-borrowing-dates"

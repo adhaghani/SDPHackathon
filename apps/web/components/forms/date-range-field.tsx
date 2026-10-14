@@ -124,6 +124,7 @@ export function DateRangeField({
         <PopoverContent align="start" className="w-auto p-0">
           <Calendar
             mode="range"
+            excludeDisabled
             selected={{ from: range.from, to: range.to }}
             onSelect={update}
             numberOfMonths={1}

@@ -27,7 +27,7 @@ export default async function EventTicketPage({
       .eq("event_id", id)
       .eq("user_id", active.user.id)
       .maybeSingle(),
-    supabase.from("profiles").select("display_name").eq("id", active.user.id).maybeSingle(),
+    supabase.from("public_profiles").select("display_name").eq("id", active.user.id).maybeSingle(),
     supabase
       .from("event_rsvps")
       .select("id", { count: "exact", head: true })
@@ -37,6 +37,7 @@ export default async function EventTicketPage({
       .from("reward_rules")
       .select("township_id,action_type,category_slug,points")
       .in("action_type", ["event_attendance", "event_volunteer"])
+      .eq("active", true)
       .or(`township_id.is.null,township_id.eq.${active.townshipId}`),
   ])
 

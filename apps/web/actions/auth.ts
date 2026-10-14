@@ -1,5 +1,7 @@
 "use server"
 
+import { revalidatePath } from "next/cache"
+import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 
 import { getAppUrl } from "@/lib/env"
@@ -150,8 +152,12 @@ export async function requestMagicLink(
   }
 }
 
-export async function signOut(): Promise<void> {
+export async function signOut(): Promise<AuthActionState> {
   const supabase = await createClient()
-  await supabase.auth.signOut()
+  const { error } = await supabase.auth.signOut({ scope: "local" })
+  if (error) return { status: "error", message: "Could not sign out. Please try again." }
+  const cookieStore = await cookies()
+  cookieStore.delete("selected_township_id")
+  revalidatePath("/", "layout")
   redirect("/sign-in")
 }

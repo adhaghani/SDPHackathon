@@ -25,7 +25,7 @@ export function BookingChat({
   return (
     <section className="bb-card p-5">
       <h2 className="text-title text-ink">Booking chat</h2>
-      <p className="mt-1 text-sm text-ink-muted">Visible only to the borrower and lender.</p>
+      <p className="mt-1 text-sm text-ink-muted">Visible to the borrower, lender and your township office for operational review.</p>
       <ScrollArea className="mt-4 max-h-72 rounded-lg bg-ground p-3" contentClassName="min-h-full">
       <ul className="flex flex-col gap-3">
         {messages.map((message) => (

@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test"
 
+test.setTimeout(120_000)
+
 test("a resident can create an account and sign in again", async ({ page }) => {
   const email = `phase0-${Date.now()}@example.test`
   const password = `Test-${Date.now()}A1`
@@ -25,7 +27,10 @@ test("a resident can create an account and sign in again", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible()
 
   await page.getByRole("button", { name: "Sign out" }).click()
+  await page.getByRole("alertdialog").getByRole("button", { name: "Sign out", exact: true }).click()
   await page.waitForURL("**/sign-in")
+  await page.goto("/home")
+  await expect(page).toHaveURL(/\/sign-in/)
 
   await page.locator("#email").fill(email)
   await page.getByLabel("Password", { exact: true }).fill(password)

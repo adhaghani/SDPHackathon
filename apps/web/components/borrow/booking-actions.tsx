@@ -14,6 +14,7 @@ export function BookingActions({
   status,
   actor,
   borrowerWouldHaveBought,
+  handoverConfirmed = false,
   hasGuide = false,
   canContest = false,
 }: {
@@ -21,6 +22,7 @@ export function BookingActions({
   status: string
   actor: "borrower" | "lender"
   borrowerWouldHaveBought: string | null
+  handoverConfirmed?: boolean
   hasGuide?: boolean
   canContest?: boolean
 }) {
@@ -35,7 +37,7 @@ export function BookingActions({
   if ((status === "requested" && actor === "borrower") || (status === "approved" && actor === "lender")) {
     actions.push({ action: "cancel", label: "Cancel", variant: "ghost" })
   }
-  if (status === "approved") {
+  if (status === "approved" && !handoverConfirmed) {
     actions.push({ action: "confirm_handover", label: "Confirm handover" })
   }
   if (markReturned) {
@@ -49,10 +51,11 @@ export function BookingActions({
   }
   if (canContest) actions.push({ action: "contest_condition", label: "Contest this rating", variant: "ghost" })
 
-  if (!actions.length) return null
+  if (!actions.length) return <p className="text-sm text-ink-muted">{status === "approved" && handoverConfirmed ? "Your handover is confirmed. Waiting for the other participant." : "No action is needed from you right now."}</p>
 
   return (
     <div className="flex flex-col gap-3">
+      {status === "approved" && handoverConfirmed ? <p className="text-sm text-ink-muted">Your handover is confirmed. Waiting for the other participant.</p> : null}
       <form action={action} className="flex flex-wrap gap-2">
         <input type="hidden" name="bookingId" value={bookingId} />
         {actions.map((item) =>

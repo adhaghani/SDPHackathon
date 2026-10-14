@@ -5,6 +5,7 @@ import { CalendarRangeIcon, ChevronLeftIcon, HandshakeIcon, ShieldCheckIcon, Tag
 
 import { HandoverSpot } from "@/components/block/handover-spot"
 import { HandoverSteps } from "@/components/block/handover-steps"
+import { SectionRetry } from "@/components/home/section-retry"
 import { ItemBookingFlow } from "@/components/block/item-booking-flow"
 import { SaveItemButton } from "@/components/block/save-item-button"
 import { ItemGuideForm } from "@/components/borrow/item-guide-form"
@@ -33,19 +34,14 @@ export default async function ItemDetailPage({
       .eq("id", id)
       .eq("township_id", active.townshipId)
       .maybeSingle(),
-    supabase
-      .from("bookings")
-      .select("start_date,end_date,status")
-      .eq("item_id", id)
-      .in("status", ["approved", "handed_over"])
-      .order("start_date"),
+    supabase.rpc("item_booking_windows", { p_item_id: id }),
   ])
   if (!itemResult.data) notFound()
   const item = itemResult.data
   const isOwner = item.owner_id === active.user.id
 
   const [ownerResult, relatedResult, guideResult, historyResult, valueResult, lenderHistoryResult] = await Promise.all([
-    supabase.from("profiles").select("display_name").eq("id", item.owner_id).maybeSingle(),
+    supabase.from("public_profiles").select("display_name").eq("id", item.owner_id).maybeSingle(),
     supabase
       .from("items")
       .select("id,title,photo_paths,deposit_rm,max_loan_days")
@@ -148,17 +144,17 @@ export default async function ItemDetailPage({
         </div>
 
         <div className="mt-[22px]">
-          <ItemBookingFlow
+          {bookingsResult.error ? <SectionRetry label="Loan availability" /> : <ItemBookingFlow
             itemId={item.id}
             handoverOptions={item.handover_options?.length ? item.handover_options : ["Meet in a shared space"]}
             maxLoanDays={item.max_loan_days}
             bookings={bookingsResult.data ?? []}
             isOwner={isOwner}
-          />
+          />}
         </div>
 
         <div className="mt-[22px]">
-          <HandoverSpot place={handoverPlace} walkingTime="2 min walk" />
+          <HandoverSpot place={handoverPlace} />
         </div>
 
         <section className="mt-[22px]">

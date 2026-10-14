@@ -31,7 +31,7 @@ const lines = [
     icon: PackageIcon,
     tint: "bg-sky",
     body: "Ladders, drills, folding tables, tents. Request, hand over in a shared space, and both sides confirm the return.",
-    example: "+40 BP when a loan is returned and confirmed",
+    example: "Earn BP when a loan is returned and confirmed",
   },
   {
     name: "Jom",
@@ -39,7 +39,7 @@ const lines = [
     icon: CalendarDaysIcon,
     tint: "bg-lime",
     body: "Gotong-royong, repair cafés, swap markets. Register, then check in at the door with a QR ticket.",
-    example: "+50 BP after a verified check-in",
+    example: "Earn BP after a verified check-in",
   },
   {
     name: "Tolong",
@@ -47,7 +47,7 @@ const lines = [
     icon: HandHelpingIcon,
     tint: "bg-mustard",
     body: "Carry groceries, water plants, walk someone to the clinic. Small, practical requests between neighbours.",
-    example: "+30 BP when the neighbour confirms",
+    example: "Earn BP when the neighbour confirms",
   },
   {
     name: "Rimba",
@@ -55,7 +55,7 @@ const lines = [
     icon: LeafIcon,
     tint: "bg-paper",
     body: "Township challenges and estimated impact: things reused instead of bought, hours volunteered.",
-    example: "+200 BP when a challenge is completed",
+    example: "Earn the configured BP reward when a challenge is completed",
   },
 ] as const
 

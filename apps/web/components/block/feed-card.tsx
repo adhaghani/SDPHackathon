@@ -71,7 +71,7 @@ export function FeedCard({
           ) : null}
         </div>
         <p className="mt-2 text-[17px] leading-[21px] font-bold text-balance">{title}</p>
-        <p className={cn("mt-1 truncate text-sm leading-[19px]", event ? "text-on-dark-muted" : "text-ink-soft")}>
+        <p className={cn("mt-1 line-clamp-3 text-sm leading-[19px]", event ? "text-on-dark-muted" : "text-ink-soft")}>
           {meta}
         </p>
       </div>

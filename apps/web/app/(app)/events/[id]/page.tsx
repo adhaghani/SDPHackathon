@@ -40,6 +40,7 @@ export default async function EventDetailPage({
       .from("reward_rules")
       .select("township_id,action_type,category_slug,points,daily_cap,weekly_cap")
       .in("action_type", ["event_attendance", "event_volunteer"])
+      .eq("active", true)
       .or(`township_id.is.null,township_id.eq.${active.townshipId}`),
   ])
 
@@ -53,7 +54,7 @@ export default async function EventDetailPage({
   const volunteerPoints = resolveRewardRule(rules, "event_volunteer", categorySlug)?.points
   const isHost = event.host_id === active.user.id
   const isAdmin = active.membership.role === "township_admin"
-  const hostResult = await supabase.from("profiles").select("display_name").eq("id", event.host_id).maybeSingle()
+  const hostResult = await supabase.from("public_profiles").select("display_name").eq("id", event.host_id).maybeSingle()
   const host = hostResult.data?.display_name ?? "A neighbour"
   const date = formatEventDate(event.starts_at)
   const time = `${formatEventTime(event.starts_at)}–${formatEventTime(event.ends_at)}`

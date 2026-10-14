@@ -49,11 +49,15 @@ Resident recycling estimate
   → SECURITY DEFINER log_recycling()
   → recycling_logs + recycling_log_items (self-reported kg and optional EXIF-stripped photos)
   → material factors convert to estimated CO₂e and kWh on read
-  → active campaign refresh → idempotent recycling_goal_completed award (50 BP)
+  → active campaign refresh → idempotent recycling_goal_completed award (configured reward rule)
 ```
 
 `points_ledger` has no update or delete grants for `authenticated`. Corrections use negative `reversal` rows and `audit_log`.
 
 ## Service-role usage
 
-`apps/web/lib/supabase/admin.ts` is `server-only` and is reserved for seeding, demo reset and cron jobs. Resident-facing writes use the signed-in user and RPCs. Dashboard queries use aggregate RPCs such as `township_pulse`, `admin_insights`, `admin_budget` and `admin_rewards_economy`.
+`apps/web/lib/supabase/admin.ts` is `server-only` and is reserved for seeding, demo reset, cron jobs and authenticated self-account deletion. Resident-facing writes use the signed-in user and RPCs. Dashboard queries use aggregate RPCs such as `township_pulse`, `admin_insights`, `admin_budget` and `admin_rewards_economy`.
+
+## Operational privacy
+
+The access matrix in `PRIVACY_AND_SAFETY.md` distinguishes aggregate dashboards from admin operational review. Full profiles are owner-only; `public_profiles` exposes co-member names. Unit labels are owner/admin-only except the authorised guest destination read. Booking records and messages include own-township admin review. Private search deduplication is separate from anonymous search telemetry and is never client-readable.

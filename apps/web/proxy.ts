@@ -17,6 +17,10 @@ const protectedPrefixes = [
   "/guests",
   "/guard",
   "/sponsor",
+  "/recycling",
+  "/giveaway",
+  "/help",
+  "/ai",
 ]
 
 export async function proxy(request: NextRequest) {
@@ -32,6 +36,9 @@ export async function proxy(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
+          // The current render must receive the refreshed session as well as the browser.
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+          supabaseResponse = NextResponse.next({ request })
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options)
           )

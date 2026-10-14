@@ -17,8 +17,14 @@ All metrics are aggregate-only and computed in `Asia/Kuala_Lumpur` unless noted.
 | Recycling CO₂e avoided | Estimated recycled kilograms multiplied by each material's cited kg CO₂e-per-kg factor. Hidden while any contributing material lacks a factor or source. |
 | Recycling energy saved | Estimated recycled kilograms multiplied by each material's cited kWh-per-kg factor. Displayed as kWh because watts measure power, not energy. |
 | Township recycling goal progress | Aggregate estimated kilograms logged during the campaign period, divided by the admin-set target. Only aggregate progress is exposed. |
-| Recycling goal reward | 50 BP awarded idempotently once to each active campaign contributor when the target is first reached. |
+| Recycling goal reward | The configured reward-rule amount awarded idempotently once to each active campaign contributor when the target is first reached. |
 
 Limitations: dashboards describe observed activity, not causation. Recycling estimates are self-reported and may differ from a scale. Breakdowns with fewer than five distinct residents are suppressed. No CO2e figures are displayed without a documented, cited emissions factor.
 
 Recycling launch factors use the US EPA Waste Reduction Model v16 documentation and workbook: https://www.epa.gov/waste-reduction-model/documentation-waste-reduction-model. WARM values reported per short ton are converted to kg CO₂e/kg material and MMBtu values are converted to kWh/kg material (1 MMBtu = 293.07107 kWh). These are comparison estimates, not measured savings.
+
+## Demand to supply
+
+Searches count search-event rows, including zero-result searches, rather than summing results returned. Distinct demand counts authenticated residents in the separate private 30-day deduplication table and is suppressed below five. Legacy anonymous demo data cannot establish distinct demand. The category table attributes only searches with a selected category; uncategorised terms remain in the separate demand-gap list. Equipment supplied sums current hub inventory quantities. Completed hub loans count confirmed completed bookings in the last 30 days for stocked hub items. Listing utilisation is the share of stocked listings with a completion; quantity and time occupancy are different measures. Programme costs on Demand intelligence cover the current calendar month and are not category-level acquisition costs. None of these aggregates proves causation.
+
+Recycling campaign progress is self-reported estimated kg. There is no measured collection stream; photos and custom-kg input do not change verification status. Staff weights, if introduced, need a separate evidence and correction trail and must never be summed with resident estimates.

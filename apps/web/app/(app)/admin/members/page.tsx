@@ -19,7 +19,7 @@ export default async function AdminMembersPage() {
   if (members.error) throw new Error(members.error.message)
   const userIds = (members.data ?? []).map((member) => member.user_id)
   const profiles = userIds.length
-    ? await supabase.from("profiles").select("id,display_name").in("id", userIds)
+    ? await supabase.from("public_profiles").select("id,display_name").in("id", userIds)
     : { data: [], error: null }
   if (profiles.error) throw new Error(profiles.error.message)
   const names = new Map((profiles.data ?? []).map((profile) => [profile.id, profile.display_name]))

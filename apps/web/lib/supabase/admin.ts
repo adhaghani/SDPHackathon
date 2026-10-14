@@ -10,7 +10,7 @@ let adminClient: SupabaseClient<Database> | undefined
 
 /**
  * Server-only service client. Every use must be documented in
- * docs/ARCHITECTURE.md and limited to seeding, demo reset or cron jobs.
+ * docs/ARCHITECTURE.md and limited to seeding, demo reset, cron jobs or authenticated self-account deletion.
  */
 export function getAdminClient(): SupabaseClient<Database> {
   adminClient ??= createSupabaseClient<Database>(

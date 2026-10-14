@@ -25,6 +25,7 @@ export type BorrowActionState = {
 
 function borrowErrorMessage(error: { message: string }): string {
   const message = error.message.toLowerCase()
+  if (message.includes("guide_ack_required")) return "Read the item how-to and tick the acknowledgement before confirming handover."
   if (message.includes("cannot_book_own_item")) return "You cannot borrow your own item."
   if (message.includes("dates_unavailable")) return "Those dates are already booked."
   if (message.includes("loan_too_long")) return "Choose a shorter loan window."

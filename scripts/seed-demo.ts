@@ -596,15 +596,15 @@ async function ensureDemoSearchEvents(
   ] as const
 
   const { error } = await admin.from("search_events").insert(
-    searches.map(([term, results, available]) => ({
+    searches.flatMap(([term, repetitions, available]) => Array.from({ length: repetitions }, () => ({
       township_id: townshipId,
       neighbourhood_id: neighbourhoodId,
       normalized_term: term,
       category_id: term === "drill" || term === "gerudi" ? categoryId : null,
-      results_count: results,
+      results_count: available,
       available_count: available,
       is_demo: true,
-    }))
+    })))
   )
   if (error) throw new Error(`Could not create demo searches: ${error.message}`)
 }

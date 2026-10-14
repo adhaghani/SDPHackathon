@@ -12,7 +12,7 @@
 
 BorrowLah is a demo-ready community participation and sustainability system for Malaysian townships. Residents borrow and lend useful items, give away household goods, join neighbourhood events, help neighbours, manage guest access and log self-reported recycling. Verified real-world activity earns **BetterPoints (BP)**.
 
-Township admins see aggregate participation and planning signals, not private resident activity. Sponsor partners can create rewards and challenges.
+Township admins see aggregate planning signals and their township operational records for verification and disputes; raw points-ledger review is audit logged. See docs/PRIVACY_AND_SAFETY.md for the access matrix. Sponsor partners can create rewards and challenges.
 
 The core promise is:
 
@@ -25,7 +25,7 @@ The product is intentionally practical, local and trust-oriented. It should feel
 ## 2. Product principles
 
 1. **Real-world actions matter.** Points come from verified activity or explicitly labelled self-reported estimates, never merely from opening the app.
-2. **Privacy by default.** Private messages, unit labels, exact addresses and resident-level activity are not exposed to admins or sponsors.
+2. **Privacy by default.** Sponsors receive aggregates only. Township admins can review their own township membership and operational records, including unit labels and booking messages, for verification and disputes. Raw points-ledger review is audit logged. Private profile preferences and recycling logs remain owner-only. See `docs/PRIVACY_AND_SAFETY.md`.
 3. **Shared spaces first.** Locations should be neighbourhoods, facilities or public meetup points, never private home addresses.
 4. **Progress is visible.** Residents should understand what they can do next and what they have earned.
 5. **Demo honesty.** All seeded residents, events, partners, rewards and metrics are fictional/sample data. Impact figures must stay labelled as estimates.
@@ -64,7 +64,7 @@ The product is intentionally practical, local and trust-oriented. It should feel
 - Create sponsor-funded rewards.
 - Create community challenges.
 - View aggregate redemption/challenge statistics.
-- Never see resident-level private activity.
+- See aggregate analytics, own-township membership and operational records, with audit-logged raw points-ledger review; no private recycling logs or profile preferences.
 
 ---
 
@@ -212,7 +212,7 @@ The newest major feature is a resident recycling estimator with a township campa
 - Admins create or update one active campaign in `/admin/engagement`.
 - Campaign fields include title, start date, end date and aggregate kg target.
 - Residents see aggregate campaign progress and their contributor eligibility.
-- When the target is first reached, active campaign contributors receive an idempotent **50 BP** `recycling_goal_completed` award.
+- When the target is first reached, active campaign contributors receive an idempotent `recycling_goal_completed` award using **the configured reward-rule amount**.
 - Completed campaigns become locked.
 - The resident Home page shows a compact recycling summary and campaign nudge.
 
@@ -531,7 +531,7 @@ App wrappers live in:
 
 1. Admin dashboards must remain aggregate-first.
 2. Suppress small groups where required by the methodology.
-3. Never expose private unit labels, exact home addresses or private resident activity.
+3. Expose unit labels only to the member, their township admin, or the authorised guest/guard workflow. Keep exact addresses and other private activity out of general views.
 4. Guest passes expose only the fields needed by the relevant resident/guard workflow.
 5. Public storage paths are acceptable for the current demo, but upload copy should not imply photos are verified evidence.
 6. Recycling estimates are self-reported and may differ from a scale.
@@ -640,7 +640,7 @@ For UI changes, also check:
 7. Posters must not crop labels or faces.
 8. Buttons should have clear action names and stable dimensions.
 9. Loading, empty, error and permission states should live in the interface, not rely only on alerts.
-10. Never expose private resident details in admin or sponsor views.
+10. Keep sponsor views aggregate-only. Admin operational access is limited to their own township under docs/PRIVACY_AND_SAFETY.md.
 11. Keep sample data visibly labelled.
 12. Treat recycling impact as estimated, self-reported and methodology-dependent.
 13. Use existing tokens and components from `packages/ui` rather than introducing a parallel design system.

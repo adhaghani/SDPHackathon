@@ -450,7 +450,7 @@ New UI components will include:
 - Calendar-event verification queue.
 - Methodology expansion.
 
-All admin data will come from aggregate `SECURITY DEFINER` functions or approved named-highlight records. Raw resident activity, unit labels, home locations and private messages will not be exposed.
+Analytics use aggregate functions or approved named highlights. Township admins also have own-township membership and operational access for verification and disputes, including unit labels and booking messages. Raw points-ledger review is audit logged. Private recycling logs and profile preferences remain owner-only. The authoritative policy is `docs/PRIVACY_AND_SAFETY.md`.
 
 ### Service worker
 

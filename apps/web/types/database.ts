@@ -195,6 +195,32 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"borrow_demand_residents": {
+                  Row: {
+                    "category_id": string | null,"last_searched_at": string,"normalized_term": string,"resident_id": string,"township_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "category_id"?: string | null,"last_searched_at"?: string,"normalized_term": string,"resident_id": string,"township_id": string
+                  }
+                  Update: {
+                    "category_id"?: string | null,"last_searched_at"?: string,"normalized_term"?: string,"resident_id"?: string,"township_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "borrow_demand_residents_category_id_fkey"
+      columns: ["category_id"]
+isOneToOne: false
+      referencedRelation: "item_categories"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "borrow_demand_residents_township_id_fkey"
+      columns: ["township_id"]
+isOneToOne: false
+      referencedRelation: "townships"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"bundle_items": {
                   Row: {
                     "bundle_id": string,"is_demo": boolean,"item_id": string,"position": number
@@ -1532,7 +1558,21 @@ isOneToOne: false
                 }
           }
           Views: {
-            "v_member_points": {
+            "public_profiles": {
+                  Row: {
+                    "display_name": string | null,"id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                           "display_name"?: string | null,"id"?: string | null
+                         }
+                        Update: {
+                           "display_name"?: string | null,"id"?: string | null
+                         }
+                        Relationships: [
+
+                  ]
+                },"v_member_points": {
                   Row: {
                     "balance": number | null,"last_activity_at": string | null,"lifetime_points": number | null,"township_id": string | null,"user_id": string | null
                   }
@@ -1584,6 +1624,9 @@ isOneToOne: false
                            },
 "admin_rewards_economy":
 { Args: { "p_days"?: number,"p_township_id": string }; Returns: Json
+                           },
+"admin_supply_outcomes":
+{ Args: { "p_township_id": string }; Returns: Json
                            },
 "approve_member":
 { Args: { "p_approve": boolean,"p_member_id": string }; Returns: Json
@@ -1785,6 +1828,11 @@ isOneToOne: false
                            },
 "is_township_guard":
 { Args: { "p_township_id": string }; Returns: boolean
+                           },
+"item_booking_windows":
+{ Args: { "p_item_id": string }; Returns: {
+              "end_date": string,"start_date": string
+            }[]
                            },
 "join_group":
 { Args: { "p_group_id": string }; Returns: Json

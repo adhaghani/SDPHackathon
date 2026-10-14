@@ -1,63 +1,44 @@
-# BorrowLah demo script
+# BorrowLah: three minutes
 
-Three-minute walkthrough of the verified core loop. Use a phone-sized window and a laptop-sized window. The seeded demo is fictional and labelled in the UI.
+Status: script prepared; a timed human rehearsal and cloud rehearsal are still pending. The previous script allocated 220 seconds. This version allocates exactly 180 seconds, including transitions. Do not add feature tours.
 
-## Before the demo
+## Prepare before the timer
 
-```bash
-npm run demo:reset
-npm run dev --workspace web
-```
+- Reset the **local fictional demo only** with `npm run demo:reset`.
+- Open separate resident, lender/organiser and office browser sessions. Sign in ahead of time. Keep the resident at phone width and the other sessions on the laptop.
+- Open the seeded pressure-washer booking in both participant sessions, its how-to guide, the resident's Rewards activity, and the office Demand intelligence page in ready tabs.
+- Keep the event ticket and organiser check-in page ready for the participation segment. Copy the manual token before starting; refresh it if rotating tickets are enabled.
+- Confirm the actual reward rules shown in the app. Do not quote fixed BP amounts from memory.
+- Start a stopwatch. Advance at each timestamp. Rehearse once with clicks and once with the network fallback. Record actual duration in `docs/REHEARSAL.md`.
 
-Open `http://127.0.0.1:3000`. If Supabase is paused, run the reset again after opening the dashboard.
+## 0:00–0:20 — The resident need (20 seconds)
 
-## 1. Join — 20 seconds
+“Most households need a pressure washer occasionally. BorrowLah helps neighbours share one, confirm what happened and earn BetterPoints for completed contributions. The office can see where shared equipment is useful.”
 
-1. On the landing page, choose **Continue as → Aisyah · resident**.
-2. Aisyah lands on **Home** with `1,250 BP` and the demo-data banner visible.
-3. Explain that points come only from verified activity.
+Show resident Home and **Your next step**. Explain that township joining verifies membership; the role switcher only shortcuts sign-in for this fictional demo.
 
-## 2. Discover and participate — 35 seconds
+## 0:20–1:30 — Borrow and close the loop (70 seconds)
 
-1. Open **Events**.
-2. Open **Demo check-in window · gotong-royong**.
-3. Choose **RSVP as attendee**.
-4. Open **QR ticket**. The pass renders a QR and a 30-second refresh countdown.
+Open the seeded request. In the lender session choose **Approve request**. Explain that approval earns no points. Confirm handover in both sessions; the borrower reads and acknowledges the how-to when required. Point out that one confirmation leaves the booking approved.
 
-## 3. Verify — 50 seconds
+The resident chooses **Mark returned**, answering the purchase-avoidance question. The lender chooses the return condition and **Confirm return**. Show **completed** and the Rewards activity entry. Explain that a completed lend and an on-time confirmed return earn the amounts configured in reward rules, subject to caps. Deposits are arranged offline; the app does not hold payment.
 
-1. Sign out and choose **Continue as → Raj · organiser**.
-2. Open **Events → Demo check-in window · gotong-royong → Manage check-in**.
-3. Use **Open camera scanner** if a camera is available, or paste the QR token in the accessible fallback.
-4. The result announces the resident name and points; Aisyah's phone shows the points moment and updated balance.
-5. If the event is outside its check-in window, use the seeded completed activity on Home and Rewards to explain the verified ledger.
+## 1:30–2:00 — Verified participation and BetterPoints (30 seconds)
 
-## 4. Share — 50 seconds
+Show the ready event ticket. In the organiser session paste the current token and choose **Check token**. Show the recorded check-in and resident activity history. Explain that RSVP alone earns no attendance points; staff check-in verifies participation. BetterPoints recognise actions and can be redeemed under township rules.
 
-1. Sign out and continue as **Aisyah · resident**.
-2. Open **Borrow**, then **Pressure washer for the next clean-up**.
-3. Request a future loan. The seeded booking is already at the request stage for a shorter path.
-4. Sign out and continue as **Raj · organiser** or the lender view in **Borrow → Mine**.
-5. Approve, confirm handover on both sides, mark returned with the “would you have bought it?” answer, then confirm return.
-6. The lender receives `+40 BP`; an on-time return receives `+10 BP`.
+## 2:00–2:40 — Township decision (40 seconds)
 
-## 5. Recognise — 30 seconds
+Show office **Demand intelligence**. Explain the difference between repeated searches and distinct residents, including suppressed or unrecorded counts. Follow the category across shared equipment supplied, completed loans and listing utilisation. Show this month's recorded programme costs.
 
-1. Continue as Aisyah and open **Rewards**.
-2. Show the balance, Contributor level, route progress, earned badges and plain-language activity history.
-3. Explain that the partner catalogue arrives in Phase 2.
+“These are signals for what to stock and what gets used. They do not prove the equipment purchase caused a change. Purchase avoidance and resident recycling weights are self-reported estimates.”
 
-## 6. Improve the township — 35 seconds
+## 2:40–3:00 — Pilot and close (20 seconds)
 
-1. Sign out and continue as **Township office · admin**.
-2. Open **Township Pulse**.
-3. Show active residents, repeat attendance, completed borrows, items reused, estimated purchases avoided and the three chart tabs.
-4. Point out that breakdowns under five residents are suppressed and that the dashboard uses aggregate functions only.
+“The next step is a small resident pilot: do people list, borrow, return and come back? We will measure completion, repeat participation, disputes and staff minutes. Success is useful sharing with an operational workload the township can sustain.”
 
-## Fallback
+End at **3:00**. Recycling, giveaways, guest passes, AI, maps and forecasts belong in questions only when they support that story.
 
-If camera access or Supabase is unavailable:
+## Network or camera fallback
 
-1. Use the manual token/search path on the event manage page.
-2. Use the seeded `Home`, `Rewards` and `Township Pulse` pages to show the completed loop.
-3. Run `npm run demo:reset` to restore the same state.
+Use manual token entry for camera problems. If a live action fails, say it failed and show an already completed fictional booking and ledger entry. Do not describe seeded state as a successful live transaction. Keep local and cloud rehearsal results separate.

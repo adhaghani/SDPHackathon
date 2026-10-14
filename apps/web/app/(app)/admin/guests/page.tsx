@@ -44,7 +44,7 @@ export default async function AdminGuestPassesPage() {
 
   const memberRows = membersResult.data ?? []
   const profileResult = memberRows.length
-    ? await supabase.from("profiles").select("id,display_name").in("id", memberRows.map((member) => member.user_id))
+    ? await supabase.from("public_profiles").select("id,display_name").in("id", memberRows.map((member) => member.user_id))
     : { data: [], error: null }
   if (profileResult.error) throw new Error(profileResult.error.message)
   const profileNames = new Map((profileResult.data ?? []).map((profile) => [profile.id, profile.display_name]))
