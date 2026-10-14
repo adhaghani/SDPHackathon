@@ -1,287 +1,569 @@
+import type { Metadata } from "next"
 import Link from "next/link"
+import Image from "next/image"
+import styles from "./landing.module.css"
 import {
-  BadgeCheckIcon,
+  ArrowDownIcon,
+  ArrowDownRightIcon,
+  ArrowUpIcon,
+  MoveHorizontalIcon,
+  SearchIcon,
+  ArrowRightIcon,
+  ArrowUpRightIcon,
   CalendarDaysIcon,
-  EyeOffIcon,
+  CheckIcon,
+  GiftIcon,
   HandHelpingIcon,
   LeafIcon,
   PackageIcon,
-  PlayIcon,
-  ScaleIcon,
+  QrCodeIcon,
+  RecycleIcon,
   ShieldCheckIcon,
-  UserPlusIcon,
+  SproutIcon,
+  UsersIcon,
 } from "lucide-react"
 
-import { PillarStrip } from "@/components/block/pillar-strip"
 import { DemoRoleSwitcher } from "@/components/demo/demo-role-switcher"
-import { ActivityRow } from "@/components/home/activity-row"
 import { LanguageSwitcher } from "@/components/i18n/language-switcher"
-import { BetterPointsChip } from "@/components/shared/better-points-chip"
-import { marketingContent } from "@/content/marketing"
 import { isDemoMode, isFeatureEnabled } from "@/lib/env"
 import { getPreferredLocale } from "@/lib/i18n"
 import { copy } from "@/lib/i18n-copy"
 import { Button } from "@workspace/ui/components/button"
 import { cn } from "@workspace/ui/lib/utils"
 
-const lines = [
-  {
-    name: "Pinjam",
-    english: "Borrow and lend",
-    icon: PackageIcon,
-    tint: "bg-sky",
-    body: "Ladders, drills, folding tables, tents. Request, hand over in a shared space, and both sides confirm the return.",
-    example: "Earn BP when a loan is returned and confirmed",
-  },
-  {
-    name: "Jom",
-    english: "Neighbourhood events",
-    icon: CalendarDaysIcon,
-    tint: "bg-lime",
-    body: "Gotong-royong, repair cafés, swap markets. Register, then check in at the door with a QR ticket.",
-    example: "Earn BP after a verified check-in",
-  },
-  {
-    name: "Tolong",
-    english: "Helping hands",
-    icon: HandHelpingIcon,
-    tint: "bg-mustard",
-    body: "Carry groceries, water plants, walk someone to the clinic. Small, practical requests between neighbours.",
-    example: "Earn BP when the neighbour confirms",
-  },
-  {
-    name: "Rimba",
-    english: "Shared goals",
-    icon: LeafIcon,
-    tint: "bg-paper",
-    body: "Township challenges and estimated impact: things reused instead of bought, hours volunteered.",
-    example: "Earn the configured BP reward when a challenge is completed",
-  },
-] as const
-
-const pulseBars = [
-  { name: "Pinjam", value: 82, bar: "bg-sky" },
-  { name: "Jom", value: 64, bar: "bg-lime" },
-  { name: "Tolong", value: 38, bar: "bg-mustard" },
-  { name: "Rimba", value: 26, bar: "bg-ink" },
-]
+export const metadata: Metadata = {
+  title: "BorrowLah · A greener township starts with us",
+  description:
+    "Reduce, reuse, and recycle with your neighbours. Borrow everyday items, give things a second life, track recycling, and connect your township with events, help, guest passes, and rewards.",
+}
 
 export default async function Page() {
   const locale = isFeatureEnabled("bm_ui") ? await getPreferredLocale() : "en"
   const localized = copy[locale]
-  const demo = isDemoMode()
+  const t = (en: string, ms: string) => (locale === "ms" ? ms : en)
+  const pillars = [
+    {
+      name: "Reduce",
+      ms: "Kurangkan",
+      href: "/borrow",
+      icon: PackageIcon,
+      tint: "bg-sky",
+      title: t("Need it once? Borrow it.", "Perlu sekali? Pinjam sahaja."),
+      body: t(
+        "A drill for the weekend. A ladder for an afternoon. Share what already exists nearby and skip a purchase you don’t need.",
+        "Gerudi untuk hujung minggu. Tangga untuk petang ini. Kongsi barang yang sudah ada berdekatan dan elakkan pembelian yang tidak perlu."
+      ),
+      feature: t("Borrow & lend · PINJAM", "Pinjam & kongsi · PINJAM"),
+    },
+    {
+      name: "Reuse",
+      ms: "Guna semula",
+      href: "/giveaway",
+      icon: GiftIcon,
+      tint: "bg-mustard",
+      title: t(
+        "Done with it? Pass it on.",
+        "Tidak perlu lagi? Beri kepada jiran."
+      ),
+      body: t(
+        "Your spare chair could be someone’s missing piece. Give useful things a second home, and join repair cafés and swap events.",
+        "Kerusi lebihan anda mungkin diperlukan orang lain. Beri barang berguna rumah baharu, dan sertai acara membaiki dan bertukar barang."
+      ),
+      feature: t("Giveaways & community events", "Pemberian & acara komuniti"),
+    },
+    {
+      name: "Recycle",
+      ms: "Kitar semula",
+      href: "/recycling",
+      icon: RecycleIcon,
+      tint: "bg-lime",
+      title: t("Sort it. Log it. Keep going.", "Asingkan. Catat. Teruskan."),
+      body: t(
+        "Record your recycling drop-offs, explore estimated material and energy savings, and contribute to your township’s shared recycling goal.",
+        "Catat penghantaran kitar semula, lihat anggaran penjimatan bahan dan tenaga, dan sumbang kepada sasaran kitar semula perbandaran."
+      ),
+      feature: t(
+        "Recycling logs & shared goals",
+        "Rekod kitar semula & sasaran bersama"
+      ),
+    },
+  ]
+  const features = [
+    {
+      icon: PackageIcon,
+      name: "PINJAM",
+      title: t(
+        "Less buying. More sharing.",
+        "Kurang membeli. Lebih berkongsi."
+      ),
+      body: t(
+        "Find items nearby, request a loan, and confirm the handover and return together.",
+        "Cari barang berdekatan, mohon pinjaman, dan sahkan penyerahan serta pemulangan bersama."
+      ),
+      tint: "bg-sky",
+    },
+    {
+      icon: CalendarDaysIcon,
+      name: "JOM",
+      title: t("Meet the people next door.", "Kenali jiran anda."),
+      body: t(
+        "Discover clean-ups, swap markets, and neighbourhood events with QR check-in.",
+        "Temui gotong-royong, pasar pertukaran, dan acara kejiranan dengan daftar masuk QR."
+      ),
+      tint: "bg-lime",
+    },
+    {
+      icon: HandHelpingIcon,
+      name: "TOLONG",
+      title: t(
+        "A little help goes a long way.",
+        "Sedikit bantuan, besar maknanya."
+      ),
+      body: t(
+        "Ask for a helping hand or offer one, from carrying groceries to watering plants.",
+        "Minta atau tawarkan bantuan, daripada membawa barangan dapur hingga menyiram tanaman."
+      ),
+      tint: "bg-mustard",
+    },
+    {
+      icon: QrCodeIcon,
+      name: t("GUEST ACCESS", "AKSES TETAMU"),
+      title: t(
+        "Welcome guests with less fuss.",
+        "Sambut tetamu dengan lebih mudah."
+      ),
+      body: t(
+        "Create time-limited QR visitor passes, manage approvals, and support guard check-in.",
+        "Cipta pas pelawat QR bertempoh, urus kelulusan, dan bantu daftar masuk pengawal."
+      ),
+      tint: "bg-paper",
+    },
+    {
+      icon: SproutIcon,
+      name: "RIMBA",
+      title: t("Make progress together.", "Maju bersama-sama."),
+      body: t(
+        "Track recycling, join challenges, and work toward a shared block goal.",
+        "Jejaki kitar semula, sertai cabaran, dan capai sasaran blok bersama."
+      ),
+      tint: "bg-lime",
+    },
+    {
+      icon: GiftIcon,
+      name: "BETTERPOINTS",
+      title: t("Good actions, recognised.", "Sumbangan baik, dihargai."),
+      body: t(
+        "Earn points for eligible, verified contributions and redeem available local rewards.",
+        "Kumpul mata untuk sumbangan layak yang disahkan dan tebus ganjaran tempatan yang tersedia."
+      ),
+      tint: "bg-sky",
+    },
+  ]
 
   return (
-    <div className="min-h-svh bg-background">
+    <div className={cn(styles.landing, "min-h-svh bg-paper text-ink")}>
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-50 focus:rounded-lg focus:bg-ink focus:px-4 focus:py-2 focus:text-surface"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-lg focus:bg-ink focus:px-4 focus:py-3 focus:text-white"
       >
-        Skip to content
+        {t("Skip to content", "Langkau ke kandungan")}
       </a>
-      <header className="bb-safe-top sticky top-0 z-40 border-b border-hairline bg-surface/95 backdrop-blur">
-        <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
-          <Link href="/" className="font-display text-xl font-extrabold text-ink">
+      <header className="bb-safe-top sticky top-0 z-40 border-b border-ink/10 bg-paper">
+        <div className="mx-auto flex min-h-20 max-w-7xl flex-wrap items-center justify-between gap-2 px-4 py-3 sm:px-8">
+          <Link
+            href="/"
+            className="flex items-center gap-2 font-display text-lg font-extrabold sm:text-2xl"
+          >
+            <span className="grid size-9 place-items-center rounded-full bg-lime">
+              <LeafIcon aria-hidden="true" className="size-5" />
+            </span>
             {localized.brand}
           </Link>
-          <nav aria-label="Sections" className="hidden items-center gap-1 md:flex">
+          <nav
+            aria-label={t("Sections", "Bahagian")}
+            className="hidden items-center gap-1 lg:flex"
+          >
             {[
-              ["#how", "How it works"],
-              ["#townships", "For township offices"],
-              ["#sponsors", "For sponsors"],
+              ["#how", t("The 3R way", "Cara 3R")],
+              ["#features", t("Township life", "Kehidupan perbandaran")],
+              ["#townships", t("Our shared impact", "Impak bersama")],
             ].map(([href, label]) => (
-              <a key={href} href={href} className="rounded-full px-3 py-2 text-sm font-bold text-ink transition-colors duration-150 ease-out hover:bg-ground">
+              <a
+                key={href}
+                href={href}
+                className="rounded-full px-4 py-3 text-sm font-bold transition-colors hover:bg-lime"
+              >
                 {label}
               </a>
             ))}
           </nav>
-          <nav aria-label="Account" className="flex items-center gap-2">
+          <nav
+            aria-label={t("Account", "Akaun")}
+            className="flex items-center gap-1 sm:gap-3"
+          >
             {isFeatureEnabled("bm_ui") ? (
-              <LanguageSwitcher current={locale} next={locale === "en" ? "ms" : "en"} label={localized.switchLanguage} nextPath="/" compact />
+              <LanguageSwitcher
+                current={locale}
+                next={locale === "en" ? "ms" : "en"}
+                label={localized.switchLanguage}
+                nextPath="/"
+                compact
+              />
             ) : null}
-            <Button render={<Link href="/sign-in" />} variant="ghost">
+            <Button render={<Link href="/sign-in" />} variant="ghost" size="sm">
               {localized.signIn}
             </Button>
-            <Button render={<Link href="/sign-up" />} variant="cta" className="hidden sm:inline-flex">
-              {localized.signUp}
+            <Button
+              render={<Link href="/sign-up" />}
+              variant="outline"
+              className="hidden sm:inline-flex"
+            >
+              {t("Join your township", "Sertai perbandaran")}
             </Button>
           </nav>
         </div>
       </header>
 
       <main id="main-content">
-        {/* Hero */}
-        <section className="overflow-hidden rounded-b-[32px] bg-lime text-ink">
-          <div className="mx-auto grid max-w-7xl gap-12 px-5 pt-12 pb-14 sm:px-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-center lg:gap-16 lg:px-8 lg:pt-20 lg:pb-24">
+        <section className={cn(styles.hero, "relative overflow-hidden")}>
+          <div className="mx-auto grid max-w-7xl gap-6 px-5 pt-12 pb-14 sm:px-8 sm:pt-16 lg:grid-cols-[1fr_1.12fr] lg:items-center lg:gap-2 lg:pt-16 lg:pb-20">
             <div>
-              <p className="inline-flex rounded-full bg-mint px-3 py-1 text-sm font-bold text-ink">
-                People and Planet · for Malaysian townships
-              </p>
-              <h1 className="mt-6 max-w-[16ch] font-display text-[40px] leading-[1.02] font-extrabold text-balance text-ink sm:text-6xl lg:text-[68px]">
-                {locale === "ms" ? "Perbandaran anda, disambungkan melalui aktiviti dunia sebenar." : marketingContent.headline}
+              <h1 className={styles.heroTitle}>
+                <span>{t("A better", "Blok lebih")}</span>
+                <span>
+                  {t("block.", "baik.")}{" "}
+                  <SproutIcon
+                    aria-hidden="true"
+                    className={styles.titleSprout}
+                    strokeWidth={1.3}
+                  />
+                </span>
+                <span className={styles.heroAccent}>
+                  {t("A greener", "Bumi lebih")}
+                </span>
+                <span>{t("planet.", "hijau.")}</span>
               </h1>
-              <p className="mt-6 max-w-[52ch] text-lg text-ink-soft">
-                {locale === "ms"
-                  ? "Pinjam dan kongsi, sertai acara kejiranan, bantu jiran dan terima pengiktirafan untuk sumbangan yang disahkan."
-                  : marketingContent.description}
+              <p className="mt-6 max-w-[42ch] text-base leading-relaxed text-ink-soft sm:text-lg">
+                {t(
+                  "What if the things we share could change the place we call home? Reduce waste, reuse what’s useful, and recycle together—with your whole township in one app.",
+                  "Bagaimana jika perkongsian kita dapat mengubah tempat tinggal kita? Kurangkan sisa, guna semula barang berguna, dan kitar semula bersama—seluruh perbandaran dalam satu aplikasi."
+                )}
               </p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Button render={<Link href="/sign-up" />} variant="cta" size="cta" className="w-full sm:w-auto">
-                  <UserPlusIcon aria-hidden="true" data-icon="inline-start" />
-                  {localized.signUp}
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <Button
+                  render={<Link href="/sign-up" />}
+                  variant="cta"
+                  size="cta"
+                >
+                  {t("Join your township", "Sertai perbandaran")}
+                  <ArrowUpRightIcon aria-hidden="true" data-icon="inline-end" />
                 </Button>
-                <Button render={<Link href="/sign-in?next=/home" />} variant="outline" size="cta" className="w-full sm:w-auto">
-                  <PlayIcon aria-hidden="true" data-icon="inline-start" />
-                  {locale === "ms" ? "Cuba demo" : marketingContent.secondaryAction}
+                <Button
+                  render={<Link href="/sign-in?next=/home" />}
+                  variant="outline"
+                  size="cta"
+                >
+                  {t("Explore the app", "Terokai aplikasi")}
                 </Button>
               </div>
               <p className="mt-4 text-sm text-ink-soft">
-                {locale === "ms"
-                  ? "Ciri utama percuma untuk penduduk. Pengendali perbandaran membayar untuk sistem ini."
-                  : "Free for residents. Township operators pay for the managed system."}
+                {t(
+                  "Free for residents. Built for Malaysian neighbourhoods.",
+                  "Percuma untuk penduduk. Dibina untuk kejiranan Malaysia."
+                )}
               </p>
-              {demo ? (
-                <div className="mt-8 max-w-xl rounded-[20px] border-2 border-ink/15 p-4">
-                  <DemoRoleSwitcher />
-                </div>
-              ) : null}
             </div>
-
-            <HeroPreview />
+            <TownshipIllustration
+              label={t(
+                "One neighbourhood. More possibilities.",
+                "Satu kejiranan. Lebih banyak peluang."
+              )}
+              caption={t(
+                "Share more. Waste less. Grow together.",
+                "Lebih berkongsi. Kurang membazir. Maju bersama."
+              )}
+            />
           </div>
         </section>
 
-        {/* Four lines */}
-        <section id="how" className="mx-auto max-w-7xl scroll-mt-20 px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-          <div className="max-w-2xl">
-            <p className="text-eyebrow text-ink-muted">How it works</p>
-            <h2 className="text-display-lg mt-2 text-ink lg:text-5xl lg:leading-[1.05]">A neighbourhood, not a dashboard</h2>
-            <p className="mt-4 text-lg text-ink-muted">
-              Start with what you need, discover one nearby feed, make handovers visible and work toward a shared block goal.
+        <div className="border-y border-ink/15 bg-lime">
+          <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-8 gap-y-3 px-5 py-5 sm:px-8">
+            <p className="text-sm font-bold">
+              {t(
+                "GOOD FOR YOUR BLOCK. BETTER FOR NATURE.",
+                "BAIK UNTUK BLOK ANDA. LEBIH BAIK UNTUK ALAM."
+              )}
+            </p>
+            <p className="flex flex-wrap gap-x-6 gap-y-2 font-display text-lg font-bold">
+              <span className="flex items-center gap-2">
+                <ArrowDownRightIcon aria-hidden="true" className="size-5" />
+                {t("Less waste", "Kurang sisa")}
+              </span>
+              <span className="flex items-center gap-2">
+                <ArrowUpIcon aria-hidden="true" className="size-5" />
+                {t("More life", "Lebih hayat")}
+              </span>
+              <span className="flex items-center gap-2">
+                <MoveHorizontalIcon aria-hidden="true" className="size-5" />
+                {t("Closer neighbours", "Jiran lebih rapat")}
+              </span>
             </p>
           </div>
-          <PillarStrip className="mt-8" />
-          <ul className="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {lines.map(({ name, english, icon: Icon, tint, body, example }) => (
-              <li key={name} className="bb-card flex flex-col p-5">
-                <span aria-hidden="true" className={cn("grid size-11 place-items-center rounded-lg", tint)}>
-                  <Icon className="size-5 text-ink" strokeWidth={1.8} />
-                </span>
-                <h3 className="mt-4 font-display text-2xl font-extrabold text-ink">{name}</h3>
-                <p className="font-bold text-ink-muted">{english}</p>
-                <p className="mt-3 text-ink">{body}</p>
-                <p className="mt-auto pt-5">
-                  <span className={cn(
-                    "inline-flex rounded-full px-3 py-1 text-sm font-bold text-ink",
-                    name === "Pinjam" && "bg-sky",
-                    name === "Jom" && "bg-lime",
-                    name === "Tolong" && "bg-mustard",
-                    name === "Rimba" && "bg-ink text-white"
-                  )}>{example}</span>
-                </p>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-4 text-sm text-ink-muted">Example values. Each township sets its own rules and caps.</p>
-        </section>
+        </div>
 
-        {/* Verified loop */}
-        <section className="border-y border-hairline bg-surface">
-          <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] lg:gap-16 lg:px-8 lg:py-20">
+        <section
+          id="how"
+          className="mx-auto max-w-7xl scroll-mt-24 px-5 py-16 sm:px-8 lg:py-24"
+        >
+          <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
             <div>
-              <p className="text-eyebrow text-ink-muted">Points stay honest</p>
-              <h2 className="text-display-lg mt-2 text-ink">Only verified actions count</h2>
-              <p className="mt-4 text-ink-muted">
-                A loan needs both sides to confirm. An event needs a staff-scanned check-in. Help needs the neighbour&apos;s thanks. Nothing is earned by scrolling.
-              </p>
+              <h2 className="mt-3 max-w-[19ch] font-display text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-5xl">
+                {t(
+                  "Less in the bin. More in the neighbourhood.",
+                  "Kurang dalam tong. Lebih untuk kejiranan."
+                )}
+              </h2>
             </div>
-            <ol className="relative grid gap-6 md:grid-cols-5 md:gap-4">
-              <span aria-hidden="true" className="absolute top-[13px] right-[10%] left-[10%] hidden h-1.5 rounded-full bg-lilac md:block" />
-              {marketingContent.loop.map((step, index) => (
-                <li key={step} className="relative flex items-start gap-4 md:flex-col md:items-center md:text-center">
-                  <span
+            <p className="max-w-sm text-lg text-ink-soft">
+              {t(
+                "Sustainable living starts closer than you think. Often, just a few doors away.",
+                "Kehidupan lestari bermula lebih dekat daripada yang anda sangka. Mungkin hanya beberapa pintu sahaja."
+              )}
+            </p>
+          </div>
+          <div className={styles.pillars}>
+            {pillars.map(
+              ({ name, ms, href, icon: Icon, tint, title, body, feature }) => (
+                <article key={name} className={styles.pillar}>
+                  <div
+                    className={cn(styles.pillarArt, tint)}
                     aria-hidden="true"
-                    className={cn(
-                      "relative grid size-8 shrink-0 place-items-center rounded-full border-[3px] border-ink text-xs font-bold",
-                      index === 2 ? "bg-coral text-ink" : "bg-surface text-ink"
-                    )}
                   >
-                    {index + 1}
-                  </span>
-                  <p className="font-bold text-ink md:mt-2">{step}</p>
-                </li>
-              ))}
-            </ol>
+                    <span className={styles.pillarOrbit} />
+                    <Icon className={styles.pillarSymbol} strokeWidth={1.1} />
+                    <span className={styles.pillarWord}>{name}</span>
+                  </div>
+                  <div className="px-1 pt-6">
+                    <h3 className="font-display text-3xl font-extrabold tracking-tight">
+                      {locale === "ms" ? ms : name}
+                      <span aria-hidden="true">.</span>
+                    </h3>
+                    <p className="mt-3 text-lg font-bold">{title}</p>
+                    <p className="mt-3 leading-relaxed text-ink-soft">{body}</p>
+                  </div>
+                  <Link
+                    href={`/sign-in?next=${href}`}
+                    className={styles.pillarLink}
+                  >
+                    <span>{feature}</span>
+                    <ArrowUpRightIcon
+                      aria-hidden="true"
+                      className="size-5 shrink-0"
+                    />
+                  </Link>
+                </article>
+              )
+            )}
           </div>
         </section>
 
-        {/* Township offices */}
-        <section id="townships" className="mx-auto grid max-w-7xl scroll-mt-20 gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:items-center lg:gap-16 lg:px-8 lg:py-24">
-          <div>
-            <p className="text-eyebrow text-ink-muted">For township offices</p>
-            <h2 className="text-display-lg mt-2 text-ink lg:text-5xl lg:leading-[1.05]">See participation, never people</h2>
-            <p className="mt-4 text-lg text-ink-muted">
-              Township Pulse shows which lines are active, which neighbourhoods need an event, and what the rewards economy costs, in aggregate only.
-            </p>
-            <ul className="mt-6 flex flex-col gap-4">
-              {[
-                { icon: EyeOffIcon, text: "No unit labels, private messages or a named resident's activity, ever." },
-                { icon: ScaleIcon, text: "Breakdowns under five residents are suppressed so nobody can be singled out." },
-                { icon: BadgeCheckIcon, text: "Impact figures are labelled as estimates, with the method published." },
-              ].map(({ icon: Icon, text }) => (
-                <li key={text} className="flex gap-3">
-                  <span aria-hidden="true" className="grid size-9 shrink-0 place-items-center rounded-lg bg-mint-tint">
-                    <Icon className="size-5 text-ink" strokeWidth={1.8} />
-                  </span>
-                  <span className="pt-1.5 text-ink">{text}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="bb-card p-5 sm:p-7">
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-title text-ink">Participation by township line</p>
-            </div>
-            <ul className="mt-5 flex flex-col gap-3">
-              {pulseBars.map((row) => (
-                <li key={row.name} className="grid grid-cols-[4.5rem_minmax(0,1fr)] items-center gap-3">
-                  <span className="font-bold text-ink">{row.name}</span>
-                  <span aria-hidden="true" className="h-5 overflow-hidden rounded-md bg-ground">
-                    <span className={cn("block h-full rounded-md", row.bar)} style={{ width: `${row.value}%` }} />
-                  </span>
-                </li>
-              ))}
-            </ul>
-            <div className="mt-6 rounded-lg bg-ink p-4 text-sm text-surface">
-              <p className="text-eyebrow text-band-eyebrow">Privacy safeguard</p>
-              <p className="mt-1">This view shows aggregates only.</p>
-            </div>
-          </div>
-        </section>
-
-        {/* Sponsors */}
-        <section id="sponsors" className="scroll-mt-20 bg-sun-tint">
-          <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-center lg:gap-16 lg:px-8 lg:py-20">
-            <div className="lg:order-2">
-              <p className="text-eyebrow text-ink">For sponsors</p>
-              <h2 className="text-display-lg mt-2 text-ink lg:text-5xl lg:leading-[1.05]">Fund rewards neighbours actually earned</h2>
-              <p className="mt-4 text-lg text-ink">
-                Local cafés and shops fund vouchers and challenges. Residents redeem them with BetterPoints from verified activity. You see redemption counts, not customers.
+        <section className="on-dark overflow-hidden bg-ink text-white">
+          <div className="mx-auto grid max-w-7xl gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[1fr_1.1fr] lg:items-center lg:gap-20 lg:py-20">
+            <div>
+              <LeafIcon
+                aria-hidden="true"
+                className="size-10 text-lime"
+                strokeWidth={1.5}
+              />
+              <h2 className="mt-3 font-display text-4xl leading-[1.08] font-extrabold tracking-tight sm:text-5xl">
+                {t(
+                  "Keep useful things in circulation.",
+                  "Pastikan barang berguna terus digunakan."
+                )}
+                <br />
+                <span className="text-lime">
+                  {t(
+                    "Give nature a little breathing room.",
+                    "Beri alam ruang untuk bernafas."
+                  )}
+                </span>
+              </h2>
+              <p className="mt-6 max-w-lg text-lg leading-relaxed text-on-dark-muted">
+                {t(
+                  "Every item shared is a chance to avoid an unnecessary purchase. Every giveaway extends a useful life. Every material recycled helps keep resources in use and waste out of our surroundings.",
+                  "Setiap barang dikongsi membuka peluang mengelakkan pembelian yang tidak perlu. Setiap pemberian memanjangkan hayat barang. Setiap bahan dikitar semula membantu mengekalkan sumber dan mengurangkan sisa di persekitaran."
+                )}
               </p>
             </div>
-            <ul className="grid grid-cols-2 gap-4 lg:order-1">
-              {[
-                { partner: "Kopi Kita", title: "RM5 drink voucher", cost: 300, tint: "bg-coral-tint" },
-                { partner: "Township office", title: "Free hall booking hour", cost: 800, tint: "bg-lilac-tint" },
-              ].map((reward) => (
-                <li key={reward.title} className="bb-card overflow-hidden">
-                  <div aria-hidden="true" className={cn("grid aspect-[4/3] place-items-center", reward.tint)}>
-                    <ShieldCheckIcon className="size-10 text-ink" strokeWidth={1.4} />
+            <div className="rounded-[28px] border border-white/20 p-6 sm:p-8">
+              <p className="text-eyebrow text-on-dark-muted">
+                {t(
+                  "ONE DRILL. MANY WEEKEND PROJECTS.",
+                  "SATU GERUDI. BANYAK PROJEK HUJUNG MINGGU."
+                )}
+              </p>
+              <div
+                aria-hidden="true"
+                className="my-8 flex items-center justify-between gap-3"
+              >
+                <span className="grid size-16 shrink-0 place-items-center rounded-2xl bg-sky text-ink sm:size-20">
+                  <PackageIcon className="size-9" strokeWidth={1.5} />
+                </span>
+                <span className="h-px flex-1 bg-lime" />
+                <RecycleIcon className="size-10 shrink-0 text-lime" />
+                <span className="h-px flex-1 bg-lime" />
+                <span className="grid size-16 shrink-0 place-items-center rounded-full bg-lime text-ink sm:size-20">
+                  <UsersIcon className="size-9" strokeWidth={1.5} />
+                </span>
+              </div>
+              <ol className="flex flex-col gap-4">
+                {[
+                  t(
+                    "Borrow what you need from a neighbour.",
+                    "Pinjam barang yang diperlukan daripada jiran."
+                  ),
+                  t(
+                    "Use it, return it, and confirm together.",
+                    "Guna, pulangkan, dan sahkan bersama."
+                  ),
+                  t(
+                    "The next neighbour gets their turn.",
+                    "Jiran seterusnya mendapat giliran."
+                  ),
+                ].map((step, i) => (
+                  <li key={step} className="flex items-start gap-3">
+                    <span className="grid size-6 shrink-0 place-items-center rounded-full bg-white/10 text-sm font-bold text-lime">
+                      {i + 1}
+                    </span>
+                    <span className="text-on-dark-muted">{step}</span>
+                  </li>
+                ))}
+              </ol>
+              <p className="mt-7 border-t border-white/20 pt-5 font-display text-xl font-bold text-lime">
+                {t(
+                  "More use from what we already have.",
+                  "Lebih manfaat daripada barang sedia ada."
+                )}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section
+          id="features"
+          className="mx-auto max-w-7xl scroll-mt-24 px-5 py-16 sm:px-8 lg:py-24"
+        >
+          <div className="mt-3 grid gap-5 lg:grid-cols-2 lg:gap-16">
+            <h2 className="font-display text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-5xl">
+              {t(
+                "Greener living. And everything around it.",
+                "Kehidupan lebih hijau. Dan segala di sekelilingnya."
+              )}
+            </h2>
+            <p className="max-w-lg text-lg leading-relaxed text-ink-soft">
+              {t(
+                "A thriving township needs more than a recycling bin. BorrowLah brings the everyday things that make a community work into one shared place.",
+                "Perbandaran yang maju memerlukan lebih daripada tong kitar semula. BorrowLah menyatukan urusan harian yang menghidupkan komuniti dalam satu tempat."
+              )}
+            </p>
+          </div>
+          <div className={styles.productLayout}>
+            <ProductPreview t={t} />
+            <div className="grid gap-x-8 sm:grid-cols-2">
+              {features.map(({ icon: Icon, name, title, body, tint }) => (
+                <article key={name} className="border-t border-ink/20 py-7">
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={cn(
+                        "grid size-9 shrink-0 place-items-center rounded-full",
+                        tint
+                      )}
+                    >
+                      <Icon aria-hidden="true" className="size-4" />
+                    </span>
+                    <p className="text-sm font-bold tracking-wide">{name}</p>
                   </div>
-                  <div className="p-4">
-                    <p className="text-eyebrow text-ink-muted">{reward.partner}</p>
-                    <p className="text-title mt-1 text-ink">{reward.title}</p>
-                    <p className="mt-1 text-sm text-ink-muted tabular-nums">{reward.cost} BP</p>
+                  <h3 className="mt-4 font-display text-xl leading-tight font-bold">
+                    {title}
+                  </h3>
+                  <p className="mt-3 text-sm leading-relaxed text-ink-soft">
+                    {body}
+                  </p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section
+          id="townships"
+          className="scroll-mt-24 border-y border-ink/10 bg-white"
+        >
+          <div className="mx-auto grid max-w-7xl gap-10 px-5 py-16 sm:px-8 lg:grid-cols-2 lg:gap-20 lg:py-20">
+            <div>
+              <h2 className="mt-3 font-display text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-5xl">
+                {t(
+                  "See the difference we make together.",
+                  "Lihat perubahan yang kita cipta bersama."
+                )}
+              </h2>
+              <p className="mt-5 text-lg leading-relaxed text-ink-soft">
+                {t(
+                  "Residents can follow their contributions and shared goals. Township offices see aggregate participation to support the community. Local sponsors can fund rewards for verified actions.",
+                  "Penduduk boleh mengikuti sumbangan dan sasaran bersama. Pejabat perbandaran melihat penyertaan agregat untuk menyokong komuniti. Penaja tempatan boleh membiayai ganjaran untuk tindakan yang disahkan."
+                )}
+              </p>
+              <a
+                href="#start"
+                className="mt-6 inline-flex min-h-11 items-center gap-2 font-bold underline decoration-ink/30 underline-offset-4"
+              >
+                {t("Start with your block", "Mulakan dengan blok anda")}
+                <ArrowDownIcon aria-hidden="true" className="size-4" />
+              </a>
+            </div>
+            <ul className="flex flex-col gap-6">
+              {[
+                {
+                  icon: CheckIcon,
+                  title: t(
+                    "Real actions, verified",
+                    "Tindakan sebenar, disahkan"
+                  ),
+                  body: t(
+                    "Loans and giveaways need handover confirmation. Events need a verified check-in. Eligible contributions earn BetterPoints under township rules.",
+                    "Pinjaman dan pemberian memerlukan pengesahan penyerahan. Acara memerlukan daftar masuk yang disahkan. Sumbangan layak mendapat BetterPoints mengikut peraturan perbandaran."
+                  ),
+                },
+                {
+                  icon: LeafIcon,
+                  title: t(
+                    "Environmental estimates, explained",
+                    "Anggaran alam sekitar, dijelaskan"
+                  ),
+                  body: t(
+                    "Recycling logs translate material counts into estimated weight, CO₂e, and energy equivalents. Estimates help show progress; they are not measured environmental outcomes.",
+                    "Rekod kitar semula menukar bilangan bahan kepada anggaran berat, CO₂e, dan tenaga. Anggaran menunjukkan kemajuan; ia bukan hasil alam sekitar yang diukur."
+                  ),
+                },
+                {
+                  icon: ShieldCheckIcon,
+                  title: t(
+                    "Community insight, with privacy",
+                    "Wawasan komuniti, dengan privasi"
+                  ),
+                  body: t(
+                    "Township impact views use aggregates, with small groups suppressed. Your unit label stays private and handovers happen in shared spaces.",
+                    "Paparan impak perbandaran menggunakan agregat, dengan kumpulan kecil disembunyikan. Label unit anda kekal peribadi dan penyerahan berlaku di ruang bersama."
+                  ),
+                },
+              ].map(({ icon: Icon, title, body }) => (
+                <li key={title} className="flex gap-4">
+                  <span className="grid size-11 shrink-0 place-items-center rounded-full bg-paper">
+                    <Icon aria-hidden="true" className="size-5" />
+                  </span>
+                  <div>
+                    <h3 className="font-display text-xl font-bold">{title}</h3>
+                    <p className="mt-2 leading-relaxed text-ink-soft">{body}</p>
                   </div>
                 </li>
               ))}
@@ -289,66 +571,221 @@ export default async function Page() {
           </div>
         </section>
 
-        {/* Closing CTA */}
-        <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-          <div className="flex flex-col items-start gap-6 rounded-[28px] bg-ink p-8 text-white sm:p-12 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <h2 className="font-display text-3xl font-extrabold text-balance text-white sm:text-4xl">{marketingContent.tagline}</h2>
-              <p className="mt-3 max-w-[52ch] text-on-dark-muted">Join with your township&apos;s code. It takes a minute, and your unit label stays private.</p>
-            </div>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Button render={<Link href="/sign-up" />} variant="cta" size="cta">{localized.signUp}</Button>
-              <Button render={<Link href="/sign-in?next=/home" />} variant="outline" size="cta" className="border-white bg-transparent text-white hover:bg-white/10">{marketingContent.secondaryAction}</Button>
+        <section
+          id="start"
+          className="mx-auto max-w-7xl scroll-mt-24 px-5 py-16 sm:px-8 lg:py-20"
+        >
+          <div className="relative overflow-hidden rounded-[32px] bg-lime p-7 sm:p-12 lg:p-16">
+            <SproutIcon
+              aria-hidden="true"
+              className="absolute right-8 bottom-0 hidden size-64 translate-y-12 rotate-[-15deg] text-ink/10 md:block"
+              strokeWidth={1}
+            />
+            <div className="relative max-w-2xl">
+              <h2 className="mt-4 font-display text-4xl leading-[1.03] font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
+                {t(
+                  "Your next good habit is just next door.",
+                  "Tabiat baik anda yang seterusnya bermula di sebelah rumah."
+                )}
+              </h2>
+              <p className="mt-5 max-w-lg text-lg text-ink-soft">
+                {t(
+                  "Join with your township’s code. Borrow something, share something, or show up for your community. Every small step has a place here.",
+                  "Sertai dengan kod perbandaran anda. Pinjam, kongsi, atau hadir untuk komuniti. Setiap langkah kecil bermakna di sini."
+                )}
+              </p>
+              <div className="mt-7">
+                <Button
+                  render={<Link href="/sign-up" />}
+                  variant="default"
+                  size="cta"
+                  className="h-auto max-w-full py-3 whitespace-normal"
+                >
+                  {t(
+                    "Let’s grow a better township",
+                    "Bina perbandaran lebih baik"
+                  )}
+                  <ArrowUpRightIcon aria-hidden="true" data-icon="inline-end" />
+                </Button>
+              </div>
             </div>
           </div>
         </section>
+        {isDemoMode() ? (
+          <div className="mx-auto max-w-7xl px-5 pb-8 sm:px-8">
+            <details
+              open
+              className="rounded-xl border border-ink/15 bg-white p-4"
+            >
+              <summary className="cursor-pointer text-sm font-bold">
+                {t(
+                  "Hackathon demo · explore resident, guard & admin roles",
+                  "Demo hackathon · terokai peranan penduduk, pengawal & pentadbir"
+                )}
+              </summary>
+              <div className="mt-4">
+                <DemoRoleSwitcher />
+              </div>
+            </details>
+          </div>
+        ) : null}
       </main>
-
-      <footer className="border-t border-hairline">
-        <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-8 text-sm text-ink-muted sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-          <p><span className="font-display font-extrabold text-ink">BorrowLah</span> · {localized.tagline}</p>
-          <p>Prototype for a university hackathon. No real brands or people.</p>
+      <footer className="border-t border-ink/15">
+        <div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 px-5 py-8 sm:px-8 md:flex-row md:items-center">
+          <div>
+            <Link href="/" className="font-display text-xl font-extrabold">
+              BorrowLah
+            </Link>
+            <p className="mt-1 text-sm text-ink-soft">
+              {t(
+                "Share more. Waste less. Live better.",
+                "Lebih berkongsi. Kurang membazir. Hidup lebih baik."
+              )}
+            </p>
+          </div>
+          <p className="max-w-sm text-sm text-ink-soft">
+            {t(
+              "Prototype for a university hackathon. Built around people, community, and the planet.",
+              "Prototaip hackathon universiti. Dibina untuk penduduk, komuniti, dan bumi."
+            )}
+          </p>
         </div>
       </footer>
     </div>
   )
 }
 
-/** Illustrative app preview built from the real components, with fictional content. */
-function HeroPreview() {
+function TownshipIllustration({
+  label,
+  caption,
+}: {
+  label: string
+  caption: string
+}) {
   return (
-    <div className="mx-auto w-full max-w-md lg:max-w-none">
-      <div className="relative">
-      <div className="relative rounded-[28px] bg-surface p-4 shadow-raised sm:p-5 lg:ml-8">
-        <div className="rounded-[20px] bg-ink px-4 pt-5 pb-6">
-          <p className="text-eyebrow text-band-eyebrow">Harmoni Heights</p>
-          <p className="mt-2 font-display text-2xl leading-tight font-extrabold text-surface">Selamat petang, Nurul</p>
-          <p className="mt-2 text-sm text-on-dark-muted">
-            160 BP from <strong className="text-sun">Level 4 · Jiran Mesra</strong>
+    <figure className={styles.garden}>
+      <div className={styles.gardenImage}>
+        <Image
+          src="/images/township-garden.webp"
+          alt=""
+          width={1254}
+          height={1254}
+          sizes="(max-width: 1023px) 100vw, 55vw"
+          preload
+        />
+      </div>
+      <div className={styles.gardenNote}>
+        <span className="grid size-10 shrink-0 place-items-center rounded-full bg-lime">
+          <UsersIcon aria-hidden="true" className="size-5" />
+        </span>
+        <p>{label}</p>
+      </div>
+      <figcaption className={styles.gardenCaption}>
+        <span className="size-2 shrink-0 rounded-full bg-ink" />
+        {caption}
+      </figcaption>
+    </figure>
+  )
+}
+
+function ProductPreview({ t }: { t: (en: string, ms: string) => string }) {
+  return (
+    <figure className={styles.productPreview}>
+      <div className="flex items-center justify-between gap-3 text-sm text-on-dark-muted">
+        <span className="font-display text-lg font-bold text-white">
+          BorrowLah
+        </span>
+        <span>
+          {t("Illustrative app preview", "Pratonton ilustrasi aplikasi")}
+        </span>
+      </div>
+      <div className={styles.productScreen}>
+        <div className="bg-lime p-5 sm:p-6">
+          <p className="text-sm font-bold">
+            {t("Welcome to your block", "Selamat datang ke blok anda")}
           </p>
-          <div className="mt-5 rounded-[16px] bg-white p-3 text-ink">
-            <div className="flex items-center justify-between text-xs font-bold"><span>Blok C · October goal</span><span>312 / 400</span></div>
-            <div className="mt-2 h-2 overflow-hidden rounded-full bg-paper"><div className="h-full w-[78%] rounded-full bg-ink" /></div>
+          <p className="mt-2 font-display text-3xl leading-tight font-extrabold">
+            {t("What do you need today?", "Apa yang anda perlukan hari ini?")}
+          </p>
+          <div className="mt-5 flex items-center gap-3 rounded-2xl bg-white px-4 py-3 text-sm text-ink-soft">
+            <SearchIcon aria-hidden="true" className="size-4 shrink-0" />
+            {t("A ladder, a helping hand…", "Tangga, bantuan jiran…")}
           </div>
         </div>
-        <div className="mt-4 rounded-lg bg-coral-tint p-3">
-          <p className="font-bold text-ink">Return the cordless drill</p>
-          <p className="text-sm text-ink-muted">By Sun · Lobby B</p>
+        <div className="p-5 sm:p-6">
+          <p className="mb-4 font-display text-xl font-bold">
+            {t("Good things, close to home", "Perkara baik, dekat dengan anda")}
+          </p>
+          <div className="flex gap-4 border-b border-ink/10 pb-4">
+            <Image
+              src="/demo/item-drill.svg"
+              alt=""
+              width={88}
+              height={88}
+              className="size-[88px] rounded-xl object-cover"
+            />
+            <div className="py-1">
+              <p className="text-xs font-bold tracking-wide">PINJAM</p>
+              <p className="mt-1 font-bold">
+                {t("Cordless drill", "Gerudi tanpa wayar")}
+              </p>
+              <p className="mt-1 text-sm text-ink-soft">
+                {t(
+                  "For your next weekend project",
+                  "Untuk projek hujung minggu"
+                )}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-start gap-4 border-b border-ink/10 py-4">
+            <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-lime">
+              <CalendarDaysIcon aria-hidden="true" className="size-6" />
+            </span>
+            <div>
+              <p className="text-xs font-bold tracking-wide">JOM</p>
+              <p className="mt-1 font-bold">
+                {t("Community garden day", "Hari kebun komuniti")}
+              </p>
+              <p className="mt-1 text-sm text-ink-soft">
+                {t(
+                  "A little planting. A lot of good.",
+                  "Sedikit menanam. Banyak manfaat."
+                )}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-start gap-4 pt-4">
+            <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-mustard">
+              <HandHelpingIcon aria-hidden="true" className="size-6" />
+            </span>
+            <div>
+              <p className="text-xs font-bold tracking-wide">TOLONG</p>
+              <p className="mt-1 font-bold">
+                {t(
+                  "A hand with the groceries?",
+                  "Bantuan membawa barang dapur?"
+                )}
+              </p>
+              <p className="mt-1 text-sm text-ink-soft">
+                {t(
+                  "Small favours. Stronger connections.",
+                  "Bantuan kecil. Hubungan lebih erat."
+                )}
+              </p>
+            </div>
+          </div>
         </div>
-        <ul className="mt-3 divide-y divide-hairline rounded-lg border border-hairline">
-          <ActivityRow title="Drill returned and confirmed" detail="Pinjam · Yesterday" delta={40} />
-          <ActivityRow title="Checked in at Repair café" detail="Jom · Sun" delta={50} />
-        </ul>
       </div>
-      <BetterPointsChip balance={1240} className="absolute -top-4 right-4 shadow-raised lg:-right-2" />
-      <p className="absolute -bottom-4 left-0 flex items-center gap-2 rounded-full bg-mint px-3 py-2 text-sm font-bold text-ink shadow-raised lg:-left-2">
-        <BadgeCheckIcon aria-hidden="true" className="size-4" />
-        Check-in verified
-      </p>
-      </div>
-      <p className="mt-8 text-center text-xs text-ink-soft lg:ml-8">
-        Illustrative preview. Names and numbers are fictional.
-      </p>
-    </div>
+      <figcaption className="mt-5 flex items-center gap-2 text-sm text-on-dark-muted">
+        <ShieldCheckIcon
+          aria-hidden="true"
+          className="size-4 shrink-0 text-lime"
+        />
+        {t(
+          "Shared spaces. Real connections.",
+          "Ruang bersama. Hubungan sebenar."
+        )}
+      </figcaption>
+    </figure>
   )
 }

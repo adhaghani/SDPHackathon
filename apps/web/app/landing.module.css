@@ -1,0 +1,287 @@
+.landing {
+  --landing-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.landing ::selection {
+  background: var(--bb-ink);
+  color: var(--bb-lime);
+}
+
+.heroTitle {
+  position: relative;
+  z-index: 1;
+  max-width: 10ch;
+  font-family: var(--font-display);
+  font-size: clamp(3.5rem, 6.6vw, 6rem);
+  line-height: 0.96;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.heroTitle > span {
+  display: block;
+}
+.heroAccent {
+  color: var(--bb-ink);
+}
+.heroAccent::after {
+  content: "";
+  display: block;
+  width: 90%;
+  height: 0.12em;
+  margin-top: -0.13em;
+  background: var(--bb-lime);
+  position: relative;
+  z-index: -1;
+  transform: rotate(-2deg);
+}
+
+.titleSprout {
+  display: inline-block;
+  width: 0.65em;
+  height: 0.65em;
+  margin-left: 0.02em;
+  vertical-align: baseline;
+}
+
+.garden {
+  position: relative;
+  min-width: 0;
+  padding-bottom: 28px;
+}
+
+.gardenImage {
+  overflow: hidden;
+  border-radius: 48% 48% 24px 24px;
+  background: var(--bb-paper);
+  mix-blend-mode: multiply;
+}
+
+.gardenImage img {
+  width: 100%;
+  height: auto;
+}
+
+.gardenNote {
+  position: absolute;
+  right: 0;
+  bottom: 20%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 245px;
+  padding: 14px 18px;
+  border-radius: 16px;
+  background: var(--bb-white);
+  box-shadow: 0 12px 32px rgb(17 17 17 / 12%);
+  transform: rotate(3deg);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.gardenCaption {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding-top: 12px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.pillars {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 32px;
+  margin-top: 48px;
+}
+
+.pillar {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.pillarArt {
+  position: relative;
+  display: grid;
+  height: 220px;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 16px;
+}
+.pillar:nth-child(2) .pillarArt {
+  border-radius: 110px 110px 16px 16px;
+}
+.pillar:nth-child(3) .pillarArt {
+  border-radius: 16px 110px 16px 16px;
+}
+.pillarSymbol {
+  width: 90px;
+  height: 90px;
+  transform: rotate(-12deg);
+  transition: transform 400ms var(--landing-ease);
+}
+.pillar:nth-child(2) .pillarSymbol {
+  transform: rotate(12deg);
+}
+.pillarOrbit {
+  position: absolute;
+  width: 175px;
+  height: 175px;
+  border: 1px solid rgb(17 17 17 / 22%);
+  border-radius: 50%;
+}
+.pillarWord {
+  position: absolute;
+  bottom: -14px;
+  left: 16px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 72px;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  opacity: 0.1;
+}
+.pillarLink {
+  margin-top: auto;
+  padding: 24px 4px 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  font-size: 14px;
+  font-weight: 700;
+  text-underline-offset: 5px;
+}
+.pillarLink svg {
+  transition: transform 200ms var(--landing-ease);
+}
+.pillarLink:hover {
+  text-decoration: underline;
+}
+.pillarLink:hover svg {
+  transform: translate(3px, -3px);
+}
+.pillar:has(a:hover, a:focus-visible) .pillarSymbol {
+  transform: rotate(0deg) scale(1.08);
+}
+
+.productLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.25fr);
+  align-items: center;
+  gap: 56px;
+  margin-top: 48px;
+}
+.productPreview {
+  padding: 24px;
+  border-radius: 28px;
+  background: var(--bb-ink);
+  transform: rotate(-2deg);
+}
+.productScreen {
+  margin-top: 20px;
+  overflow: hidden;
+  border-radius: 20px;
+  background: var(--bb-white);
+  color: var(--bb-ink);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .garden {
+    animation: garden-arrive 800ms var(--landing-ease) both;
+  }
+  @keyframes garden-arrive {
+    from {
+      transform: translateY(20px);
+      clip-path: inset(0 0 8% 0 round 24px);
+    }
+    to {
+      transform: translateY(0);
+      clip-path: inset(-30px -30px -30px -30px round 24px);
+    }
+  }
+}
+
+@media (max-width: 1023px) {
+  .heroTitle {
+    max-width: none;
+    font-size: clamp(3.5rem, 10vw, 5.5rem);
+  }
+  .heroTitle > span {
+    display: inline;
+  }
+  .heroTitle > span::after {
+    content: " ";
+  }
+  .heroTitle > span:nth-child(2)::after {
+    content: "";
+    display: block;
+  }
+  .heroAccent::after {
+    display: none;
+  }
+  .titleSprout {
+    width: 0.55em;
+    height: 0.55em;
+  }
+  .garden {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .productLayout {
+    gap: 32px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  }
+  .productLayout > div {
+    grid-template-columns: 1fr;
+  }
+  .productPreview {
+    padding: 18px;
+  }
+  .pillars {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 639px) {
+  .heroTitle {
+    font-size: clamp(3.1rem, 12.2vw, 4.8rem);
+  }
+  .gardenNote {
+    bottom: 17%;
+    max-width: 205px;
+    padding: 10px 12px;
+    right: 0;
+  }
+  .gardenCaption {
+    font-size: 14px;
+    text-align: center;
+  }
+  .pillars {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    margin-top: 32px;
+  }
+  .pillarArt {
+    height: 180px;
+  }
+  .pillar:nth-child(2) .pillarArt {
+    border-radius: 90px 90px 16px 16px;
+  }
+  .productLayout {
+    grid-template-columns: 1fr;
+  }
+  .productPreview {
+    transform: none;
+    padding: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pillarSymbol,
+  .pillarLink svg {
+    transition: none;
+  }
+}
