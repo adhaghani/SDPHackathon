@@ -20,13 +20,17 @@ export const getSessionContext = cache(async () => {
   const [membershipsResult, profileResult] = await Promise.all([
     supabase
       .from("township_members")
-      .select("id,township_id,user_id,role,status,neighbourhood_id,unit_label,created_at,townships(name)")
+      .select(
+        "id,township_id,user_id,role,status,neighbourhood_id,unit_label,created_at,townships(name,lifecycle)"
+      )
       .eq("user_id", user.id)
       .in("status", ["active", "pending"])
       .order("created_at", { ascending: true }),
     supabase
       .from("profiles")
-      .select("id,display_name,interests,language,comfort_prefs,recognition_opt_in,show_in_highlights")
+      .select(
+        "id,display_name,interests,language,comfort_prefs,recognition_opt_in,show_in_highlights"
+      )
       .eq("id", user.id)
       .maybeSingle(),
   ])
@@ -39,7 +43,10 @@ export const getSessionContext = cache(async () => {
     )
   }
 
-  const memberships = membershipsResult.data ?? []
+  const allMemberships = membershipsResult.data ?? []
+  const memberships = allMemberships.filter(
+    (row) => row.townships?.lifecycle === "active"
+  )
   const preferredMembership = memberships.find(
     (row) => row.status === "active" && row.townships?.name?.includes("Harmoni")
   )
@@ -65,6 +72,9 @@ export const getSessionContext = cache(async () => {
     user,
     membership,
     memberships,
+    unavailableMemberships: allMemberships.filter(
+      (row) => row.townships?.lifecycle !== "active"
+    ),
     profile: profileResult.data,
     points: pointsResult.data,
   }
@@ -72,7 +82,11 @@ export const getSessionContext = cache(async () => {
 
 export async function requireActiveMember() {
   const context = await getSessionContext()
-  if (!context.user || context.membership?.status !== "active" || !context.membership.township_id) {
+  if (
+    !context.user ||
+    context.membership?.status !== "active" ||
+    !context.membership.township_id
+  ) {
     throw new Error("Active township membership required.")
   }
 

@@ -23,6 +23,9 @@ export default async function AppLayout({
   }
 
   if (context.membership?.status !== "active") {
+    const client = await createClient()
+    const { data: platformAdmin } = await client.rpc("is_platform_admin")
+    if (platformAdmin) redirect("/superadmin")
     redirect("/onboarding")
   }
 
@@ -34,9 +37,10 @@ export default async function AppLayout({
     .is("read_at", null)
 
   const comfort = context.profile?.comfort_prefs
-  const comfortPrefs = comfort && typeof comfort === "object" && !Array.isArray(comfort)
-    ? (comfort as Record<string, unknown>)
-    : {}
+  const comfortPrefs =
+    comfort && typeof comfort === "object" && !Array.isArray(comfort)
+      ? (comfort as Record<string, unknown>)
+      : {}
   const comfortClass = cn(
     comfortPrefs.large_text === true && "bb-large-text",
     comfortPrefs.high_contrast === true && "bb-high-contrast",
@@ -44,14 +48,23 @@ export default async function AppLayout({
   )
 
   const isAdmin = context.membership?.role === "township_admin"
-  const displayName = context.profile?.display_name?.split(" ")[0] ?? "Neighbour"
+  const displayName =
+    context.profile?.display_name?.split(" ")[0] ?? "Neighbour"
   const townshipName = context.membership?.townships?.name ?? "Your township"
-  const enabledFlags = (["leaflet", "equipment_hubs", "ai_search"] as const).filter((flag) => isFeatureEnabled(flag))
+  const enabledFlags = (
+    ["leaflet", "equipment_hubs", "ai_search"] as const
+  ).filter((flag) => isFeatureEnabled(flag))
 
   return (
     <div className={cn("min-h-svh bg-paper text-ink", comfortClass)}>
-      <RealtimeRefresh table="notifications" filter={`user_id=eq.${context.user.id}`} />
-      <RealtimeRefresh table="points_ledger" filter={`user_id=eq.${context.user.id}`} />
+      <RealtimeRefresh
+        table="notifications"
+        filter={`user_id=eq.${context.user.id}`}
+      />
+      <RealtimeRefresh
+        table="points_ledger"
+        filter={`user_id=eq.${context.user.id}`}
+      />
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-[70] focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-white"
@@ -68,7 +81,7 @@ export default async function AppLayout({
       />
       <main
         id="main-content"
-        className="w-full min-h-svh px-4 pt-4 pb-32 sm:px-6 md:pl-[292px] md:pr-8 md:pb-12 lg:pr-10"
+        className="min-h-svh w-full px-4 pt-4 pb-32 sm:px-6 md:pr-8 md:pb-12 md:pl-[292px] lg:pr-10"
       >
         <div className="mx-auto w-full max-w-[1240px]">
           <PageSurface>{children}</PageSurface>

@@ -16,6 +16,11 @@
     "db:push": "supabase db push --local",
     "db:push:remote": "supabase db push",
     "seed": "tsx scripts/seed-demo.ts",
+    "superadmin:grant": "tsx scripts/bootstrap-superadmin.ts",
+    "emails:build": "tsx scripts/generate-email-templates.ts",
+    "emails:check": "tsx scripts/generate-email-templates.ts --check",
+    "emails:preview": "tsx scripts/generate-email-templates.ts --preview",
+    "emails:export": "tsx scripts/generate-email-templates.ts --export",
     "demo:reset": "tsx scripts/reset-demo.ts"
   },
   "devDependencies": {

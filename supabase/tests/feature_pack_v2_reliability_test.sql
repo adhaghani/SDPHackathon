@@ -19,6 +19,8 @@ where status = 'requested'
   and item_id = (select id from public.items where title = 'Pressure washer for the next clean-up')
 limit 1 \gset
 
+select set_config('test.handover_booking_id', :'rel_booking_id', true);
+
 set local role authenticated;
 select is(
   has_table_privilege('authenticated', 'public.booking_handover_tokens', 'insert'),
@@ -100,10 +102,8 @@ select throws_ok(
   $$
     select public.consume_booking_handover_token(
       (select jti from public.booking_handover_tokens where booking_id =
-        (select id from public.bookings
-         where item_id = (select id from public.items where title = 'Pressure washer for the next clean-up'))),
-      (select id from public.bookings
-       where item_id = (select id from public.items where title = 'Pressure washer for the next clean-up')),
+        current_setting('test.handover_booking_id')::uuid),
+      current_setting('test.handover_booking_id')::uuid,
       now(),
       false
     )
@@ -138,10 +138,8 @@ select throws_ok(
   $$
     select public.consume_booking_handover_token(
       (select jti from public.booking_handover_tokens where booking_id =
-        (select id from public.bookings
-         where item_id = (select id from public.items where title = 'Pressure washer for the next clean-up'))),
-      (select id from public.bookings
-       where item_id = (select id from public.items where title = 'Pressure washer for the next clean-up')),
+        current_setting('test.handover_booking_id')::uuid),
+      current_setting('test.handover_booking_id')::uuid,
       now(),
       true
     )
@@ -168,8 +166,7 @@ select throws_ok(
   $$
     select public.consume_booking_handover_token(
       'EXPIREDDEMO',
-      (select id from public.bookings
-       where item_id = (select id from public.items where title = 'Pressure washer for the next clean-up')),
+      current_setting('test.handover_booking_id')::uuid,
       now() - interval '2 minutes',
       true
     )
@@ -182,8 +179,7 @@ select throws_ok(
   $$
     select public.consume_booking_handover_token(
       'MISSINGTOKEN',
-      (select id from public.bookings
-       where item_id = (select id from public.items where title = 'Pressure washer for the next clean-up')),
+      current_setting('test.handover_booking_id')::uuid,
       now(),
       true
     )

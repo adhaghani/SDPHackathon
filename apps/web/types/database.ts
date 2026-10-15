@@ -579,6 +579,26 @@ isOneToOne: false
                   Relationships: [
 
                   ]
+                },"guest_pass_share_secrets": {
+                  Row: {
+                    "encrypted_credentials": string,"pass_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "encrypted_credentials": string,"pass_id": string
+                  }
+                  Update: {
+                    "encrypted_credentials"?: string,"pass_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "guest_pass_share_secrets_pass_id_fkey"
+      columns: ["pass_id"]
+isOneToOne: true
+      referencedRelation: "visitor_passes"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"help_articles": {
                   Row: {
                     "body": string,"category": string,"created_at": string,"id": string,"search_vector": unknown,"slug": string,"title": string,"updated_at": string
@@ -1023,6 +1043,60 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"platform_admins": {
+                  Row: {
+                    "created_at": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+
+                  ]
+                },"platform_audit_log": {
+                  Row: {
+                    "action": string,"actor_id": string | null,"created_at": string,"details": NonNullable<Json>,"id": string,"township_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "action": string,"actor_id"?: string | null,"created_at"?: string,"details"?: NonNullable<Json>,"id"?: string,"township_id": string
+                  }
+                  Update: {
+                    "action"?: string,"actor_id"?: string | null,"created_at"?: string,"details"?: NonNullable<Json>,"id"?: string,"township_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "platform_audit_log_township_id_fkey"
+      columns: ["township_id"]
+isOneToOne: false
+      referencedRelation: "townships"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"platform_manager_invitations": {
+                  Row: {
+                    "created_at": string,"created_by": string,"display_name": string,"email": string,"id": string,"last_error": string | null,"sent_at": string | null,"status": string,"township_id": string,"user_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by": string,"display_name": string,"email": string,"id"?: string,"last_error"?: string | null,"sent_at"?: string | null,"status"?: string,"township_id": string,"user_id"?: string | null
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string,"display_name"?: string,"email"?: string,"id"?: string,"last_error"?: string | null,"sent_at"?: string | null,"status"?: string,"township_id"?: string,"user_id"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "platform_manager_invitations_township_id_fkey"
+      columns: ["township_id"]
+isOneToOne: false
+      referencedRelation: "townships"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"points_ledger": {
                   Row: {
                     "action_type": string,"created_at": string,"delta": number,"id": string,"metadata": NonNullable<Json>,"reason": string,"rule_id": string | null,"source_id": string,"source_type": string,"township_id": string,"user_id": string
@@ -1433,14 +1507,14 @@ isOneToOne: false
                   ]
                 },"townships": {
                   Row: {
-                    "auto_approve_members": boolean,"created_at": string,"id": string,"is_demo": boolean,"join_code": string,"name": string,"pilot_start_date": string | null,"require_event_approval": boolean,"rewards_enabled": boolean,"settings": NonNullable<Json>,"slug": string,"timezone": string
+                    "auto_approve_members": boolean,"boundary": Json | null,"created_at": string,"description": string,"district": string,"id": string,"is_demo": boolean,"join_code": string,"lifecycle": string,"name": string,"pilot_start_date": string | null,"require_event_approval": boolean,"rewards_enabled": boolean,"settings": NonNullable<Json>,"slug": string,"state": string,"timezone": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "auto_approve_members"?: boolean,"created_at"?: string,"id"?: string,"is_demo"?: boolean,"join_code": string,"name": string,"pilot_start_date"?: string | null,"require_event_approval"?: boolean,"rewards_enabled"?: boolean,"settings"?: NonNullable<Json>,"slug": string,"timezone"?: string
+                    "auto_approve_members"?: boolean,"boundary"?: Json | null,"created_at"?: string,"description"?: string,"district"?: string,"id"?: string,"is_demo"?: boolean,"join_code": string,"lifecycle"?: string,"name": string,"pilot_start_date"?: string | null,"require_event_approval"?: boolean,"rewards_enabled"?: boolean,"settings"?: NonNullable<Json>,"slug": string,"state"?: string,"timezone"?: string
                   }
                   Update: {
-                    "auto_approve_members"?: boolean,"created_at"?: string,"id"?: string,"is_demo"?: boolean,"join_code"?: string,"name"?: string,"pilot_start_date"?: string | null,"require_event_approval"?: boolean,"rewards_enabled"?: boolean,"settings"?: NonNullable<Json>,"slug"?: string,"timezone"?: string
+                    "auto_approve_members"?: boolean,"boundary"?: Json | null,"created_at"?: string,"description"?: string,"district"?: string,"id"?: string,"is_demo"?: boolean,"join_code"?: string,"lifecycle"?: string,"name"?: string,"pilot_start_date"?: string | null,"require_event_approval"?: boolean,"rewards_enabled"?: boolean,"settings"?: NonNullable<Json>,"slug"?: string,"state"?: string,"timezone"?: string
                   }
                   Relationships: [
 
@@ -1595,7 +1669,16 @@ isOneToOne: false
                 }
           }
           Functions: {
-            "_recycling_refresh_campaign":
+            "_badge_progress":
+{ Args: { "p_criteria": Json,"p_township_id": string,"p_user_id": string }; Returns: Json
+                           },
+"_platform_boundary":
+{ Args: { "p_boundary": Json }; Returns: unknown
+                           },
+"_platform_require_admin":
+{ Args: Record<PropertyKey, never>; Returns: undefined
+                           },
+"_recycling_refresh_campaign":
 { Args: { "p_township_id": string }; Returns: Json
                            },
 "_trust_score":
@@ -1604,11 +1687,17 @@ isOneToOne: false
 "_user_streak":
 { Args: { "p_user_id": string }; Returns: Json
                            },
+"_valid_badge_criteria":
+{ Args: { "p_criteria": Json }; Returns: boolean
+                           },
 "accept_help_request":
 { Args: { "p_request_id": string }; Returns: Json
                            },
 "accept_item_request_offer":
 { Args: { "p_end_date"?: string,"p_offer_id": string,"p_start_date"?: string }; Returns: Json
+                           },
+"accept_manager_invitations":
+{ Args: Record<PropertyKey, never>; Returns: string
                            },
 "add_hub_inventory":
 { Args: { "p_payload": Json }; Returns: Json
@@ -1724,6 +1813,9 @@ isOneToOne: false
 "create_report":
 { Args: { "p_payload": Json }; Returns: Json
                            },
+"create_shareable_visitor_pass":
+{ Args: { "p_encrypted_credentials": string,"p_max_entries"?: number,"p_purpose"?: string,"p_short_code_hash": string,"p_token_hash": string,"p_valid_from": string,"p_valid_until": string,"p_vehicle_plate"?: string,"p_visitor_name": string,"p_visitor_phone"?: string }; Returns: Json
+                           },
 "create_support_ticket":
 { Args: { "p_conversation_id"?: string,"p_subject"?: string }; Returns: Json
                            },
@@ -1781,6 +1873,9 @@ isOneToOne: false
 "get_monthly_highlight_candidates":
 { Args: { "p_month_start": string }; Returns: Json
                            },
+"get_my_badge_progress":
+{ Args: { "p_township_id": string }; Returns: Json
+                           },
 "get_or_create_invite":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
@@ -1829,6 +1924,9 @@ isOneToOne: false
 "is_guest_pass_assigner":
 { Args: { "p_township_id": string }; Returns: boolean
                            },
+"is_platform_admin":
+{ Args: Record<PropertyKey, never>; Returns: boolean
+                           },
 "is_township_admin":
 { Args: { "p_township_id": string }; Returns: boolean
                            },
@@ -1873,6 +1971,9 @@ isOneToOne: false
 "moderate_report":
 { Args: { "p_action": string,"p_report_id": string }; Returns: Json
                            },
+"my_manager_invitations":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
 "normalize_borrow_search_term":
 { Args: { "p_term": string }; Returns: string
                            },
@@ -1890,6 +1991,21 @@ isOneToOne: false
                            },
 "partner_stats":
 { Args: { "p_partner_id": string }; Returns: Json
+                           },
+"platform_boundary_overlaps":
+{ Args: { "p_boundary": Json,"p_township_id"?: string }; Returns: Json
+                           },
+"platform_prepare_manager":
+{ Args: { "p_display_name": string,"p_email": string,"p_township_id": string }; Returns: Json
+                           },
+"platform_record_delivery":
+{ Args: { "p_id": string,"p_succeeded": boolean }; Returns: undefined
+                           },
+"platform_revoke_manager":
+{ Args: { "p_id": string }; Returns: undefined
+                           },
+"platform_save_township":
+{ Args: { "p_data": Json,"p_township_id"?: string }; Returns: string
                            },
 "predictive_demand":
 { Args: { "p_township_id": string }; Returns: Json
@@ -1947,6 +2063,9 @@ isOneToOne: false
 "run_scheduled_jobs":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
+"save_badge_definition":
+{ Args: { "p_criteria"?: Json,"p_description": string,"p_icon": string,"p_name": string,"p_slug": string }; Returns: string
+                           },
 "save_guest_gate":
 { Args: { "p_gate_id"?: string,"p_name": string,"p_township_id": string }; Returns: Json
                            },
@@ -1958,18 +2077,6 @@ isOneToOne: false
                            },
 "save_programme_cost":
 { Args: { "p_amount_rm": number,"p_label": string,"p_month": string }; Returns: Json
-                           },
-"_badge_progress":
-{ Args: { "p_criteria": Json,"p_township_id": string,"p_user_id": string }; Returns: Json
-                           },
-"_valid_badge_criteria":
-{ Args: { "p_criteria": Json }; Returns: boolean
-                           },
-"get_my_badge_progress":
-{ Args: { "p_township_id": string }; Returns: Json
-                           },
-"save_badge_definition":
-{ Args: { "p_criteria"?: Json,"p_description": string,"p_icon": string,"p_name": string,"p_slug": string }; Returns: string
                            },
 "search_help_articles":
 { Args: { "p_limit"?: number,"p_query": string }; Returns: Json
@@ -2006,6 +2113,9 @@ isOneToOne: false
                            },
 "set_township_goal":
 { Args: { "p_target_co2e_kg": number,"p_year": number }; Returns: Json
+                           },
+"share_visitor_pass":
+{ Args: { "p_encrypted_credentials"?: string,"p_pass_id": string,"p_short_code_hash"?: string,"p_token_hash"?: string }; Returns: Json
                            },
 "show_limit":
 { Args: Record<PropertyKey, never>; Returns: number

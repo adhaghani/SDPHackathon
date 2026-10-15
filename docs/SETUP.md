@@ -61,7 +61,7 @@ These steps require accounts or dashboard access that only a person can provide.
 4. In Auth settings, set the Site URL and redirect URLs for localhost, Vercel previews and production. For the demo, disable email confirmation or configure custom SMTP.
 5. Import the repository into Vercel. Set Preview and Production environment variables and use the Singapore function region when the plan allows.
 6. If using the keep-alive workflow, add the required GitHub secrets.
-7. Free-tier Supabase projects can pause. Open the dashboard and run `npm run demo:reset` the day before a demo.
+7. Before a hosted demo, confirm the hosted project is running and check the deployed `/api/health`. `npm run demo:reset` resets local Supabase only; it does not resume or refresh a hosted project.
 
 ## Troubleshooting
 

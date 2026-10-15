@@ -94,6 +94,7 @@ The next step is a small, consented resident pilot to measure whether people lis
 - **Recognition:** BetterPoints, configurable badges and rewards connect participation to visible progress. New badge awards retain their earning rules so later edits do not rewrite the explanation.
 - **Practical help:** photo-assisted listing drafts, an article-grounded Help chatbot and aggregate admin summaries. AI suggestions need review and do not approve bookings, move money or change points.
 - **Township life:** events, volunteering, community requests and guest passes support everyday use beyond a single recycling campaign.
+- **Township setup:** a separate superadmin portal defines township boundaries on an interactive map, appoints managers, and activates or archives communities. [One-time owner setup](docs/SUPERADMIN.md).
 - **Privacy:** planning views use aggregates, with distinct-resident breakdowns suppressed below five. The office also has authorised operational access for membership, disputes and programme administration; raw points-ledger review is audit logged. [Access policy](docs/PRIVACY_AND_SAFETY.md).
 
 ## Build and validation
@@ -215,5 +216,7 @@ Follow [the deployment runbook](docs/SETUP.md). No cloud preview is deployed yet
 | [Pilot plan](docs/PILOT_PLAN.md) | How real use and staff workload would be evaluated. |
 | [Progress and verification](PROGRESS.md) | Dated implementation and local validation evidence. |
 | [Setup](docs/SETUP.md) · [Architecture](docs/ARCHITECTURE.md) | Developer setup, deployment and system design. |
+| [Superadmin guide](docs/SUPERADMIN.md) | Create township boundaries, appoint managers, and activate communities through the app. |
+| [Email templates](docs/EMAILS.md) | Branded Auth emails, local inbox previews, and hosted template setup. |
 
 The app includes an install-support service worker without general offline data caching. Offline handover-token queuing is a separate, limited workflow.

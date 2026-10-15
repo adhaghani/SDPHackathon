@@ -18,6 +18,7 @@ flowchart LR
 ## Data model summary
 
 - Identity: `townships`, `neighbourhoods`, `facilities`, `profiles`, `township_members`, `audit_log`.
+- Platform provisioning: `platform_admins`, `platform_manager_invitations`, `platform_audit_log`; see [Superadmin setup](SUPERADMIN.md). Platform roles are separate from township memberships. Provisioning RPCs check the signed-in platform role and keep boundary/neighbourhood writes transactional. New manager access requires a verified invited email and an unrevoked appointment. Invitation email uses a publishable-key Auth client, not the service-role client. Only the trusted bootstrap script uses a secret key to grant platform ownership.
 - Events: `event_categories`, `events`, `event_staff`, `event_rsvps`.
 - Borrow/share: `item_categories`, `items`, `bookings`, `booking_messages`, `disputes`.
 - Community: `announcements`, `help_requests`, `interest_groups`, `group_members`, `reports`, `blocks`.

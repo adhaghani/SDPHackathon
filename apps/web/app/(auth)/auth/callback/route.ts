@@ -33,7 +33,10 @@ export async function GET(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  return NextResponse.redirect(
-    new URL(user ? "/home" : "/sign-in", request.url)
-  )
+  const requestedNext = url.searchParams.get("next")
+  const next =
+    requestedNext === "/manager-invitation" || type === "invite"
+      ? "/manager-invitation"
+      : "/home"
+  return NextResponse.redirect(new URL(user ? next : "/sign-in", request.url))
 }

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="x-apple-disable-message-reformatting">
+  <meta name="color-scheme" content="light">
+  <title>Your BorrowLah sign-in link</title>
+  <style>
+    body { margin:0; padding:0; width:100% !important; }
+    table { border-collapse:separate; border-spacing:0; }
+    a { color:#111111; }
+    @media only screen and (max-width:620px) {
+      .outer-pad { padding:16px 10px !important; }
+      .content-pad { padding:28px 22px !important; }
+      .email-title { font-size:30px !important; line-height:34px !important; }
+      .action-table { width:100% !important; }
+    }
+  </style>
+</head>
+<body style="margin:0;padding:0;background-color:#f4f4ee;color:#111111;font-family:'Instrument Sans','Segoe UI',Arial,sans-serif;-webkit-text-size-adjust:100%;">
+  {{ $manager := or (eq .RedirectTo (printf "%s/manager-invitation" .SiteURL)) (eq .RedirectTo (printf "%smanager-invitation" .SiteURL)) }}
+  <div style="display:none;font-size:1px;line-height:1px;color:#f4f4ee;max-height:0;max-width:0;opacity:0;overflow:hidden;mso-hide:all;">{{ if $manager }}A BorrowLah superadmin invited you to manage a township. Open your invitation, choose a password, and review your appointment.{{ else }}Use this secure, one-time link to sign in to BorrowLah. Your neighbourhood is ready when you are.{{ end }}</div>
+  <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#f4f4ee">
+    <tr><td align="center" class="outer-pad" style="padding:40px 16px;">
+      <!--[if mso]><table role="presentation" width="600" border="0" cellpadding="0" cellspacing="0"><tr><td><![endif]-->
+      <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;">
+        <tr><td bgcolor="#111111" style="padding:24px 30px;border-radius:20px 20px 0 0;">
+          <a href="{{ .SiteURL }}" style="color:#d9f45a;font-family:'Bricolage Grotesque','Trebuchet MS',Arial,sans-serif;font-size:28px;font-weight:800;letter-spacing:-0.7px;line-height:34px;text-decoration:none;">BorrowLah</a>
+          <p style="margin:5px 0 0;color:#f4f4ee;font-size:13px;line-height:20px;">Share more. Connect more. Live better.</p>
+        </td></tr>
+        <tr><td bgcolor="#ffffff" class="content-pad" style="padding:38px 34px;border-right:1px solid #e4e4dc;border-left:1px solid #e4e4dc;">
+          <h1 class="email-title" style="margin:0;color:#111111;font-family:'Bricolage Grotesque','Trebuchet MS',Arial,sans-serif;font-size:36px;font-weight:800;letter-spacing:-0.8px;line-height:40px;">{{ if $manager }}You’re invited to help lead.{{ else }}Good to have you back.{{ end }}</h1>
+          <p style="margin:22px 0 0;color:#3a3a3a;font-size:16px;line-height:26px;">{{ if $manager }}A BorrowLah superadmin invited you to manage a township. Open your invitation, choose a password, and review your appointment.{{ else }}Use this secure, one-time link to sign in to BorrowLah. Your neighbourhood is ready when you are.{{ end }}</p>
+          
+          
+                  <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="action-table" style="margin:28px 0 0;">
+                    <tr><td bgcolor="#ff5a36" style="border:1px solid #111111;border-radius:28px;text-align:center;">
+                      <a href="{{ .ConfirmationURL }}" style="display:block;padding:16px 24px;border-radius:28px;color:#111111;font-size:16px;font-weight:700;line-height:24px;text-decoration:none;mso-padding-alt:16px 24px;">{{ if $manager }}Review my manager invitation{{ else }}Sign in to BorrowLah{{ end }}</a>
+                    </td></tr>
+                  </table>
+                  <p style="margin:24px 0 8px;color:#3a3a3a;font-size:13px;line-height:20px;">Button not opening? Copy this full link into your browser:</p>
+                  <p style="margin:0;font-size:12px;line-height:20px;word-break:break-all;overflow-wrap:anywhere;"><a href="{{ .ConfirmationURL }}" style="color:#111111;text-decoration:underline;">{{ .ConfirmationURL }}</a></p>
+          <p style="margin:28px 0 0;padding-top:24px;border-top:1px solid #e4e4dc;color:#3a3a3a;font-size:13px;line-height:21px;">This link is personal, expires, and can only be used once. If you did not request this email or expect an invitation, you can ignore it.</p>
+        </td></tr>
+        <tr><td bgcolor="#d9f45a" style="padding:19px 22px;border-radius:0 0 20px 20px;">
+          <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0"><tr>
+            <td width="33%" style="text-align:center;color:#111111;font-size:13px;font-weight:700;line-height:20px;">Reduce.</td>
+            <td width="34%" style="border-left:1px solid #111111;border-right:1px solid #111111;text-align:center;color:#111111;font-size:13px;font-weight:700;line-height:20px;">Reuse.</td>
+            <td width="33%" style="text-align:center;color:#111111;font-size:13px;font-weight:700;line-height:20px;">Recycle.</td>
+          </tr></table>
+        </td></tr>
+        <tr><td style="padding:22px 16px 0;text-align:center;color:#3a3a3a;font-size:12px;line-height:20px;word-break:break-word;">
+          <p style="margin:0;">An account email for {{ .Email }}.</p>
+          <p style="margin:6px 0 0;"><a href="{{ .SiteURL }}" style="color:#111111;text-decoration:underline;">Open BorrowLah</a> &nbsp;·&nbsp; Small actions. A shared future.</p>
+        </td></tr>
+      </table>
+      <!--[if mso]></td></tr></table><![endif]-->
+    </td></tr>
+  </table>
+</body>
+</html>

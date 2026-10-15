@@ -52,6 +52,7 @@ import "leaflet.markercluster/dist/MarkerCluster.css"
 import "leaflet.markercluster/dist/MarkerCluster.Default.css"
 import "leaflet/dist/leaflet.css"
 import {
+    CheckIcon,
     CircleIcon,
     LayersIcon,
     LoaderCircleIcon,
@@ -1156,6 +1157,7 @@ interface MapDrawContextType {
     readonly editControlRef: React.RefObject<EditToolbar.Edit | null>
     readonly deleteControlRef: React.RefObject<EditToolbar.Delete | null>
     readonly layersCount: number
+    readonly drawControlRef: React.RefObject<{ deleteLastVertex?: () => void } | null>
 }
 
 const MapDrawContext = createContext<MapDrawContextType | null>(null)
@@ -1166,11 +1168,13 @@ function useMapDrawContext() {
 
 function MapDrawControl({
     onLayersChange,
+    initialBoundary,
     position = "bottom-1 left-1",
     className,
     ...props
 }: React.ComponentProps<"div"> & {
     onLayersChange?: (layers: L.FeatureGroup) => void
+    initialBoundary?: import("geojson").Polygon | null
     position?: string
 }) {
     const { L, LeafletDraw } = useLeaflet()
@@ -1178,8 +1182,22 @@ function MapDrawControl({
     const featureGroupRef = useRef<L.FeatureGroup | null>(null)
     const editControlRef = useRef<EditToolbar.Edit | null>(null)
     const deleteControlRef = useRef<EditToolbar.Delete | null>(null)
+    const drawControlRef = useRef<{ deleteLastVertex?: () => void } | null>(null)
     const [activeMode, setActiveMode] = useState<MapDrawMode>(null)
     const [layersCount, setLayersCount] = useState(0)
+    const initialized = useRef(false)
+
+    useEffect(() => {
+        if (!L || !featureGroupRef.current || initialized.current) return
+        initialized.current = true
+        if (!initialBoundary) return
+        const layer = L.geoJSON(initialBoundary, {
+            style: { color: "#111111", fillColor: "#D9F45A", fillOpacity: 0.35, weight: 2 },
+        })
+        layer.eachLayer((polygon) => featureGroupRef.current?.addLayer(polygon))
+        setLayersCount(featureGroupRef.current.getLayers().length)
+        map.fitBounds(layer.getBounds(), { padding: [24, 24], maxZoom: 16 })
+    }, [L, map, initialBoundary])
 
     function updateLayersCount() {
         if (featureGroupRef.current) {
@@ -1231,6 +1249,7 @@ function MapDrawControl({
                 setActiveMode,
                 editControlRef,
                 deleteControlRef,
+                drawControlRef,
                 layersCount,
             }}>
             <LeafletFeatureGroup ref={featureGroupRef} />
@@ -1257,7 +1276,7 @@ function MapDrawShapeButton<T extends Draw.Feature>({
     const { L } = useLeaflet()
     const map = useMap()
     const controlRef = useRef<T | null>(null)
-    const { activeMode, setActiveMode } = drawContext
+    const { activeMode, setActiveMode, drawControlRef } = drawContext
     const isActive = activeMode === drawMode
 
     useEffect(() => {
@@ -1269,8 +1288,10 @@ function MapDrawShapeButton<T extends Draw.Feature>({
         const control = createDrawTool(L, map as DrawMap)
         control.enable()
         controlRef.current = control
+        drawControlRef.current = control as { deleteLastVertex?: () => void }
         return () => {
             control.disable()
+            if (drawControlRef.current === control) drawControlRef.current = null
             controlRef.current = null
         }
     }, [L, map, isActive, createDrawTool])
@@ -1284,10 +1305,11 @@ function MapDrawShapeButton<T extends Draw.Feature>({
             type="button"
             size="icon-sm"
             aria-label={`Draw ${drawMode}`}
+            aria-pressed={isActive}
             title={`Draw ${drawMode}`}
             className={cn("border", className)}
             variant={isActive ? "default" : "secondary"}
-            disabled={activeMode === "edit" || activeMode === "delete"}
+            disabled={!L || activeMode === "edit" || activeMode === "delete"}
             onClick={handleClick}
             {...props}
         />
@@ -1436,6 +1458,7 @@ function MapDrawActionButton<T extends EditToolbar.Edit | EditToolbar.Delete>({
     createDrawTool,
     controlRef,
     className,
+    children,
     ...props
 }: React.ComponentProps<"button"> & {
     drawAction: MapDrawAction
@@ -1482,14 +1505,16 @@ function MapDrawActionButton<T extends EditToolbar.Edit | EditToolbar.Delete>({
         <Button
             type="button"
             size="icon-sm"
-            aria-label={`${drawAction === "edit" ? "Edit" : "Remove"} shapes`}
-            title={`${drawAction === "edit" ? "Edit" : "Remove"} shapes`}
+            aria-label={isActive ? `Save ${drawAction === "edit" ? "edited" : "removed"} shapes` : `${drawAction === "edit" ? "Edit" : "Remove"} shapes`}
+            aria-pressed={isActive}
+            title={isActive ? "Save changes" : `${drawAction === "edit" ? "Edit" : "Remove"} shapes`}
             variant={isActive ? "default" : "secondary"}
-            disabled={!hasFeatures}
+            disabled={!L || !hasFeatures}
             onClick={handleClick}
             className={cn("border", className)}
-            {...props}
-        />
+            {...props}>
+            {isActive ? <CheckIcon /> : children}
+        </Button>
     )
 }
 
@@ -1578,12 +1603,18 @@ function MapDrawUndo({ className, ...props }: React.ComponentProps<"button">) {
         editControlRef,
         deleteControlRef,
         layersCount,
+        drawControlRef,
     } = drawContext
     const isInEditMode = activeMode === "edit"
     const isInDeleteMode = activeMode === "delete"
-    const isActive = (isInEditMode || isInDeleteMode) && layersCount > 0
+    const isDrawing = activeMode === "polygon" || activeMode === "polyline"
+    const isActive = isDrawing || ((isInEditMode || isInDeleteMode) && layersCount > 0)
 
     function handleUndo() {
+        if (isDrawing) {
+            drawControlRef.current?.deleteLastVertex?.()
+            return
+        }
         if (isInEditMode) {
             editControlRef.current?.revertLayers()
         } else if (isInDeleteMode) {
@@ -1597,8 +1628,8 @@ function MapDrawUndo({ className, ...props }: React.ComponentProps<"button">) {
             type="button"
             size="icon-sm"
             variant="secondary"
-            aria-label={`Undo ${activeMode}`}
-            title={`Undo ${activeMode}`}
+            aria-label={isDrawing ? "Undo last point" : `Undo ${activeMode}`}
+            title={isDrawing ? "Undo last point" : `Undo ${activeMode}`}
             onClick={handleUndo}
             disabled={!isActive}
             className={cn("border", className)}

@@ -14,6 +14,7 @@ const protectedPrefixes = [
   "/profile",
   "/onboarding",
   "/admin",
+  "/superadmin",
   "/guests",
   "/guard",
   "/sponsor",
@@ -26,26 +27,24 @@ const protectedPrefixes = [
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
 
-  const supabase = createServerClient(
-    getSupabaseUrl(),
-    getPublishableKey(),
-    {
-      auth: { flowType: "pkce" },
-      cookies: {
-        getAll() {
-          return request.cookies.getAll()
-        },
-        setAll(cookiesToSet) {
-          // The current render must receive the refreshed session as well as the browser.
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-          supabaseResponse = NextResponse.next({ request })
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          )
-        },
+  const supabase = createServerClient(getSupabaseUrl(), getPublishableKey(), {
+    auth: { flowType: "pkce" },
+    cookies: {
+      getAll() {
+        return request.cookies.getAll()
       },
-    }
-  )
+      setAll(cookiesToSet) {
+        // The current render must receive the refreshed session as well as the browser.
+        cookiesToSet.forEach(({ name, value }) =>
+          request.cookies.set(name, value)
+        )
+        supabaseResponse = NextResponse.next({ request })
+        cookiesToSet.forEach(({ name, value, options }) =>
+          supabaseResponse.cookies.set(name, value, options)
+        )
+      },
+    },
+  })
 
   const {
     data: { user },

@@ -69,7 +69,12 @@ export async function signIn(
     return { status: "error", message: authErrorMessage(error) }
   }
 
-  redirect(safeNextPath(parsed.data.next ?? null))
+  const next = safeNextPath(parsed.data.next ?? null)
+  if (next === "/home") {
+    const { data } = await supabase.rpc("is_platform_admin")
+    if (data) redirect("/superadmin")
+  }
+  redirect(next)
 }
 
 export async function signUp(
@@ -104,7 +109,9 @@ export async function signUp(
         display_name: parsed.data.displayName,
         terms_accepted_at: acceptedAt,
         privacy_accepted_at: acceptedAt,
-        ...(parsed.data.inviteCode ? { invite_code: parsed.data.inviteCode } : {}),
+        ...(parsed.data.inviteCode
+          ? { invite_code: parsed.data.inviteCode }
+          : {}),
       },
     },
   })
@@ -155,7 +162,8 @@ export async function requestMagicLink(
 export async function signOut(): Promise<AuthActionState> {
   const supabase = await createClient()
   const { error } = await supabase.auth.signOut({ scope: "local" })
-  if (error) return { status: "error", message: "Could not sign out. Please try again." }
+  if (error)
+    return { status: "error", message: "Could not sign out. Please try again." }
   const cookieStore = await cookies()
   cookieStore.delete("selected_township_id")
   revalidatePath("/", "layout")
