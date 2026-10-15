@@ -20,20 +20,24 @@ export function SponsorRewardForm() {
   const [imagePath, setImagePath] = useState("/demo/reward-voucher.svg")
   const [imageMessage, setImageMessage] = useState<string | null>(null)
 
+  const [uploading, setUploading] = useState(false)
+
   async function handleImage(file: File | undefined) {
     if (!file) return
-    setImageMessage(null)
+    setUploading(true)
+    setImageMessage("Uploading image…")
     try {
       const blob = await prepareImageForUpload(file, { maxDimension: 1200, quality: 0.82 })
-      const path = `reward-${crypto.randomUUID()}.webp`
+      const path = `sponsors/${crypto.randomUUID()}.webp`
       const { error } = await getBrowserClient().storage.from("item-photos").upload(path, blob, { upsert: true })
       if (error) throw error
       const { data } = getBrowserClient().storage.from("item-photos").getPublicUrl(path)
       setImagePath(data.publicUrl)
       setImageMessage("Reward image compressed and uploaded.")
     } catch {
-      setImagePath("/demo/reward-voucher.svg")
-      setImageMessage("Image upload is unavailable here, so the demo reward poster will be used.")
+      setImageMessage("Image upload failed. Please try again. Your previous image is unchanged.")
+    } finally {
+      setUploading(false)
     }
   }
 
@@ -43,7 +47,7 @@ export function SponsorRewardForm() {
       <FieldGroup>
         <Field>
           <FieldLabel htmlFor="sponsor-reward-image">Image</FieldLabel>
-          <Input id="sponsor-reward-image" name="image" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => void handleImage(event.target.files?.[0])} />
+          <Input id="sponsor-reward-image" type="file" disabled={uploading || pending} accept="image/png,image/jpeg,image/webp" onChange={(event) => void handleImage(event.target.files?.[0])} />
           <p className="text-sm text-muted-foreground">Optional. A themed reward poster is used as a fallback.</p>
           {imageMessage ? <p className="text-sm text-muted-foreground">{imageMessage}</p> : null}
         </Field>
@@ -68,7 +72,7 @@ export function SponsorRewardForm() {
         </div>
       </FieldGroup>
       {state.message ? <Alert variant={state.status === "error" ? "destructive" : "default"}><AlertDescription>{state.message}</AlertDescription></Alert> : null}
-      <Button type="submit" variant="cta" className="h-11" disabled={pending}>{pending ? <Spinner data-icon="inline-start" /> : null}Create reward</Button>
+      <Button type="submit" variant="cta" className="h-11" disabled={pending || uploading}>{pending ? <Spinner data-icon="inline-start" /> : null}Create reward</Button>
     </form>
   )
 }

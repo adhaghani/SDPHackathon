@@ -118,7 +118,7 @@ export default async function ItemDetailPage({
         <div className="absolute top-4 right-4 z-10">
           <SaveItemButton itemId={item.id} initiallySaved={savedItemIds.includes(item.id)} />
         </div>
-        <Image
+        <Image unoptimized
           src={photo}
           alt={item.title}
           fill
@@ -196,6 +196,15 @@ export default async function ItemDetailPage({
             {guide ? (
               <div className="mt-5 border-t border-hairline pt-5">
                 <p className="whitespace-pre-line">{guide.body}</p>
+                {guide.photo_paths?.length ? (
+                  <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                    {guide.photo_paths.map((src, index) => (
+                      <a key={src} href={src} target="_blank" rel="noopener noreferrer" className="relative block aspect-[4/3] overflow-hidden rounded-lg bg-paper">
+                        <Image unoptimized src={src} alt={`How-to guide photo ${index + 1}`} fill sizes="(min-width: 640px) 20vw, 100vw" className="object-contain" />
+                      </a>
+                    ))}
+                  </div>
+                ) : null}
                 {guide.safety_note ? (
                   <p className="mt-3 rounded-[16px] bg-tomato p-3 text-sm">
                     <strong>Safety:</strong> {guide.safety_note}

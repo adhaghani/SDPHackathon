@@ -3,6 +3,7 @@
 import { useActionState } from "react"
 
 import { continueAsDemo } from "@/actions/demo"
+import { isDemoMode } from "@/lib/env"
 import { Alert, AlertDescription } from "@workspace/ui/components/alert"
 import { Button } from "@workspace/ui/components/button"
 
@@ -10,6 +11,8 @@ const idleState = { status: "idle" } as const
 
 export function DemoRoleSwitcher() {
   const [state, action, pending] = useActionState(continueAsDemo, idleState)
+
+  if (!isDemoMode()) return null
 
   return (
     <div className="flex flex-col gap-3">

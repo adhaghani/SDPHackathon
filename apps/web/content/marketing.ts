@@ -5,7 +5,7 @@ export const marketingContent = {
   description:
     "Borrow and lend, join neighbourhood events, help nearby residents and earn recognition for contributions that are actually verified.",
   primaryAction: "Join your township",
-  secondaryAction: "Try the demo",
+  secondaryAction: "Explore BorrowLah",
   stops: [
     { label: "Lent a ladder", line: "Pinjam" },
     { label: "Joined the Saturday gotong-royong", line: "Jom" },

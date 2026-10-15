@@ -53,7 +53,7 @@ export function FeedCard({
             <span className="block text-[10px] font-bold tracking-[0.08em] uppercase">{date.month}</span>
           </div>
         ) : image ? (
-          <Image src={image} alt="" fill sizes="82px" className="object-cover" />
+          <Image unoptimized src={image} alt="" fill sizes="82px" className="object-cover" />
         ) : variant === "help" ? (
           <HandHelpingIcon aria-hidden="true" className="size-8 text-ink" strokeWidth={1.8} />
         ) : (

@@ -35,7 +35,7 @@ export function MediaPoster({
 
   return (
     <div className={cn("bb-on-ink relative isolate w-full overflow-hidden rounded-lg bg-lilac-tint", ratio, className)}>
-      <Image
+      <Image unoptimized
         src={src}
         alt={alt}
         fill

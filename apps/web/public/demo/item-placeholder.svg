@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Fictional demo item">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Item illustration">
   <rect width="800" height="500" fill="#FFF0B8"/>
   <path d="M96 356h608" stroke="#E7E2F7" stroke-width="8" stroke-linecap="round"/>
   <rect x="258" y="156" width="284" height="170" rx="22" fill="#FFFFFF" stroke="#111111" stroke-width="8"/>
@@ -6,5 +6,5 @@
   <circle cx="330" cy="240" r="18" fill="#F2B33D"/>
   <circle cx="470" cy="240" r="18" fill="#FF5A36"/>
   <path d="M354 240h92" stroke="#D9F45A" stroke-width="10" stroke-linecap="round"/>
-  <text x="400" y="420" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#4A4570">Demo item illustration</text>
+  <text x="400" y="420" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#4A4570">Item illustration</text>
 </svg>

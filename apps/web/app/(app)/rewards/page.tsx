@@ -229,7 +229,7 @@ export default async function RewardsPage() {
         />
         <p className="mt-2 text-xs text-ink-soft">
           Aggregate monthly activity only. Target and bonus are illustrative
-          demo figures; current counts come from completed bookings.
+          figures; current counts come from completed bookings.
         </p>
 
         <section id="vouchers-heading" className="mt-8">

@@ -115,7 +115,7 @@ export default async function AdminDemandPage() {
 
       <p className="mb-4 text-sm text-ink-muted">
         Resident demand is shown only for groups of at least five; anonymous
-        legacy demo searches have no resident count.
+        legacy searches have no resident count.
       </p>
       <section aria-labelledby="supply-heading" className="bb-card p-4">
         <h2 id="supply-heading" className="text-title text-ink">
@@ -212,7 +212,7 @@ export default async function AdminDemandPage() {
                         <p className="font-bold text-ink">{gap.label}</p>
                         <p className="mt-1 text-sm text-ink-muted tabular-nums">
                           {gap.searches} searches ·{" "}
-                          {gap.unique_residents ?? "not recorded (legacy demo)"}{" "}
+                          {gap.unique_residents ?? "not recorded (anonymous search)"}{" "}
                           distinct residents · {gap.open_requests} open requests
                           · {gap.available_items} available
                         </p>
@@ -235,7 +235,7 @@ export default async function AdminDemandPage() {
                   <EmptyTitle>No demand gaps yet</EmptyTitle>
                   <EmptyDescription>
                     At least five distinct residents are needed for a demand
-                    bucket. Legacy demo search counts are labelled separately.
+                    bucket. Legacy anonymous search counts are labelled separately.
                   </EmptyDescription>
                 </EmptyHeader>
               </Empty>

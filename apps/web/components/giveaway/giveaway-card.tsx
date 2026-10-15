@@ -51,7 +51,7 @@ export function GiveawayCard({
   return (
     <article className={cn("bb-card overflow-hidden", className)}>
       <div className="relative aspect-[4/3] overflow-hidden bg-lilac-tint">
-        <Image
+        <Image unoptimized
           src={giveaway.photo_path || "/demo/item-placeholder.svg"}
           alt={giveaway.title}
           fill

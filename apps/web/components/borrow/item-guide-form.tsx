@@ -1,6 +1,7 @@
 "use client"
 
 import { useActionState, useState } from "react"
+import Image from "next/image"
 
 import { saveItemGuide } from "@/actions/guides"
 import { prepareImageForUpload } from "@/lib/media"
@@ -29,9 +30,12 @@ export function ItemGuideForm({
   const [photoPaths, setPhotoPaths] = useState(initialPhotoPaths)
   const [uploadMessage, setUploadMessage] = useState<string | null>(null)
 
+  const [uploading, setUploading] = useState(false)
+
   async function handlePhotos(files: FileList | null) {
     if (!files?.length) return
-    setUploadMessage(null)
+    setUploading(true)
+    setUploadMessage("Uploading photos…")
     const nextPaths = [...photoPaths]
     try {
       for (const file of Array.from(files).slice(0, 3 - nextPaths.length)) {
@@ -47,7 +51,10 @@ export function ItemGuideForm({
       setPhotoPaths(nextPaths.slice(0, 3))
       setUploadMessage(`${nextPaths.slice(0, 3).length} photos ready. EXIF data was removed.`)
     } catch {
+      setPhotoPaths(nextPaths.slice(0, 3))
       setUploadMessage("A photo could not be uploaded. Try a smaller image or continue without it.")
+    } finally {
+      setUploading(false)
     }
   }
 
@@ -87,12 +94,20 @@ export function ItemGuideForm({
           id="guide-photos"
           type="file"
           accept="image/png,image/jpeg,image/webp"
+          disabled={pending || uploading || photoPaths.length >= 3}
           multiple
           onChange={(event) => void handlePhotos(event.target.files)}
         />
         <FieldDescription>
           Up to three photos. Images are re-encoded before upload to remove EXIF and GPS metadata.
         </FieldDescription>
+        <div className="grid grid-cols-3 gap-3">
+          {photoPaths.map((src, index) => (
+            <div key={src} className="relative aspect-[4/3]">
+              <Image unoptimized src={src} alt={`Guide photo ${index + 1}`} fill sizes="33vw" className="rounded-lg object-contain" />
+            </div>
+          ))}
+        </div>
         {photoPaths.length ? (
           <p className="text-sm font-bold text-ink">{photoPaths.length} of 3 photos attached</p>
         ) : null}
@@ -103,7 +118,7 @@ export function ItemGuideForm({
           <AlertDescription>{state.message}</AlertDescription>
         </Alert>
       ) : null}
-      <Button type="submit" variant="cta" disabled={pending}>
+      <Button type="submit" variant="cta" disabled={pending || uploading}>
         {pending ? <Spinner data-icon="inline-start" /> : null}
         Save how-to guide
       </Button>

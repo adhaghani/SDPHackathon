@@ -641,12 +641,14 @@ export default async function Page() {
               )}
             </p>
           </div>
-          <p className="max-w-sm text-sm text-ink-soft">
-            {t(
-              "Prototype for a university hackathon. Built around people, community, and the planet.",
-              "Prototaip hackathon universiti. Dibina untuk penduduk, komuniti, dan bumi."
-            )}
-          </p>
+          {isDemoMode() ? (
+            <p className="max-w-sm text-sm text-ink-soft">
+              {t(
+                "Prototype for a university hackathon. Built around people, community, and the planet.",
+                "Prototaip hackathon universiti. Dibina untuk penduduk, komuniti, dan bumi."
+              )}
+            </p>
+          ) : null}
         </div>
       </footer>
     </div>

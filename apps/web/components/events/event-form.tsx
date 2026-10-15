@@ -38,20 +38,24 @@ export function EventForm({
   const [coverPath, setCoverPath] = useState("/demo/event-placeholder.svg")
   const [coverMessage, setCoverMessage] = useState<string | null>(null)
 
+  const [uploading, setUploading] = useState(false)
+
   async function handleCover(file: File | undefined) {
     if (!file) return
-    setCoverMessage(null)
+    setUploading(true)
+    setCoverMessage("Uploading image…")
     try {
       const blob = await prepareImageForUpload(file, { maxDimension: 1200, quality: 0.82 })
-      const path = `event-${crypto.randomUUID()}.webp`
+      const path = `events/${crypto.randomUUID()}.webp`
       const { error } = await getBrowserClient().storage.from("item-photos").upload(path, blob, { upsert: true })
       if (error) throw error
       const { data } = getBrowserClient().storage.from("item-photos").getPublicUrl(path)
       setCoverPath(data.publicUrl)
       setCoverMessage("Cover image compressed and uploaded.")
     } catch {
-      setCoverPath("/demo/event-placeholder.svg")
-      setCoverMessage("Cover upload is unavailable here, so the demo poster will be used.")
+      setCoverMessage("Cover upload failed. Please try again. Your previous image is unchanged.")
+    } finally {
+      setUploading(false)
     }
   }
 
@@ -63,12 +67,12 @@ export function EventForm({
           <FieldLabel htmlFor="event-cover">Cover image</FieldLabel>
           <Input
             id="event-cover"
-            name="cover"
             type="file"
+            disabled={uploading || pending}
             accept="image/png,image/jpeg,image/webp"
             onChange={(event) => void handleCover(event.target.files?.[0])}
           />
-          <FieldDescription>Optional. Images are compressed before upload; a themed demo poster is used as a fallback.</FieldDescription>
+          <FieldDescription>Optional. Images are compressed before upload; a themed poster is used as a fallback.</FieldDescription>
           {coverMessage ? <p className="text-sm text-muted-foreground">{coverMessage}</p> : null}
         </Field>
         <Field data-invalid={Boolean(state.fieldErrors?.title)}>
@@ -187,7 +191,7 @@ export function EventForm({
         </Alert>
       ) : null}
 
-      <Button type="submit" variant="cta" className="h-11" disabled={pending}>
+      <Button type="submit" variant="cta" className="h-11" disabled={pending || uploading}>
         {pending ? <Spinner data-icon="inline-start" /> : null}
         Create event
       </Button>

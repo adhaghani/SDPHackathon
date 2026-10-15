@@ -52,7 +52,7 @@ export function JoinForm() {
               name="joinCode"
               value={code}
               onChange={(event) => setCode(event.target.value)}
-              placeholder="HARMONI-DEMO"
+              placeholder="Enter your township code"
               autoCapitalize="characters"
               autoComplete="off"
               required

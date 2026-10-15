@@ -90,7 +90,7 @@ export default async function OnboardingPage({
         {params.joined ? (
           <Alert className="mt-0">
             <AlertDescription>
-              You joined the demo township. Your active route is ready.
+              You joined your township. Your active route is ready.
             </AlertDescription>
           </Alert>
         ) : null}

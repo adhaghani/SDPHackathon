@@ -35,15 +35,18 @@ export function GiveawayForm({
   const [photoPath, setPhotoPath] = useState("/demo/item-placeholder.svg")
   const [photoMessage, setPhotoMessage] = useState<string | null>(null)
 
+  const [uploading, setUploading] = useState(false)
+
   async function handlePhoto(file: File | undefined) {
     if (!file) return
-    setPhotoMessage(null)
+    setUploading(true)
+    setPhotoMessage("Uploading image…")
     try {
       const blob = await prepareImageForUpload(file, {
         maxDimension: 1600,
         quality: 0.82,
       })
-      const path = `giveaway-${crypto.randomUUID()}.webp`
+      const path = `giveaways/${crypto.randomUUID()}.webp`
       const { error } = await getBrowserClient()
         .storage.from("item-photos")
         .upload(path, blob, { upsert: true })
@@ -54,10 +57,11 @@ export function GiveawayForm({
       setPhotoPath(data.publicUrl)
       setPhotoMessage("Photo compressed and uploaded.")
     } catch {
-      setPhotoPath("/demo/item-placeholder.svg")
       setPhotoMessage(
-        "Photo upload is unavailable here, so the demo illustration will be used."
+        "Photo upload failed. Please try again. Your previous image is unchanged."
       )
+    } finally {
+      setUploading(false)
     }
   }
 
@@ -104,8 +108,8 @@ export function GiveawayForm({
               <FieldLabel htmlFor="giveaway-photo">Photo</FieldLabel>
               <Input
                 id="giveaway-photo"
-                name="photo"
                 type="file"
+                disabled={uploading || pending}
                 accept="image/png,image/jpeg,image/webp"
                 onChange={(event) => void handlePhoto(event.target.files?.[0])}
               />
@@ -208,7 +212,7 @@ export function GiveawayForm({
       ) : null}
 
       <div className="flex flex-wrap items-center gap-3">
-        <Button type="submit" variant="cta" size="cta" disabled={pending}>
+        <Button type="submit" variant="cta" size="cta" disabled={pending || uploading}>
           {pending ? <Spinner data-icon="inline-start" /> : null}
           Publish giveaway
         </Button>

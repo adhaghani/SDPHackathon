@@ -37,7 +37,6 @@ export function ItemForm({
   const [state, action, pending] = useActionState(createItem, idleState)
   const [photoPath, setPhotoPath] = useState("/demo/item-placeholder.svg")
   const [photoMessage, setPhotoMessage] = useState<string | null>(null)
-  const [localPreview, setLocalPreview] = useState<string | null>(null)
   const [requiresDeposit, setRequiresDeposit] = useState(false)
   const [kind, setKind] = useState<"item" | "skill">("item")
   const [valueSource, setValueSource] = useState<"owner" | "suggested" | "category_default">("owner")
@@ -48,12 +47,15 @@ export function ItemForm({
   const [draft, setDraft] = useState({ title: "", category: "", condition: "good", description: "", days: "3", deposit: "0" })
   const update = (key: keyof typeof draft, value: string) => setDraft((current) => ({ ...current, [key]: value }))
 
+  const [uploading, setUploading] = useState(false)
+
   async function handlePhoto(file: File | undefined) {
     if (!file) return
-    setPhotoMessage(null)
+    setUploading(true)
+    setPhotoMessage("Uploading image…")
     try {
       const blob = await prepareImageForUpload(file, { maxDimension: 1600, quality: 0.82 })
-      const path = `${crypto.randomUUID()}.webp`
+      const path = `items/${crypto.randomUUID()}.webp`
       const { error } = await getBrowserClient().storage.from("item-photos").upload(path, blob, { upsert: true })
       if (error) throw error
       const { data } = getBrowserClient().storage.from("item-photos").getPublicUrl(path)
@@ -68,7 +70,7 @@ export function ItemForm({
       const snapForm = new FormData()
       snapForm.set("imageDataUrl", imageDataUrl)
       snapForm.set("fileName", file.name)
-      const result = await suggestListing(idleSuggestion, snapForm)
+      const result: SuggestListingState = await suggestListing(idleSuggestion, snapForm).catch(() => ({ status: "error" as const, message: "Photo uploaded. Suggestions are unavailable; fill in the listing details." }))
       setSuggestion(result)
       if (result.status === "success" && result.suggestion) {
         const nextCategory = result.suggestion.categorySlug
@@ -87,8 +89,9 @@ export function ItemForm({
         }
       }
     } catch {
-      setPhotoPath("/demo/item-placeholder.svg")
-      setPhotoMessage("Photo upload is unavailable here, so the demo illustration will be used.")
+      setPhotoMessage("Photo upload failed. Please try again. Your previous image is unchanged.")
+    } finally {
+      setUploading(false)
     }
   }
 
@@ -243,17 +246,16 @@ export function ItemForm({
             <FieldLabel htmlFor="item-photo">Add a clear photo</FieldLabel>
             <Input
               id="item-photo"
-              name="photo"
               type="file"
+              disabled={uploading || pending}
               accept="image/png,image/jpeg,image/webp"
               onChange={(event) => {
                 const file = event.target.files?.[0]
-                if (file) setLocalPreview(URL.createObjectURL(file))
                 void handlePhoto(file)
               }}
             />
             <FieldDescription>
-              Compressed to about 1600 px before upload. A demo illustration is used if storage is unavailable.
+              Images are compressed before upload. Wait for confirmation before publishing.
             </FieldDescription>
             {photoMessage ? <p className="text-sm text-ink-muted" aria-live="polite">{photoMessage}</p> : null}
           </Field>
@@ -318,7 +320,7 @@ export function ItemForm({
           <p className="text-eyebrow text-ink-muted">Preview</p>
           <div className="mt-2">
             <MediaPoster
-              src={localPreview ?? photoPath}
+              src={photoPath}
               alt=""
               className="border border-hairline bg-sun-tint"
               badge={
@@ -352,7 +354,7 @@ export function ItemForm({
             </AlertDescription>
           </Alert>
         ) : null}
-        <Button type="submit" variant="cta" size="cta" className="w-full" disabled={pending}>
+        <Button type="submit" variant="cta" size="cta" className="w-full" disabled={pending || uploading}>
           {pending ? <Spinner data-icon="inline-start" /> : null}
           List item
         </Button>

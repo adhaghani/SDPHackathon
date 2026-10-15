@@ -1,3 +1,5 @@
+import Image from "next/image"
+
 import { RedeemButton } from "@/components/rewards/redeem-button"
 import { cn } from "@workspace/ui/lib/utils"
 
@@ -19,6 +21,7 @@ export function RewardCard({
   partnerName,
   kind,
   costBp,
+  imagePath,
   balance,
   stock,
 }: {
@@ -38,10 +41,13 @@ export function RewardCard({
   return (
     <li
       className={cn(
-        "flex h-[184px] min-w-[200px] max-w-[200px] flex-col gap-2 overflow-hidden rounded-[22px] p-3.5 text-ink",
+        "flex h-[264px] min-w-[200px] max-w-[200px] flex-col gap-2 overflow-hidden rounded-[22px] p-3.5 text-ink",
         affordable ? "bg-mustard" : "bg-paper"
       )}
     >
+      <div className="relative h-20 shrink-0 overflow-hidden rounded-lg bg-white">
+        <Image unoptimized src={imagePath || rewardImageFor(kind)} alt={title} fill sizes="172px" className="object-cover" />
+      </div>
       <p className="truncate text-xs font-bold tracking-[0.06em] uppercase">
         {partnerName ?? "Township"} · {kindLabels[kind] ?? kind}
       </p>
