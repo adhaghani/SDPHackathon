@@ -1,5 +1,7 @@
 "use client"
 
+import { BrandLogo } from "@/components/shared/brand-logo"
+
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
@@ -73,16 +75,8 @@ export function Sidebar({
       className="on-dark fixed top-5 bottom-5 left-5 z-40 hidden w-[252px] flex-col overflow-hidden rounded-[28px] bg-ink text-white shadow-dock md:flex"
     >
       <Link href="/home" className="flex items-center gap-3 px-5 pt-6 pb-5">
-        <span
-          aria-hidden="true"
-          className="grid size-11 place-items-center rounded-full bg-lime font-display text-lg font-extrabold text-ink"
-        >
-          B
-        </span>
-        <span>
-          <span className="block font-display text-lg leading-none font-extrabold">
-            BorrowLah
-          </span>
+        <span className="min-w-0">
+          <BrandLogo variant="dark" className="w-44" />
           <span className="mt-1 block text-xs text-on-dark-muted">
             {adminMode ? "Township office" : townshipName}
           </span>

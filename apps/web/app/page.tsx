@@ -1,3 +1,4 @@
+import { BrandLogo } from "@/components/shared/brand-logo"
 import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
@@ -174,10 +175,7 @@ export default async function Page() {
             href="/"
             className="flex items-center gap-2 font-display text-lg font-extrabold sm:text-2xl"
           >
-            <span className="grid size-9 place-items-center rounded-full bg-lime">
-              <LeafIcon aria-hidden="true" className="size-5" />
-            </span>
-            {localized.brand}
+            <BrandLogo className="w-36 sm:w-44" />
           </Link>
           <nav
             aria-label={t("Sections", "Bahagian")}
@@ -634,7 +632,7 @@ export default async function Page() {
         <div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 px-5 py-8 sm:px-8 md:flex-row md:items-center">
           <div>
             <Link href="/" className="font-display text-xl font-extrabold">
-              BorrowLah
+              <BrandLogo />
             </Link>
             <p className="mt-1 text-sm text-ink-soft">
               {t(
@@ -692,9 +690,7 @@ function ProductPreview({ t }: { t: (en: string, ms: string) => string }) {
   return (
     <figure className={styles.productPreview}>
       <div className="flex items-center justify-between gap-3 text-sm text-on-dark-muted">
-        <span className="font-display text-lg font-bold text-white">
-          BorrowLah
-        </span>
+        <BrandLogo variant="dark" className="w-32" />
         <span>
           {t("Illustrative app preview", "Pratonton ilustrasi aplikasi")}
         </span>

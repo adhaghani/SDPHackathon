@@ -1,3 +1,4 @@
+import { BrandLogo } from "@/components/shared/brand-logo"
 import { redirect } from "next/navigation"
 
 import { JoinForm } from "@/components/onboarding/join-form"
@@ -53,9 +54,7 @@ export default async function OnboardingPage({
     <main className="min-h-svh bg-background">
       <div className="bb-safe-top rounded-b-[32px] bg-lime text-ink">
         <div className="mx-auto max-w-2xl px-4 pt-6 pb-9 sm:px-6">
-          <p className="font-display text-lg font-extrabold text-ink">
-            BorrowLah
-          </p>
+          <BrandLogo />
           <p className="mt-8 text-tag text-ink-soft">
             Step 1 of 1 · Join your township
           </p>

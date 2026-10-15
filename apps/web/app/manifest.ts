@@ -11,16 +11,10 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: "#d9f45a",
     icons: [
       {
-        src: "/icons/icon.svg",
+        src: "/brand/borrowlah-icon-light.svg",
         sizes: "any",
         type: "image/svg+xml",
         purpose: "any",
-      },
-      {
-        src: "/icons/icon-maskable.svg",
-        sizes: "any",
-        type: "image/svg+xml",
-        purpose: "maskable",
       },
     ],
   }

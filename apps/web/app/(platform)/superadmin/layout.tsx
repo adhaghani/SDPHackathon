@@ -1,5 +1,5 @@
+import { BrandLogo } from "@/components/shared/brand-logo"
 import Link from "next/link"
-import { Globe2Icon } from "lucide-react"
 import { requirePlatformAdmin } from "@/lib/platform"
 import { SignOutButton } from "@/components/navigation/sign-out-button"
 
@@ -23,8 +23,7 @@ export default async function PlatformLayout({
             href="/superadmin"
             className="flex min-h-11 items-center gap-3 font-display text-xl font-extrabold"
           >
-            <Globe2Icon aria-hidden="true" className="size-6 text-lime" />
-            BorrowLah{" "}
+            <BrandLogo variant="dark" className="w-32 sm:w-40" />
             <span className="border-l border-paper/30 pl-3 text-sm font-medium">
               Superadmin
             </span>

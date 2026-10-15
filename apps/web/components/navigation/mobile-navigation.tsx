@@ -1,5 +1,7 @@
 "use client"
 
+import { BrandLogo } from "@/components/shared/brand-logo"
+
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
@@ -116,11 +118,8 @@ export function MobileNavigation({
         <div className="on-dark flex h-full min-h-0 flex-col bg-ink">
           <div className="flex items-start justify-between gap-3 border-b border-white/15 px-4 pt-4 pb-3">
             <Link href="/home" onClick={() => setOpen(false)} className="flex min-w-0 items-center gap-3">
-              <span aria-hidden="true" className="grid size-10 shrink-0 place-items-center rounded-full bg-lime font-display text-lg font-extrabold text-ink">
-                B
-              </span>
               <span className="min-w-0">
-                <p className="font-display text-base font-medium text-white">BorrowLah</p>
+                <BrandLogo variant="dark" className="w-44" />
                 <p className="truncate text-sm text-on-dark-muted">
                   {adminMode ? "Township office" : townshipName}
                 </p>

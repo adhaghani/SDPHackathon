@@ -1,3 +1,4 @@
+import { BrandLogo } from "@/components/shared/brand-logo"
 import Link from "next/link"
 
 import { PillarStrip } from "@/components/block/pillar-strip"
@@ -19,7 +20,7 @@ export default function AuthLayout({
           href="/"
           className="inline-flex min-h-11 w-fit items-center font-display text-2xl font-extrabold text-ink"
         >
-          {authContent.brand}
+          <BrandLogo className="w-48" />
         </Link>
         <div className="mt-5 lg:my-auto lg:py-12">
           <p className="max-w-[14ch] font-display text-[32px] leading-[1.05] font-extrabold tracking-[-0.03em] text-balance text-ink sm:text-4xl lg:text-5xl xl:text-6xl">

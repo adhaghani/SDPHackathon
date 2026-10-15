@@ -13,6 +13,12 @@ export const metadata = {
     template: "%s · BorrowLah",
   },
   description: "Share more. Connect more. Live better.",
+  icons: {
+    icon: [
+      { url: "/brand/borrowlah-favicon-light.ico", media: "(prefers-color-scheme: light)" },
+      { url: "/brand/borrowlah-favicon-dark.ico", media: "(prefers-color-scheme: dark)" },
+    ],
+  },
 }
 
 export const viewport: Viewport = {

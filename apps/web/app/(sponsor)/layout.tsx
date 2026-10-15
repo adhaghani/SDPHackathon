@@ -1,3 +1,4 @@
+import { BrandLogo } from "@/components/shared/brand-logo"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 
@@ -13,8 +14,8 @@ export default async function SponsorLayout({ children }: { children: React.Reac
     <div className="min-h-svh bg-background">
       <header className="bb-safe-top sticky top-0 z-30 border-b border-hairline bg-surface">
         <div className="mx-auto flex min-h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
-          <Link href="/sponsor/portal" className="flex min-w-0 items-baseline gap-2">
-            <span className="font-display text-lg font-extrabold text-ink">BorrowLah</span>
+          <Link href="/sponsor/portal" className="flex min-w-0 items-center gap-2">
+            <BrandLogo className="w-28 sm:w-40" />
             <span className="text-eyebrow truncate text-ink-muted">Partner portal</span>
           </Link>
           <SignOutButton compact className="text-ink" />
