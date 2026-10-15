@@ -50,6 +50,7 @@
     "@yudiel/react-qr-scanner": "^2.6.0",
     "ai": "^5.0.0",
     "leaflet": "^1.9.4",
+    "motion": "^14.2.0",
     "next-intl": "^4.3.5",
     "react-leaflet": "^5.0.0"
   }

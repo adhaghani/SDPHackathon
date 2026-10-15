@@ -119,7 +119,7 @@ export default async function BorrowPage({
             <ul className="mt-3 grid gap-3 sm:grid-cols-2">
               {bundlesResult.data.map((bundle) => (
                 <li key={bundle.id}>
-                  <Link href={`/borrow/bundles/${bundle.id}`} className="flex items-center justify-between gap-3 rounded-lg border border-hairline bg-surface p-4 transition-shadow duration-150 ease-out">
+                  <Link href={`/borrow/bundles/${bundle.id}`} className="flex items-center justify-between gap-3 rounded-lg border border-hairline bg-surface p-4">
                     <span className="min-w-0">
                       <span className="block font-bold text-ink">{bundle.title}</span>
                       <span className="block truncate text-sm text-ink-muted">{bundle.description}</span>
@@ -151,7 +151,7 @@ export default async function BorrowPage({
                 <MediaPoster
                   src={item.photo_paths?.[0] ?? demoImageFor(item.item_categories?.slug)}
                   alt=""
-                  className={cn("border border-hairline transition-shadow duration-150 ease-out", posterTints[index % posterTints.length])}
+                  className={cn("border border-hairline", posterTints[index % posterTints.length])}
                   badge={
                     <span className={cn("rounded-full px-2.5 py-1 text-xs font-bold text-ink sm:text-sm", free ? "bg-mint-tint" : "bg-surface")}>
                       {item.kind === "skill" ? "Skill session" : free ? "Free" : `${formatMoney(item.deposit_rm)} deposit`}

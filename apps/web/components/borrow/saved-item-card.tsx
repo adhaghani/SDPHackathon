@@ -51,7 +51,7 @@ export function SavedItemCard({
             src={item.photo_paths?.[0] ?? "/demo/item-placeholder.svg"}
             alt=""
             className={cn(
-              "border border-hairline transition-shadow duration-150 ease-out",
+              "border border-hairline",
               posterTints[index % posterTints.length]
             )}
             badge={

@@ -4,6 +4,11 @@ import { generateHelpAnswer, type HelpArticleContext } from "@/lib/ai"
 import { requireActiveMember } from "@/lib/data"
 import { createClient } from "@/lib/supabase/server"
 import { z } from "zod"
+import {
+  articleFallbackAnswer,
+  type HelpArticle,
+  type HelpMessage,
+} from "@/lib/help"
 
 export type HelpActionState = {
   status: "idle" | "error" | "success"
@@ -11,13 +16,17 @@ export type HelpActionState = {
   conversationId?: string
   answer?: string
   source?: "ai" | "articles"
-  articles?: Array<{ id: string; slug: string; title: string; body: string; category: string }>
-  messages?: Array<{ id?: string; role: string; content: string; created_at?: string }>
+  articles?: HelpArticle[]
+  messages?: HelpMessage[]
 }
 
 const questionSchema = z.object({
   conversationId: z.uuid().optional().or(z.literal("")),
-  question: z.string().trim().min(1, { error: "Ask a how-to question." }).max(1000),
+  question: z
+    .string()
+    .trim()
+    .min(1, { error: "Ask a how-to question." })
+    .max(1000),
 })
 
 export async function askHelp(
@@ -29,7 +38,10 @@ export async function askHelp(
     question: formData.get("question"),
   })
   if (!parsed.success) {
-    return { status: "error", message: parsed.error.issues[0]?.message ?? "Ask a short question." }
+    return {
+      status: "error",
+      message: parsed.error.issues[0]?.message ?? "Ask a short question.",
+    }
   }
 
   await requireActiveMember()
@@ -53,6 +65,7 @@ export async function askHelp(
 
   const payload = helpResult.data as {
     conversation_id?: string
+    message_id?: string
     articles?: HelpActionState["articles"]
     messages?: HelpActionState["messages"]
   }
@@ -63,16 +76,42 @@ export async function askHelp(
   const answer = await generateHelpAnswer(
     parsed.data.question,
     articles as HelpArticleContext[],
-    statuses
+    statuses,
+    (payload.messages ?? []).filter(
+      (message) => message.id !== payload.message_id
+    )
   )
+
+  const source = answer ? ("ai" as const) : ("articles" as const)
+  const reply = (answer || articleFallbackAnswer(articles)).slice(0, 4000)
+  let assistantMessage: HelpMessage = {
+    role: "assistant",
+    content: reply,
+    source,
+  }
+  let warning: string | undefined
+  if (payload.message_id) {
+    const saved = await supabase.rpc("save_help_answer", {
+      p_message_id: payload.message_id,
+      p_answer: reply,
+      p_source: source,
+    })
+    if (saved.error) {
+      warning =
+        "Your answer is shown, but it couldn't be saved. It may be missing after a refresh."
+    } else {
+      assistantMessage = saved.data as HelpMessage
+    }
+  }
 
   return {
     status: "success",
     conversationId: payload.conversation_id,
-    answer: answer || `I found ${articles.length} closest ${articles.length === 1 ? "article" : "articles"}. Open one below for the full steps.`,
-    source: answer ? "ai" : "articles",
+    answer: assistantMessage.content,
+    source,
+    message: warning,
     articles,
-    messages: payload.messages,
+    messages: [...(payload.messages ?? []), assistantMessage],
   }
 }
 
@@ -85,10 +124,17 @@ export async function talkToOrganiser(
   await requireActiveMember()
   const supabase = await createClient()
   const { data, error } = await supabase.rpc("create_support_ticket", {
-    p_conversation_id: typeof conversationId === "string" && conversationId ? conversationId : undefined,
+    p_conversation_id:
+      typeof conversationId === "string" && conversationId
+        ? conversationId
+        : undefined,
     p_subject: typeof subject === "string" ? subject : "",
   })
-  if (error) return { status: "error", message: "The support ticket could not be created." }
+  if (error)
+    return {
+      status: "error",
+      message: "The support ticket could not be created.",
+    }
   const result = data as { ticket_id?: string }
   return {
     status: "success",

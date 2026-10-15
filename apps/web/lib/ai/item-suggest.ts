@@ -45,7 +45,9 @@ export function parseListingSuggestion(value: string): ListingSuggestion | null 
       typeof parsed.category === "string" && CATEGORY_SLUGS.includes(parsed.category)
         ? parsed.category
         : ""
-    const estimated = Number(parsed.estimated_value_rm)
+    const estimated = typeof parsed.estimated_value_rm === "number"
+      ? parsed.estimated_value_rm
+      : NaN
     const condition =
       parsed.condition === "like_new" || parsed.condition === "fair"
         ? parsed.condition

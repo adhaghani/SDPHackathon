@@ -1,6 +1,7 @@
 "use server"
 
 import { suggestListingFromPhoto, type ListingSuggestion } from "@/lib/ai"
+import { requireActiveMember } from "@/lib/data"
 
 export type SuggestListingState = {
   status: "idle" | "error" | "success"
@@ -23,6 +24,7 @@ export async function suggestListing(
   }
 
   try {
+    await requireActiveMember()
     const suggestion = await suggestListingFromPhoto(
       imageDataUrl,
       typeof fileName === "string" ? fileName : "photo"
@@ -31,7 +33,7 @@ export async function suggestListing(
       status: "success",
       message: suggestion.source === "ai"
         ? "Suggestions are ready. Review and confirm every field before listing."
-        : "The photo is ready. Fill in the details manually, or add an AI key for suggestions.",
+        : "Photo suggestions are unavailable. You can still fill in the listing details manually.",
       suggestion,
     }
   } catch {

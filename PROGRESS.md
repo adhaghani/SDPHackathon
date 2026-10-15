@@ -185,3 +185,21 @@ The dev server showed long action delays under local machine load. Final functio
 ## Goal handoff — 14 October 2026
 
 The project owner requested that the implementation goal be considered completed and the outstanding work be handed off as todos. The root [README.md](README.md#remaining-todos) now contains the cloud preview, physical-device rehearsal, timed presentation and resident pilot checklists. These external tasks remain uncompleted; closing the goal does not claim that deployment or field validation occurred.
+
+## Help chatbot — 15 October 2026
+
+- Expanded the knowledge base from 18 to 34 articles, including the full borrowing journey, listing, returns, messages, events, rewards and recycling. Help now supplies up to eight matching guides and the last eight conversation turns to the model.
+- Replaced all-keyword matching with ranked keyword matching, boosted article titles, and retained the previous question for short follow-ups. Unmatched searches return no articles instead of unrelated guides.
+- Rebuilt `/help` with the existing shadcn message, bubble, message-scroller and input-group components. Includes starter questions, pending feedback, Enter/Shift+Enter controls, new chat, article search and organiser support.
+- Added owner-scoped, idempotent assistant-reply persistence and useful article answers when AI is unavailable. Conversation URLs allow replies to survive refresh.
+- Validation: 21 targeted Vitest tests, 12 transactional pgTAP assertions, TypeScript, web ESLint and whitespace checks passed. Playwright passed at 390px and 1440px with real MiMo replies, reload persistence, follow-up context and Axe checks scoped to the Help page content.
+- Migration `20261016060000_help_chat.sql` was applied and recorded locally. The standard local push command remains blocked because the database records `20261016050000_guest_pass_sharing`, whose source file is absent from this checkout. That unrelated history was preserved. Relevant Help database types were regenerated without importing unrelated schema drift. No cloud migration or deployment was performed.
+
+## Badge progress and details — 15 October 2026
+
+- Badge details now use the existing shadcn Dialog on rewards, profile and the office catalogue. Tap/click and keyboard controls show requirements and earned dates, with Escape dismissal and focus restoration. Cards stay flat and profile badges retain their placement below the resident name.
+- Progress and automatic awarding share one database calculation for activity counts, metadata filters, sustained participation, consecutive on-time returns and monthly streaks. Numeric progress is not shown for office-selected awards. Streak BP milestones remain unchanged; configured badge thresholds control badge eligibility.
+- The office form loads existing awards and changes their rules only when explicitly selected. Rules are validated in the server action and membership-checked RPC. Monthly highlight selection grants its badge directly only while that badge uses manual selection.
+- New awards save the earning-rule snapshot so later edits do not rewrite their explanation. Existing earned badges retain their date and current requirements; original rules are marked unavailable when no historical snapshot exists.
+- Validation passed: 10 targeted Vitest tests; 63 pgTAP assertions across badge, trust and engagement suites; TypeScript; web ESLint; diff whitespace checks; and two Playwright scenarios at 390px/1440px covering dialogs, focus restoration, accessibility and office rule preservation.
+- Migration `20261016070000_badge_progress_and_rules.sql` was applied and recorded locally, and relevant database types were regenerated. The pre-existing missing guest-pass migration file still blocks the standard local push command. No cloud migration or deployment was performed.

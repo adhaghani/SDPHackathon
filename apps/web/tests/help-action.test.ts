@@ -59,4 +59,38 @@ describe("Help chat action", () => {
     expect(state.status).toBe("error")
     expect(state.message).toContain("20 Help messages")
   })
+  it("saves the answer and supplies only earlier messages as follow-up context", async () => {
+    const history = [{ id: "old-question", role: "user", content: "How do I borrow?" }, { id: "old-answer", role: "assistant", content: "Choose dates." }]
+    mocks.generateHelpAnswer.mockResolvedValue("Arrange pickup after approval.")
+    const rpc = vi.fn(async (name: string) => {
+      if (name === "send_help_message") return { error: null, data: {
+        conversation_id: "conversation-1", message_id: "current-question",
+        articles: [{ id: "guide", slug: "borrow", title: "Borrowing", body: "Arrange pickup.", category: "borrowing" }],
+        messages: [...history, { id: "current-question", role: "user", content: "What next?" }],
+      } }
+      if (name === "save_help_answer") return { error: null, data: { id: "saved-answer", role: "assistant", content: "Arrange pickup after approval.", source: "ai" } }
+      return { error: null, data: [] }
+    })
+    mocks.createClient.mockResolvedValue({ rpc })
+    const form = new FormData()
+    form.set("question", "What next?")
+    const state = await askHelp({ status: "idle" }, form)
+    expect(mocks.generateHelpAnswer).toHaveBeenCalledWith("What next?", expect.any(Array), [], history)
+    expect(rpc).toHaveBeenCalledWith("save_help_answer", { p_message_id: "current-question", p_answer: "Arrange pickup after approval.", p_source: "ai" })
+    expect(state.messages).toHaveLength(4)
+    expect(state.messages?.[3]?.id).toBe("saved-answer")
+  })
+
+  it("gives useful article guidance when AI is unavailable", async () => {
+    mocks.generateHelpAnswer.mockResolvedValue(null)
+    mocks.createClient.mockResolvedValue({ rpc: vi.fn(async (name: string) => name === "send_help_message" ? { error: null, data: {
+      articles: [{ id: "guide", slug: "borrow", title: "How to borrow", body: "Choose dates and send a request.", category: "borrowing" }], messages: [],
+    } } : { error: null, data: [] }) })
+    const form = new FormData()
+    form.set("question", "How do I borrow?")
+    const state = await askHelp({ status: "idle" }, form)
+    expect(state.answer).toContain("Choose dates and send a request.")
+    expect(state.messages?.[0]?.role).toBe("assistant")
+  })
+
 })

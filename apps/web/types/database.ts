@@ -615,14 +615,14 @@ isOneToOne: false
                   ]
                 },"help_messages": {
                   Row: {
-                    "article_ids": (string)[],"content": string,"conversation_id": string,"created_at": string,"id": string,"is_demo": boolean,"role": string,"user_id": string
+                    "article_ids": (string)[],"content": string,"conversation_id": string,"created_at": string,"id": string,"is_demo": boolean,"reply_to_message_id": string | null,"role": string,"source": string | null,"user_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "article_ids"?: (string)[],"content": string,"conversation_id": string,"created_at"?: string,"id"?: string,"is_demo"?: boolean,"role": string,"user_id": string
+                    "article_ids"?: (string)[],"content": string,"conversation_id": string,"created_at"?: string,"id"?: string,"is_demo"?: boolean,"reply_to_message_id"?: string | null,"role": string,"source"?: string | null,"user_id": string
                   }
                   Update: {
-                    "article_ids"?: (string)[],"content"?: string,"conversation_id"?: string,"created_at"?: string,"id"?: string,"is_demo"?: boolean,"role"?: string,"user_id"?: string
+                    "article_ids"?: (string)[],"content"?: string,"conversation_id"?: string,"created_at"?: string,"id"?: string,"is_demo"?: boolean,"reply_to_message_id"?: string | null,"role"?: string,"source"?: string | null,"user_id"?: string
                   }
                   Relationships: [
                     {
@@ -630,6 +630,12 @@ isOneToOne: false
       columns: ["conversation_id"]
 isOneToOne: false
       referencedRelation: "help_conversations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "help_messages_reply_to_message_id_fkey"
+      columns: ["reply_to_message_id"]
+isOneToOne: true
+      referencedRelation: "help_messages"
       referencedColumns: ["id"]
     }
                   ]
@@ -1441,14 +1447,14 @@ isOneToOne: false
                   ]
                 },"user_badges": {
                   Row: {
-                    "badge_id": string,"earned_at": string,"id": string,"township_id": string,"user_id": string
+                    "badge_id": string,"criteria_snapshot": Json | null,"earned_at": string,"id": string,"township_id": string,"user_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "badge_id": string,"earned_at"?: string,"id"?: string,"township_id": string,"user_id": string
+                    "badge_id": string,"criteria_snapshot"?: Json | null,"earned_at"?: string,"id"?: string,"township_id": string,"user_id": string
                   }
                   Update: {
-                    "badge_id"?: string,"earned_at"?: string,"id"?: string,"township_id"?: string,"user_id"?: string
+                    "badge_id"?: string,"criteria_snapshot"?: Json | null,"earned_at"?: string,"id"?: string,"township_id"?: string,"user_id"?: string
                   }
                   Relationships: [
                     {
@@ -1944,11 +1950,26 @@ isOneToOne: false
 "save_guest_gate":
 { Args: { "p_gate_id"?: string,"p_name": string,"p_township_id": string }; Returns: Json
                            },
+"save_help_answer":
+{ Args: { "p_answer": string,"p_message_id": string,"p_source": string }; Returns: Json
+                           },
 "save_item_guide":
 { Args: { "p_body": string,"p_item_id": string,"p_photo_paths"?: (string)[],"p_safety_note"?: string }; Returns: Json
                            },
 "save_programme_cost":
 { Args: { "p_amount_rm": number,"p_label": string,"p_month": string }; Returns: Json
+                           },
+"_badge_progress":
+{ Args: { "p_criteria": Json,"p_township_id": string,"p_user_id": string }; Returns: Json
+                           },
+"_valid_badge_criteria":
+{ Args: { "p_criteria": Json }; Returns: boolean
+                           },
+"get_my_badge_progress":
+{ Args: { "p_township_id": string }; Returns: Json
+                           },
+"save_badge_definition":
+{ Args: { "p_criteria"?: Json,"p_description": string,"p_icon": string,"p_name": string,"p_slug": string }; Returns: string
                            },
 "search_help_articles":
 { Args: { "p_limit"?: number,"p_query": string }; Returns: Json

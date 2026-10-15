@@ -12,8 +12,15 @@ export const moderationSchema = z.object({
 
 export const programmeCostSchema = z.object({
   month: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { error: "Choose a month." }),
-  label: z.string().trim().min(3, { error: "Use at least 3 characters." }).max(120),
-  amountRm: z.coerce.number().min(0, { error: "Amount cannot be negative." }).max(1000000),
+  label: z
+    .string()
+    .trim()
+    .min(3, { error: "Use at least 3 characters." })
+    .max(120),
+  amountRm: z.coerce
+    .number()
+    .min(0, { error: "Amount cannot be negative." })
+    .max(1000000),
 })
 
 export const reversePointsSchema = z.object({
@@ -29,10 +36,17 @@ export const resolveDisputeSchema = z.object({
 })
 
 export const badgeSchema = z.object({
-  slug: z.string().trim().min(3).max(80).regex(/^[a-z0-9-]+$/, { error: "Use lowercase letters, numbers and hyphens." }),
+  slug: z
+    .string()
+    .trim()
+    .min(3)
+    .max(80)
+    .regex(/^[a-z0-9-]+$/, {
+      error: "Use lowercase letters, numbers and hyphens.",
+    }),
   name: z.string().trim().min(3).max(80),
   description: z.string().trim().min(3).max(240),
-  icon: z.enum(["award", "hand-heart", "leaf", "recycle", "shield", "sparkles", "users-round"]),
+  icon: z.string().regex(/^[a-z-]{1,50}$/),
 })
 
 export const highlightSchema = z.object({

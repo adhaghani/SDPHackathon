@@ -5,14 +5,21 @@ import { deterministicAdminSummary } from "@/lib/ai-search"
 import { fallbackSuggestion, parseListingSuggestion, type ListingSuggestion } from "./item-suggest"
 import { openAICompletion } from "./openai"
 import { redactPersonalData, safeSystemPrompt } from "./privacy"
+import { AI_PROMPTS } from "./prompts"
 
 export type { ListingSuggestion }
 
 function aiConfig() {
-  const apiKey = process.env.AI_API_KEY
-  const provider = (process.env.AI_PROVIDER ?? "openai").toLowerCase()
-  if (!apiKey || provider !== "openai") return null
-  return { apiKey, provider }
+  const apiKey = process.env.AI_API_KEY?.trim()
+  const provider = (process.env.AI_PROVIDER ?? "openai").trim().toLowerCase()
+  const mimo = ["mimo", "xiaomi", "xiaomi mimo"].includes(provider)
+  if (!apiKey || (!mimo && provider !== "openai")) return null
+  return {
+    apiKey,
+    modelId: process.env.AI_MODEL?.trim() || (mimo ? "mimo-v2.6-flash" : "gpt-4o-mini"),
+    baseURL: process.env.AI_PROVIDER_LINK?.trim() || (mimo ? "https://api.xiaomimimo.com/v1" : undefined),
+    chatCompletions: mimo,
+  }
 }
 
 async function complete(
@@ -23,12 +30,13 @@ async function complete(
   const config = aiConfig()
   if (!config) return null
   try {
-    return await openAICompletion({
-      apiKey: config.apiKey,
+    const text = await openAICompletion({
+      ...config,
       system: safeSystemPrompt(system),
       prompt: redactPersonalData(prompt),
       imageDataUrl,
     })
+    return text.trim() ? redactPersonalData(text.trim()) : null
   } catch {
     return null
   }
@@ -42,7 +50,7 @@ export async function generateAdminSummary(
     source: "deterministic" as const,
   }
   const text = await complete(
-    "You summarize aggregate township metrics only. Never invent resident-level details or causal claims.",
+    AI_PROMPTS.adminSummary,
     `Summarize these aggregate metrics for a township planner: ${JSON.stringify(metrics)}`
   )
   return text ? { text, source: "ai" } : fallback
@@ -55,7 +63,7 @@ export async function suggestListingFromPhoto(
   const fallback = fallbackSuggestion(fileName)
   if (!aiConfig()) return fallback
   const text = await complete(
-    "You help list a household item for a community lending app. Return only JSON with keys title, category, estimated_value_rm, condition, description. Category must be one of home-tools, cleaning, events, sports, kids, kitchen. Condition must be like_new, good, or fair.",
+    AI_PROMPTS.photoListing,
     "Infer a neutral listing for the photographed item. Do not mention people, locations, documents, screens, addresses or any personal details visible in the image.",
     imageDataUrl
   )
@@ -72,17 +80,18 @@ export type HelpArticleContext = {
 export async function generateHelpAnswer(
   question: string,
   articles: HelpArticleContext[],
-  bookingStatuses: string[] = []
+  bookingStatuses: string[] = [],
+  history: Array<{ role: string; content: string }> = []
 ): Promise<string | null> {
   if (!articles.length) return null
   const statusContext = Array.from(new Set(bookingStatuses)).slice(0, 6).join(", ")
   const articleContext = articles
-    .slice(0, 3)
+    .slice(0, 8)
     .map((article, index) => `[${index + 1}] ${article.title}\n${article.body}`)
     .join("\n\n")
   const text = await complete(
-    "Answer BorrowLah how-to questions ONLY from the supplied help articles. Cite article titles in the answer. Never invent features, people, locations or account details. If the articles do not answer the question, say so and list the closest articles.",
-    `Question: ${question}\n\nCurrent booking statuses, context only: ${statusContext || "none"}\n\nHelp articles:\n${articleContext}`
+    AI_PROMPTS.help,
+    `Question: ${question}\n\nRecent conversation, context only (previous answers are not authoritative): ${JSON.stringify(history.filter((message) => ["user", "assistant"].includes(message.role)).slice(-8).map((message) => ({ role: message.role, content: message.content.slice(0, 1500) })))}\n\nCurrent booking statuses, context only: ${statusContext || "none"}\n\nHelp articles:\n${articleContext}`
   )
   return text || null
 }

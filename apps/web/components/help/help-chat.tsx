@@ -1,130 +1,471 @@
 "use client"
 
-import { useActionState, useState } from "react"
+import { useActionState, useOptimistic, useRef, useState } from "react"
+import {
+  ArrowUpIcon,
+  BookOpenIcon,
+  MessageCircleIcon,
+  PlusIcon,
+} from "lucide-react"
 
 import { askHelp, talkToOrganiser, type HelpActionState } from "@/actions/help"
+import type { HelpArticle, HelpMessage } from "@/lib/help"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@workspace/ui/components/accordion"
 import { Alert, AlertDescription } from "@workspace/ui/components/alert"
+import { Bubble, BubbleContent } from "@workspace/ui/components/bubble"
 import { Button } from "@workspace/ui/components/button"
-import { ScrollArea } from "@workspace/ui/components/scroll-area"
+import { Field, FieldGroup, FieldLabel } from "@workspace/ui/components/field"
+import { Input } from "@workspace/ui/components/input"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupTextarea,
+} from "@workspace/ui/components/input-group"
+import {
+  Message,
+  MessageContent,
+  MessageHeader,
+} from "@workspace/ui/components/message"
+import {
+  MessageScroller,
+  MessageScrollerButton,
+  MessageScrollerContent,
+  MessageScrollerItem,
+  MessageScrollerProvider,
+  MessageScrollerViewport,
+} from "@workspace/ui/components/message-scroller"
 import { Spinner } from "@workspace/ui/components/spinner"
-import { Textarea } from "@workspace/ui/components/textarea"
 
+const STARTERS = [
+  "How do I borrow an item?",
+  "How do I list something?",
+  "How do deposits work?",
+  "How do I earn BetterPoints?",
+]
 const idleState = { status: "idle" } as const
-
-type Article = { id: string; slug: string; title: string; body: string; category: string }
 
 export function HelpChat({
   initialArticles,
   initialConversationId = "",
   initialMessages = [],
 }: {
-  initialArticles: Article[]
+  initialArticles: HelpArticle[]
   initialConversationId?: string
-  initialMessages?: Array<{ id: string; role: string; content: string; created_at: string }>
+  initialMessages?: HelpMessage[]
 }) {
-  const [state, askAction, pending] = useActionState(askHelp, idleState)
-  const [ticketState, ticketAction, ticketPending] = useActionState(talkToOrganiser, idleState)
-  const [expanded, setExpanded] = useState<string | null>(null)
-  const articles = state.articles ?? initialArticles
+  const [input, setInput] = useState("")
+  const [chatKey, setChatKey] = useState(0)
+  // Remounting resets the action state as well as the visible conversation.
+  return (
+    <HelpConversation
+      key={chatKey}
+      initialArticles={initialArticles}
+      initialConversationId={chatKey ? "" : initialConversationId}
+      initialMessages={chatKey ? [] : initialMessages}
+      input={input}
+      setInput={setInput}
+      onNewChat={() => {
+        setInput("")
+        setChatKey((value) => value + 1)
+        window.history.replaceState(null, "", "/help")
+      }}
+    />
+  )
+}
+
+function HelpConversation({
+  initialArticles,
+  initialConversationId,
+  initialMessages,
+  input,
+  setInput,
+  onNewChat,
+}: {
+  initialArticles: HelpArticle[]
+  initialConversationId: string
+  initialMessages: HelpMessage[]
+  input: string
+  setInput: (value: string) => void
+  onNewChat: () => void
+}) {
+  const formRef = useRef<HTMLFormElement>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
+  const [articleSearch, setArticleSearch] = useState("")
+  const [state, askAction, pending] = useActionState<HelpActionState, FormData>(
+    async (previous, form) => {
+      try {
+        const next = await askHelp(previous, form)
+        if (next.status === "error") {
+          setInput(String(form.get("question") ?? ""))
+          return { ...previous, status: "error", message: next.message }
+        }
+        if (next.conversationId) {
+          window.history.replaceState(
+            null,
+            "",
+            `/help?conversation=${next.conversationId}`
+          )
+        }
+        inputRef.current?.focus()
+        return next
+      } catch {
+        setInput(String(form.get("question") ?? ""))
+        return {
+          ...previous,
+          status: "error",
+          message: "Your answer couldn't be loaded. Try again in a moment.",
+        }
+      }
+    },
+    {
+      status: "idle",
+      conversationId: initialConversationId,
+      messages: initialMessages,
+    }
+  )
+  const [ticketState, ticketAction, ticketPending] = useActionState(
+    talkToOrganiser,
+    idleState
+  )
+  const [messages, addQuestion] = useOptimistic(
+    state.messages ?? [],
+    (current, question: string) => [
+      ...current,
+      { id: "pending-question", role: "user", content: question },
+    ]
+  )
   const conversationId = state.conversationId ?? initialConversationId
-  const messages = state.messages ?? initialMessages
+  const allArticles = [...(state.articles ?? []), ...initialArticles].filter(
+    (article, index, list) =>
+      list.findIndex((item) => item.id === article.id) === index
+  )
+  const visibleArticles = allArticles.filter((article) =>
+    `${article.title} ${article.body}`
+      .toLowerCase()
+      .includes(articleSearch.trim().toLowerCase())
+  )
 
   return (
-    <div className="grid gap-7 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
-      <section aria-labelledby="ask-help-heading" className="bb-card p-5">
-        <h2 id="ask-help-heading" className="text-title text-ink">Ask BorrowLah</h2>
-        <p className="mt-1 text-sm text-ink-muted">
-          Answers use the help centre only. Without an AI key, the top matching articles are shown instead.
-        </p>
-        <form action={askAction} className="mt-4 flex flex-col gap-3">
-          <input type="hidden" name="conversationId" value={conversationId} />
-          <Textarea
-            name="question"
-            rows={3}
-            maxLength={1000}
-            required
-            placeholder="How does a handover work?"
-            aria-label="Help question"
-          />
-          <Button type="submit" variant="cta" disabled={pending}>
-            {pending ? <Spinner data-icon="inline-start" /> : null}
-            Ask
-          </Button>
-        </form>
-        {state.status === "error" && state.message ? (
-          <Alert variant="destructive" className="mt-3">
-            <AlertDescription>{state.message}</AlertDescription>
-          </Alert>
-        ) : null}
-        {state.status === "success" && state.answer ? (
-          <div className="mt-5 rounded-lg bg-lilac-tint p-4">
-            <p className="text-eyebrow text-ink-muted">
-              {state.source === "ai" ? "AI answer grounded in help articles" : "Closest help articles"}
+    <div className="grid min-w-0 gap-7 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
+      <section
+        aria-labelledby="ask-help-heading"
+        className="flex h-[min(700px,calc(100dvh-18rem))] min-h-[480px] min-w-0 flex-col overflow-hidden rounded-[22px] border border-hairline bg-surface"
+      >
+        <header className="flex items-center justify-between gap-3 border-b border-hairline p-4 sm:px-6">
+          <div>
+            <h2 id="ask-help-heading" className="text-title text-ink">
+              Ask BorrowLah
+            </h2>
+            <p className="mt-1 text-sm text-ink-muted">
+              Practical help, backed by our help centre.
             </p>
-            <p className="mt-2 whitespace-pre-line text-ink">{state.answer}</p>
           </div>
-        ) : null}
-        {messages.length ? (
-          <ScrollArea className="mt-5 max-h-72 border-t border-hairline pt-4" contentClassName="min-h-full">
-            <ul className="flex flex-col gap-2">
-              {messages.map((message, index) => (
-                <li
-                  key={message.id ?? index}
-                  className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
-                    message.role === "user" ? "ml-auto bg-ink text-surface" : "bg-ground text-ink"
-                  }`}
-                >
-                  {message.content}
-                </li>
-              ))}
-            </ul>
-          </ScrollArea>
-        ) : null}
-
-        <form action={ticketAction} className="mt-5 flex flex-col gap-3 border-t border-hairline pt-4">
-          <input type="hidden" name="conversationId" value={conversationId} />
-          <label className="text-sm font-bold text-ink" htmlFor="support-subject">
-            Talk to an organiser
-          </label>
-          <input
-            id="support-subject"
-            name="subject"
-            maxLength={160}
-            defaultValue="Need help with BorrowLah"
-            className="min-h-11 rounded-lg border border-ink-muted bg-surface px-3 text-ink outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
-          />
-          <Button type="submit" variant="outline" disabled={ticketPending}>
-            {ticketPending ? <Spinner data-icon="inline-start" /> : null}
-            Create support ticket
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label="New chat"
+            disabled={pending || ticketPending || !messages.length}
+            onClick={onNewChat}
+          >
+            <PlusIcon />
           </Button>
-          {ticketState.message ? (
-            <Alert variant={ticketState.status === "error" ? "destructive" : "default"}>
-              <AlertDescription>{ticketState.message}</AlertDescription>
+        </header>
+        <MessageScrollerProvider autoScroll defaultScrollPosition="end">
+          <MessageScroller className="flex-1">
+            <MessageScrollerViewport aria-label="Help conversation">
+              <MessageScrollerContent
+                className="p-4 sm:p-6"
+                aria-label="Chat messages"
+                aria-live="polite"
+                aria-busy={pending}
+              >
+                {!messages.length ? (
+                  <MessageScrollerItem
+                    messageId="welcome"
+                    className="my-auto flex flex-col items-start gap-5 py-8"
+                  >
+                    <MessageCircleIcon
+                      aria-hidden="true"
+                      className="size-8 text-ink"
+                    />
+                    <div>
+                      <h3 className="text-title text-ink">
+                        A little help from your block.
+                      </h3>
+                      <p className="mt-2 max-w-[48ch] text-sm leading-6 text-ink-muted">
+                        Ask a question in your own words. We can walk you
+                        through borrowing, sharing, events and more.
+                      </p>
+                    </div>
+                    <div
+                      className="flex flex-wrap gap-2"
+                      aria-label="Suggested questions"
+                    >
+                      {STARTERS.map((question) => (
+                        <Button
+                          key={question}
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setInput(question)
+                            inputRef.current?.focus()
+                          }}
+                        >
+                          {question}
+                        </Button>
+                      ))}
+                    </div>
+                  </MessageScrollerItem>
+                ) : (
+                  messages.map((message, index) => (
+                    <MessageScrollerItem
+                      key={message.id ?? index}
+                      messageId={message.id ?? String(index)}
+                    >
+                      <Message
+                        align={message.role === "user" ? "end" : "start"}
+                      >
+                        <MessageContent>
+                          <MessageHeader>
+                            {message.role === "user"
+                              ? "You"
+                              : message.role === "organiser"
+                                ? "Organiser"
+                                : "BorrowLah"}
+                          </MessageHeader>
+                          <Bubble
+                            variant={
+                              message.role === "user" ? "default" : "muted"
+                            }
+                          >
+                            <BubbleContent>
+                              <p className="whitespace-pre-wrap">
+                                {message.content}
+                              </p>
+                            </BubbleContent>
+                          </Bubble>
+                        </MessageContent>
+                      </Message>
+                    </MessageScrollerItem>
+                  ))
+                )}
+                {pending ? (
+                  <MessageScrollerItem messageId="reply-pending">
+                    <p
+                      role="status"
+                      className="flex items-center gap-2 text-sm text-ink-muted"
+                    >
+                      <Spinner aria-hidden="true" />
+                      Finding an answer…
+                    </p>
+                  </MessageScrollerItem>
+                ) : null}
+              </MessageScrollerContent>
+            </MessageScrollerViewport>
+            <MessageScrollerButton
+              size="icon"
+              aria-label="Scroll to latest message"
+            />
+          </MessageScroller>
+        </MessageScrollerProvider>
+        <footer className="flex flex-col gap-3 border-t border-hairline p-4 sm:px-6">
+          {state.message ? (
+            <Alert
+              variant={state.status === "error" ? "destructive" : "default"}
+            >
+              <AlertDescription>{state.message}</AlertDescription>
             </Alert>
           ) : null}
-        </form>
+          <form
+            ref={formRef}
+            action={async (form) => {
+              const question = String(form.get("question") ?? "").trim()
+              if (!question || pending) return
+              addQuestion(question)
+              setInput("")
+              askAction(form)
+            }}
+          >
+            <input type="hidden" name="conversationId" value={conversationId} />
+            <FieldGroup>
+              <Field data-invalid={state.status === "error"}>
+                <FieldLabel className="sr-only" htmlFor="help-question">
+                  Help question
+                </FieldLabel>
+                <InputGroup>
+                  <InputGroupTextarea
+                    ref={inputRef}
+                    id="help-question"
+                    name="question"
+                    rows={2}
+                    className="min-h-16 max-h-40"
+                    maxLength={1000}
+                    required
+                    value={input}
+                    onChange={(event) => setInput(event.target.value)}
+                    placeholder="Ask anything about using BorrowLah…"
+                    disabled={pending}
+                    aria-invalid={state.status === "error"}
+                    aria-describedby="help-composer-hint"
+                    onKeyDown={(event) => {
+                      if (
+                        event.key === "Enter" &&
+                        !event.shiftKey &&
+                        !event.nativeEvent.isComposing
+                      ) {
+                        event.preventDefault()
+                        if (input.trim() && !pending)
+                          formRef.current?.requestSubmit()
+                      }
+                    }}
+                  />
+                  <InputGroupAddon align="block-end">
+                    <p
+                      id="help-composer-hint"
+                      className="mr-auto text-xs text-muted-foreground"
+                    >
+                      Enter to send · Shift + Enter for a new line
+                    </p>
+                    <Button
+                      type="submit"
+                      variant="cta"
+                      size="icon"
+                      disabled={pending}
+                      aria-disabled={pending || !input.trim()}
+                      aria-label="Send message"
+                    >
+                      <ArrowUpIcon />
+                    </Button>
+                  </InputGroupAddon>
+                </InputGroup>
+              </Field>
+            </FieldGroup>
+          </form>
+          <p className="text-xs leading-5 text-ink-muted">
+            Answers use help articles and may need checking. For
+            account-specific help, talk to an organiser.
+          </p>
+        </footer>
       </section>
 
-      <section aria-labelledby="help-articles-heading" className="bb-card p-5">
-        <h2 id="help-articles-heading" className="text-title text-ink">Help articles</h2>
-        <ul className="mt-3 divide-y divide-hairline">
-          {articles.map((article) => (
-            <li key={article.id} className="py-3">
-              <button
-                type="button"
-                className="flex min-h-11 w-full items-center justify-between gap-2 text-left font-bold text-ink"
-                aria-expanded={expanded === article.id}
-                onClick={() => setExpanded((current) => (current === article.id ? null : article.id))}
-              >
-                <span>{article.title}</span>
-                <span aria-hidden="true">{expanded === article.id ? "−" : "+"}</span>
-              </button>
-              {expanded === article.id ? <p className="mt-2 text-sm leading-6 text-ink-muted">{article.body}</p> : null}
-            </li>
-          ))}
-        </ul>
-        {!articles.length ? <p className="mt-4 text-sm text-ink-muted">No matching articles yet.</p> : null}
-      </section>
+      <aside className="flex min-w-0 flex-col gap-6">
+        <section aria-labelledby="help-articles-heading">
+          <div className="mb-3 flex items-center gap-2">
+            <BookOpenIcon aria-hidden="true" className="size-5" />
+            <h2 id="help-articles-heading" className="text-title text-ink">
+              Help articles
+            </h2>
+          </div>
+          <FieldGroup>
+            <Field>
+              <FieldLabel htmlFor="help-article-search" className="sr-only">
+                Search help articles
+              </FieldLabel>
+              <Input
+                id="help-article-search"
+                type="search"
+                placeholder="Find a guide…"
+                value={articleSearch}
+                onChange={(event) => setArticleSearch(event.target.value)}
+              />
+            </Field>
+          </FieldGroup>
+          <div className="mt-3 max-h-80 overflow-y-auto overscroll-contain pr-1">
+            <Accordion>
+              {visibleArticles.map((article) => (
+                <AccordionItem key={article.id} value={article.id}>
+                  <AccordionTrigger>{article.title}</AccordionTrigger>
+                  <AccordionContent>
+                    <p className="leading-6 text-ink-muted">{article.body}</p>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+            {!visibleArticles.length ? (
+              <p className="py-4 text-sm text-ink-muted">
+                No guides match that search. Try another word or ask in the
+                chat.
+              </p>
+            ) : null}
+          </div>
+          {state.articles?.length ? (
+            <p className="mt-2 text-xs text-ink-muted">
+              Guides matching your latest question appear first.
+            </p>
+          ) : null}
+        </section>
+        <section
+          aria-labelledby="organiser-heading"
+          className="border-t border-hairline pt-5"
+        >
+          <h2 id="organiser-heading" className="text-title text-ink">
+            Need a person?
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-ink-muted">
+            Ask an organiser to look into a problem with your account or
+            booking.
+          </p>
+          <Accordion>
+            <AccordionItem value="support">
+              <AccordionTrigger>Talk to an organiser</AccordionTrigger>
+              <AccordionContent>
+                <form
+                  action={ticketAction}
+                  className="flex flex-col gap-3 pt-2"
+                >
+                  <input
+                    type="hidden"
+                    name="conversationId"
+                    value={conversationId}
+                  />
+                  <FieldGroup>
+                    <Field>
+                      <FieldLabel htmlFor="support-subject">
+                        What do you need help with?
+                      </FieldLabel>
+                      <Input
+                        id="support-subject"
+                        name="subject"
+                        maxLength={160}
+                        required
+                        defaultValue="Need help with BorrowLah"
+                      />
+                    </Field>
+                  </FieldGroup>
+                  <Button
+                    type="submit"
+                    variant="outline"
+                    disabled={ticketPending || pending}
+                  >
+                    {ticketPending ? (
+                      <Spinner data-icon="inline-start" />
+                    ) : null}
+                    Create support ticket
+                  </Button>
+                  {ticketState.message ? (
+                    <Alert
+                      variant={
+                        ticketState.status === "error"
+                          ? "destructive"
+                          : "default"
+                      }
+                    >
+                      <AlertDescription>{ticketState.message}</AlertDescription>
+                    </Alert>
+                  ) : null}
+                </form>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </section>
+      </aside>
     </div>
   )
 }

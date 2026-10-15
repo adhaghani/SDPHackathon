@@ -4,6 +4,7 @@ import { BlockGoalCard } from "@/components/block/block-goal-card"
 import { ProgressRing } from "@/components/block/progress-ring"
 import { StatTile } from "@/components/block/stat-tile"
 import { ActivityRow } from "@/components/home/activity-row"
+import type { BadgeCriteria, BadgeProgress } from "@/lib/badges"
 import { BadgeCard } from "@/components/rewards/badge-card"
 import { RewardCard } from "@/components/rewards/reward-card"
 import { VoucherCard } from "@/components/rewards/voucher-card"
@@ -38,6 +39,7 @@ export default async function RewardsPage() {
     statsResult,
     badgesResult,
     earnedBadgesResult,
+    badgeProgressResult,
     levelsResult,
     rewardsResult,
     redemptionsResult,
@@ -69,9 +71,10 @@ export default async function RewardsPage() {
     supabase.from("badges").select("id,slug,name,description,icon,criteria"),
     supabase
       .from("user_badges")
-      .select("id,badge_id,earned_at")
+      .select("id,badge_id,earned_at,criteria_snapshot")
       .eq("user_id", active.user.id)
       .eq("township_id", active.townshipId),
+    supabase.rpc("get_my_badge_progress", { p_township_id: active.townshipId }),
     supabase
       .from("levels")
       .select("level,name,min_lifetime_points")
@@ -114,6 +117,11 @@ export default async function RewardsPage() {
       .or(`borrower_id.eq.${active.user.id},lender_id.eq.${active.user.id}`),
   ])
 
+  if (badgesResult.error) throw new Error(badgesResult.error.message)
+  if (earnedBadgesResult.error)
+    throw new Error(earnedBadgesResult.error.message)
+  if (badgeProgressResult.error)
+    throw new Error(badgeProgressResult.error.message)
   if (valueResult.error) throw new Error(valueResult.error.message)
   if (streakResult.error) throw new Error(streakResult.error.message)
 
@@ -133,8 +141,16 @@ export default async function RewardsPage() {
   const level = levelProgress(lifetime, levelsResult.data ?? [])
   const ledger = ledgerResult.data ?? []
   const badgeDefinitions = badgesResult.data ?? []
-  const earnedBadgeIds = new Set(
-    (earnedBadgesResult.data ?? []).map((row) => row.badge_id)
+  const earnedBadges = new Map(
+    (earnedBadgesResult.data ?? []).map((badge) => [badge.badge_id, badge])
+  )
+  const badgeProgress = new Map(
+    (
+      (badgeProgressResult.data ?? []) as Array<{
+        badge_id: string
+        progress: BadgeProgress
+      }>
+    ).map((badge) => [badge.badge_id, badge.progress])
   )
   const actionCounts = (statsResult.data ?? []).reduce<Record<string, number>>(
     (counts, row) => {
@@ -369,16 +385,7 @@ export default async function RewardsPage() {
           {badgeDefinitions.length ? (
             <ul className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
               {badgeDefinitions.map((badge, index) => {
-                const earned = earnedBadgeIds.has(badge.id)
-                const criteria = badge.criteria as {
-                  threshold?: number
-                  action_types?: string[]
-                } | null
-                const target = criteria?.threshold ?? 1
-                const current = (criteria?.action_types ?? []).reduce(
-                  (sum, action) => sum + (actionCounts[action] ?? 0),
-                  0
-                )
+                const earned = earnedBadges.get(badge.id)
                 return (
                   <BadgeCard
                     key={badge.id}
@@ -386,12 +393,13 @@ export default async function RewardsPage() {
                     name={badge.name}
                     description={badge.description}
                     icon={badge.icon}
-                    earned={earned}
-                    progress={
-                      earned
-                        ? undefined
-                        : Math.min(95, Math.round((current / target) * 100))
+                    earned={Boolean(earned)}
+                    criteria={badge.criteria as BadgeCriteria}
+                    earnedAt={earned?.earned_at}
+                    earnedCriteria={
+                      earned?.criteria_snapshot as BadgeCriteria | null
                     }
+                    progress={badgeProgress.get(badge.id)}
                   />
                 )
               })}

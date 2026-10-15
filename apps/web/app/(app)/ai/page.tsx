@@ -24,7 +24,7 @@ export default async function AiPage() {
       <PageBand
         back={{ href: "/admin", label: "Township Pulse" }}
         eyebrow="AI-assisted planning"
-        title="Weekly admin summary"
+        title="90-day admin summary"
         description="Generated from aggregate metrics only. Resident-level data is never sent to the model."
       />
       <section className="bb-card p-5">

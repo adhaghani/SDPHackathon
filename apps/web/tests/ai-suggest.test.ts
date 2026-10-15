@@ -25,6 +25,12 @@ describe("Snap to list fallback and parsing", () => {
     expect(parseListingSuggestion("not json")).toBeNull()
   })
 
+  it("preserves unknown replacement values rather than converting null to zero", () => {
+    for (const value of [null, "", false, "unknown"]) {
+      expect(parseListingSuggestion(JSON.stringify({ title: "Drill", estimated_value_rm: value }))?.estimatedValueRm).toBeNull()
+    }
+  })
+
   it("redacts personal identifiers before prompts are sent", () => {
     const redacted = redactPersonalData(
       "Call 012-345 6789 at unit #12 or aisyah@example.com"
