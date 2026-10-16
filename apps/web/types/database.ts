@@ -2,7 +2,7 @@
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
 export type Database = {
-
+  
   "graphql_public": {
           Tables: {
             [_ in never]: never
@@ -75,7 +75,7 @@ isOneToOne: false
                     "created_at"?: string,"criteria"?: NonNullable<Json>,"description"?: string,"icon"?: string,"id"?: string,"name"?: string,"slug"?: string
                   }
                   Relationships: [
-
+                    
                   ]
                 },"blocks": {
                   Row: {
@@ -89,7 +89,7 @@ isOneToOne: false
                     "blocked_id"?: string,"blocker_id"?: string,"created_at"?: string
                   }
                   Relationships: [
-
+                    
                   ]
                 },"booking_groups": {
                   Row: {
@@ -279,7 +279,7 @@ isOneToOne: false
                     "created_at"?: string,"ends_on"?: string,"event_type"?: string,"id"?: string,"name"?: string,"official_source"?: boolean,"source_name"?: string,"source_url"?: string,"starts_on"?: string,"verification_note"?: string,"verification_status"?: string
                   }
                   Relationships: [
-
+                    
                   ]
                 },"challenge_progress": {
                   Row: {
@@ -379,7 +379,7 @@ isOneToOne: false
                     "counts_as_sustainability"?: boolean,"icon"?: string,"id"?: string,"name"?: string,"slug"?: string
                   }
                   Relationships: [
-
+                    
                   ]
                 },"event_rsvps": {
                   Row: {
@@ -577,7 +577,7 @@ isOneToOne: false
                     "attempts"?: number,"id"?: string,"locked_until"?: string | null,"scope"?: string,"subject_hash"?: string,"updated_at"?: string,"window_started_at"?: string
                   }
                   Relationships: [
-
+                    
                   ]
                 },"guest_pass_share_secrets": {
                   Row: {
@@ -611,7 +611,7 @@ isOneToOne: true
                     "body"?: string,"category"?: string,"created_at"?: string,"id"?: string,"search_vector"?: never,"slug"?: string,"title"?: string,"updated_at"?: string
                   }
                   Relationships: [
-
+                    
                   ]
                 },"help_conversations": {
                   Row: {
@@ -743,7 +743,7 @@ isOneToOne: false
                     "code"?: string,"created_at"?: string,"id"?: string,"inviter_id"?: string,"is_demo"?: boolean
                   }
                   Relationships: [
-
+                    
                   ]
                 },"item_categories": {
                   Row: {
@@ -757,7 +757,7 @@ isOneToOne: false
                     "co2e_kg_per_borrow"?: number | null,"co2e_source"?: string | null,"hourly_rate_rm"?: number | null,"id"?: string,"kind"?: string,"name"?: string,"slug"?: string,"typical_new_price_rm"?: number
                   }
                   Relationships: [
-
+                    
                   ]
                 },"item_guides": {
                   Row: {
@@ -913,7 +913,7 @@ isOneToOne: false
                     "level"?: number,"min_lifetime_points"?: number,"name"?: string
                   }
                   Relationships: [
-
+                    
                   ]
                 },"monthly_highlights": {
                   Row: {
@@ -967,7 +967,7 @@ isOneToOne: false
                     "enabled"?: boolean,"type"?: string,"updated_at"?: string,"user_id"?: string
                   }
                   Relationships: [
-
+                    
                   ]
                 },"notifications": {
                   Row: {
@@ -981,7 +981,7 @@ isOneToOne: false
                     "body"?: string,"created_at"?: string,"dedupe_key"?: string,"id"?: string,"link"?: string | null,"read_at"?: string | null,"title"?: string,"type"?: string,"user_id"?: string
                   }
                   Relationships: [
-
+                    
                   ]
                 },"partner_accounts": {
                   Row: {
@@ -1055,7 +1055,7 @@ isOneToOne: false
                     "created_at"?: string,"user_id"?: string
                   }
                   Relationships: [
-
+                    
                   ]
                 },"platform_audit_log": {
                   Row: {
@@ -1135,7 +1135,7 @@ isOneToOne: false
                     "avatar_path"?: string | null,"comfort_prefs"?: NonNullable<Json>,"created_at"?: string,"deleted_at"?: string | null,"display_name"?: string,"id"?: string,"interests"?: (string)[],"invited_by_user_id"?: string | null,"language"?: string,"privacy_accepted_at"?: string | null,"recognition_opt_in"?: boolean,"show_in_highlights"?: boolean,"terms_accepted_at"?: string | null,"updated_at"?: string
                   }
                   Relationships: [
-
+                    
                   ]
                 },"programme_costs": {
                   Row: {
@@ -1241,7 +1241,7 @@ isOneToOne: false
                     "active"?: boolean,"co2e_kg_per_kg"?: number | null,"created_at"?: string,"energy_kwh_per_kg"?: number | null,"factor_source"?: string | null,"id"?: string,"name"?: string,"plural_name"?: string,"slug"?: string,"sort_order"?: number,"updated_at"?: string
                   }
                   Relationships: [
-
+                    
                   ]
                 },"recycling_units": {
                   Row: {
@@ -1517,7 +1517,7 @@ isOneToOne: false
                     "auto_approve_members"?: boolean,"boundary"?: Json | null,"created_at"?: string,"description"?: string,"district"?: string,"id"?: string,"is_demo"?: boolean,"join_code"?: string,"lifecycle"?: string,"name"?: string,"pilot_start_date"?: string | null,"require_event_approval"?: boolean,"rewards_enabled"?: boolean,"settings"?: NonNullable<Json>,"slug"?: string,"state"?: string,"timezone"?: string
                   }
                   Relationships: [
-
+                    
                   ]
                 },"user_badges": {
                   Row: {
@@ -1650,7 +1650,7 @@ isOneToOne: false
                            "display_name"?: string | null,"id"?: string | null
                          }
                         Relationships: [
-
+                    
                   ]
                 },"v_member_points": {
                   Row: {
@@ -1761,6 +1761,9 @@ isOneToOne: false
                            },
 "complete_help_request":
 { Args: { "p_request_id": string }; Returns: Json
+                           },
+"complete_recycling_guide":
+{ Args: { "p_township_id": string }; Returns: Json
                            },
 "compute_trust_score":
 { Args: { "p_user_id": string }; Returns: Json
@@ -2279,11 +2282,11 @@ export type CompositeTypes<
 export const Constants = {
   "graphql_public": {
           Enums: {
-
+            
           }
         },"public": {
           Enums: {
-
+            
           }
         }
 } as const

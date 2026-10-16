@@ -2,10 +2,11 @@
 
 import { useActionState, useState } from "react"
 import { useRouter } from "next/navigation"
+import { SparklesIcon } from "lucide-react"
 
 import { createItem } from "@/actions/borrow"
 import { suggestListing, type SuggestListingState } from "@/actions/ai"
-import { prepareImageForUpload } from "@/lib/media"
+import { PublicImageCropDialog } from "@/components/shared/public-image-crop-dialog"
 import { getBrowserClient } from "@/lib/supabase/browser"
 import { Alert, AlertDescription } from "@workspace/ui/components/alert"
 import { Button } from "@workspace/ui/components/button"
@@ -18,7 +19,10 @@ import {
   FieldLabel,
 } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
-import { NativeSelect, NativeSelectOption } from "@workspace/ui/components/native-select"
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from "@workspace/ui/components/native-select"
 import { Spinner } from "@workspace/ui/components/spinner"
 import { Textarea } from "@workspace/ui/components/textarea"
 import { MediaPoster } from "@/components/shared/media-poster"
@@ -39,28 +43,49 @@ export function ItemForm({
   const [photoMessage, setPhotoMessage] = useState<string | null>(null)
   const [requiresDeposit, setRequiresDeposit] = useState(false)
   const [kind, setKind] = useState<"item" | "skill">("item")
-  const [valueSource, setValueSource] = useState<"owner" | "suggested" | "category_default">("owner")
+  const [valueSource, setValueSource] = useState<
+    "owner" | "suggested" | "category_default"
+  >("owner")
   const [suggestedPrice, setSuggestedPrice] = useState("")
-  const [suggestion, setSuggestion] = useState<SuggestListingState>(idleSuggestion)
-  const [meetingArrangement, setMeetingArrangement] = useState("arranged_by_message")
+  const [suggestion, setSuggestion] =
+    useState<SuggestListingState>(idleSuggestion)
+  const [analyzing, setAnalyzing] = useState(false)
+  const [guideBody, setGuideBody] = useState("")
+  const [guideSafetyNote, setGuideSafetyNote] = useState("")
+  const [meetingArrangement, setMeetingArrangement] = useState(
+    "arranged_by_message"
+  )
   const [guardianAcknowledgement, setGuardianAcknowledgement] = useState(false)
-  const [draft, setDraft] = useState({ title: "", category: "", condition: "good", description: "", days: "3", deposit: "0" })
-  const update = (key: keyof typeof draft, value: string) => setDraft((current) => ({ ...current, [key]: value }))
+  const [draft, setDraft] = useState({
+    title: "",
+    category: "",
+    condition: "good",
+    description: "",
+    days: "3",
+    deposit: "0",
+  })
+  const update = (key: keyof typeof draft, value: string) =>
+    setDraft((current) => ({ ...current, [key]: value }))
 
   const [uploading, setUploading] = useState(false)
+  const [cropFile, setCropFile] = useState<File | null>(null)
 
-  async function handlePhoto(file: File | undefined) {
-    if (!file) return
+  async function handlePhoto(blob: Blob, file: File) {
     setUploading(true)
     setPhotoMessage("Uploading image…")
     try {
-      const blob = await prepareImageForUpload(file, { maxDimension: 1600, quality: 0.82 })
       const path = `items/${crypto.randomUUID()}.webp`
-      const { error } = await getBrowserClient().storage.from("item-photos").upload(path, blob, { upsert: true })
+      const { error } = await getBrowserClient()
+        .storage.from("item-photos")
+        .upload(path, blob, { upsert: true })
       if (error) throw error
-      const { data } = getBrowserClient().storage.from("item-photos").getPublicUrl(path)
+      const { data } = getBrowserClient()
+        .storage.from("item-photos")
+        .getPublicUrl(path)
       setPhotoPath(data.publicUrl)
-      setPhotoMessage("Photo compressed and uploaded.")
+      setPhotoMessage("Photo uploaded.")
+      setUploading(false)
+      setAnalyzing(true)
       const reader = new FileReader()
       const imageDataUrl = await new Promise<string>((resolve, reject) => {
         reader.onload = () => resolve(String(reader.result ?? ""))
@@ -70,14 +95,23 @@ export function ItemForm({
       const snapForm = new FormData()
       snapForm.set("imageDataUrl", imageDataUrl)
       snapForm.set("fileName", file.name)
-      const result: SuggestListingState = await suggestListing(idleSuggestion, snapForm).catch(() => ({ status: "error" as const, message: "Photo uploaded. Suggestions are unavailable; fill in the listing details." }))
+      const result: SuggestListingState = await suggestListing(
+        idleSuggestion,
+        snapForm
+      ).catch(() => ({
+        status: "error" as const,
+        message:
+          "Photo uploaded. Suggestions are unavailable; fill in the listing details.",
+      }))
       setSuggestion(result)
       if (result.status === "success" && result.suggestion) {
         const nextCategory = result.suggestion.categorySlug
         setDraft((current) => ({
           ...current,
           title: result.suggestion?.title || current.title,
-          category: categories.some((category) => category.slug === nextCategory)
+          category: categories.some(
+            (category) => category.slug === nextCategory
+          )
             ? nextCategory
             : current.category,
           condition: result.suggestion?.condition ?? current.condition,
@@ -87,51 +121,92 @@ export function ItemForm({
           setSuggestedPrice(String(result.suggestion.estimatedValueRm))
           setValueSource("suggested")
         }
+        setGuideBody(result.suggestion.guideBody)
+        setGuideSafetyNote(result.suggestion.safetyNote)
       }
+      setCropFile(null)
     } catch {
-      setPhotoMessage("Photo upload failed. Please try again. Your previous image is unchanged.")
+      setCropFile(null)
+      setPhotoMessage(
+        "Photo upload failed. Please try again. Your previous image is unchanged."
+      )
     } finally {
       setUploading(false)
+      setAnalyzing(false)
     }
   }
 
-  const categoryName = categories.find((category) => category.slug === draft.category)?.name
-  const visibleCategories = categories.filter((category) => category.kind === kind)
+  const categoryName = categories.find(
+    (category) => category.slug === draft.category
+  )?.name
+  const visibleCategories = categories.filter(
+    (category) => category.kind === kind
+  )
   const deposit = Number(draft.deposit || 0)
   const sectionClass = "bb-card flex flex-col gap-5 p-5 sm:p-6"
   const legendClass = "text-title float-left mb-1 w-full text-ink"
 
   return (
-    <form action={action} className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start xl:grid-cols-[minmax(0,1fr)_22rem]">
+    <form
+      action={action}
+      className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start xl:grid-cols-[minmax(0,1fr)_22rem]"
+    >
       <div className="flex min-w-0 flex-col gap-5">
         <fieldset className={sectionClass}>
           <legend className={legendClass}>What are you lending?</legend>
           <FieldGroup>
             <Field data-invalid={Boolean(state.fieldErrors?.title)}>
               <FieldLabel htmlFor="item-title">Item title</FieldLabel>
-              <Input id="item-title" name="title" required placeholder="Folding ladder" value={draft.title} onChange={(event) => update("title", event.target.value)} />
+              <Input
+                id="item-title"
+                name="title"
+                required
+                placeholder="Folding ladder"
+                value={draft.title}
+                onChange={(event) => update("title", event.target.value)}
+              />
               <FieldError>{state.fieldErrors?.title?.[0]}</FieldError>
             </Field>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field data-invalid={Boolean(state.fieldErrors?.categorySlug)}>
                 <FieldLabel htmlFor="item-category">Category</FieldLabel>
-                <NativeSelect id="item-category" name="categorySlug" className="w-full" required value={draft.category} onChange={(event) => update("category", event.target.value)}>
-                  <NativeSelectOption value="">Choose a category</NativeSelectOption>
+                <NativeSelect
+                  id="item-category"
+                  name="categorySlug"
+                  className="w-full"
+                  required
+                  value={draft.category}
+                  onChange={(event) => update("category", event.target.value)}
+                >
+                  <NativeSelectOption value="">
+                    Choose a category
+                  </NativeSelectOption>
                   {visibleCategories.map((category) => (
                     <NativeSelectOption key={category.id} value={category.slug}>
                       {category.name}
                     </NativeSelectOption>
                   ))}
                 </NativeSelect>
-                {suggestion.status === "success" && suggestion.suggestion?.categorySlug ? (
-                  <p className="text-xs font-bold text-ink">Category suggested · confirm before listing</p>
+                {suggestion.status === "success" &&
+                suggestion.suggestion?.categorySlug ? (
+                  <p className="text-xs font-bold text-ink">
+                    Category suggested · confirm before listing
+                  </p>
                 ) : null}
                 <FieldError>{state.fieldErrors?.categorySlug?.[0]}</FieldError>
               </Field>
               <Field>
                 <FieldLabel htmlFor="item-condition">Condition</FieldLabel>
-                <NativeSelect id="item-condition" name="condition" value={draft.condition} className="w-full" onChange={(event) => update("condition", event.target.value)}>
-                  <NativeSelectOption value="like_new">Like new</NativeSelectOption>
+                <NativeSelect
+                  id="item-condition"
+                  name="condition"
+                  value={draft.condition}
+                  className="w-full"
+                  onChange={(event) => update("condition", event.target.value)}
+                >
+                  <NativeSelectOption value="like_new">
+                    Like new
+                  </NativeSelectOption>
                   <NativeSelectOption value="good">Good</NativeSelectOption>
                   <NativeSelectOption value="fair">Fair</NativeSelectOption>
                 </NativeSelect>
@@ -146,10 +221,17 @@ export function ItemForm({
                   value={kind}
                   className="w-full"
                   onChange={(event) => {
-                    const nextKind = event.target.value === "skill" ? "skill" : "item"
+                    const nextKind =
+                      event.target.value === "skill" ? "skill" : "item"
                     setKind(nextKind)
-                    const nextCategories = categories.filter((category) => category.kind === nextKind)
-                    if (!nextCategories.some((category) => category.slug === draft.category)) {
+                    const nextCategories = categories.filter(
+                      (category) => category.kind === nextKind
+                    )
+                    if (
+                      !nextCategories.some(
+                        (category) => category.slug === draft.category
+                      )
+                    ) {
                       update("category", "")
                     }
                   }}
@@ -160,17 +242,27 @@ export function ItemForm({
               </Field>
               {kind === "item" ? (
                 <Field>
-                  <FieldLabel htmlFor="item-value-source">Value source</FieldLabel>
+                  <FieldLabel htmlFor="item-value-source">
+                    Value source
+                  </FieldLabel>
                   <NativeSelect
                     id="item-value-source"
                     name="valueSource"
                     value={valueSource}
                     className="w-full"
-                    onChange={(event) => setValueSource(event.target.value as typeof valueSource)}
+                    onChange={(event) =>
+                      setValueSource(event.target.value as typeof valueSource)
+                    }
                   >
-                    <NativeSelectOption value="owner">I know this value</NativeSelectOption>
-                    <NativeSelectOption value="suggested">Suggested value</NativeSelectOption>
-                    <NativeSelectOption value="category_default">Category default</NativeSelectOption>
+                    <NativeSelectOption value="owner">
+                      I know this value
+                    </NativeSelectOption>
+                    <NativeSelectOption value="suggested">
+                      Suggested value
+                    </NativeSelectOption>
+                    <NativeSelectOption value="category_default">
+                      Category default
+                    </NativeSelectOption>
                   </NativeSelect>
                 </Field>
               ) : null}
@@ -187,7 +279,12 @@ export function ItemForm({
               />
             </Field>
             {suggestion.message ? (
-              <p className="rounded-lg bg-lilac-tint p-3 text-sm text-ink" aria-live="polite">{suggestion.message}</p>
+              <p
+                className="rounded-lg bg-lilac-tint p-3 text-sm text-ink"
+                aria-live="polite"
+              >
+                {suggestion.message}
+              </p>
             ) : null}
           </FieldGroup>
         </fieldset>
@@ -198,33 +295,61 @@ export function ItemForm({
             <div className="grid gap-4 sm:grid-cols-2">
               <Field>
                 <FieldLabel htmlFor="skill-duration">Duration</FieldLabel>
-                <Input id="skill-duration" name="durationMinutes" type="number" min="15" max="480" step="15" defaultValue="60" required />
+                <Input
+                  id="skill-duration"
+                  name="durationMinutes"
+                  type="number"
+                  min="15"
+                  max="480"
+                  step="15"
+                  defaultValue="60"
+                  required
+                />
                 <FieldDescription>Minutes for one session.</FieldDescription>
               </Field>
               <Field>
-                <FieldLabel htmlFor="meeting-arrangement">Meeting place</FieldLabel>
+                <FieldLabel htmlFor="meeting-arrangement">
+                  Meeting place
+                </FieldLabel>
                 <NativeSelect
                   id="meeting-arrangement"
                   name="meetingArrangement"
                   value={meetingArrangement}
                   className="w-full"
-                  onChange={(event) => setMeetingArrangement(event.target.value)}
+                  onChange={(event) =>
+                    setMeetingArrangement(event.target.value)
+                  }
                 >
-                  <NativeSelectOption value="arranged_by_message">Arranged by message</NativeSelectOption>
-                  <NativeSelectOption value="shared_facility">Shared township space</NativeSelectOption>
+                  <NativeSelectOption value="arranged_by_message">
+                    Arranged by message
+                  </NativeSelectOption>
+                  <NativeSelectOption value="shared_facility">
+                    Shared township space
+                  </NativeSelectOption>
                 </NativeSelect>
               </Field>
             </div>
             {meetingArrangement === "shared_facility" ? (
               <Field>
                 <FieldLabel htmlFor="meeting-facility">Shared space</FieldLabel>
-                <NativeSelect id="meeting-facility" name="meetingFacilityId" className="w-full" required>
-                  <NativeSelectOption value="">Choose a shared space</NativeSelectOption>
+                <NativeSelect
+                  id="meeting-facility"
+                  name="meetingFacilityId"
+                  className="w-full"
+                  required
+                >
+                  <NativeSelectOption value="">
+                    Choose a shared space
+                  </NativeSelectOption>
                   {facilities.map((facility) => (
-                    <NativeSelectOption key={facility.id} value={facility.id}>{facility.name}</NativeSelectOption>
+                    <NativeSelectOption key={facility.id} value={facility.id}>
+                      {facility.name}
+                    </NativeSelectOption>
                   ))}
                 </NativeSelect>
-                <FieldDescription>Never use a home address in a listing.</FieldDescription>
+                <FieldDescription>
+                  Never use a home address in a listing.
+                </FieldDescription>
               </Field>
             ) : null}
             {draft.category === "tuition" ? (
@@ -232,7 +357,9 @@ export function ItemForm({
                 <Checkbox
                   name="guardianAcknowledgement"
                   checked={guardianAcknowledgement}
-                  onCheckedChange={(checked) => setGuardianAcknowledgement(checked === true)}
+                  onCheckedChange={(checked) =>
+                    setGuardianAcknowledgement(checked === true)
+                  }
                 />
                 A guardian will be present for under-18 students
               </label>
@@ -247,70 +374,214 @@ export function ItemForm({
             <Input
               id="item-photo"
               type="file"
-              disabled={uploading || pending}
+              disabled={uploading || analyzing || pending}
               accept="image/png,image/jpeg,image/webp"
               onChange={(event) => {
                 const file = event.target.files?.[0]
-                void handlePhoto(file)
+                event.target.value = ""
+                if (file) setCropFile(file)
               }}
             />
             <FieldDescription>
-              Images are compressed before upload. Wait for confirmation before publishing.
+              Images are compressed before upload. Wait for confirmation before
+              publishing.
             </FieldDescription>
-            {photoMessage ? <p className="text-sm text-ink-muted" aria-live="polite">{photoMessage}</p> : null}
+            {photoMessage ? (
+              <p className="text-sm text-ink-muted" aria-live="polite">
+                {photoMessage}
+              </p>
+            ) : null}
+            {uploading || analyzing ? (
+              <div
+                className="flex items-start gap-3 rounded-xl bg-lilac-tint p-4 text-ink"
+                role="status"
+                aria-live="polite"
+              >
+                <Spinner className="mt-0.5" />
+                <div className="min-w-0">
+                  <p className="font-bold">
+                    {uploading
+                      ? "Preparing your photo…"
+                      : "AI is drafting your item details…"}
+                  </p>
+                  <p className="mt-1 text-sm text-ink-muted">
+                    {uploading
+                      ? "Compressing and securely uploading the image."
+                      : "Reviewing the item, category, description, value and how-to guide."}
+                  </p>
+                </div>
+              </div>
+            ) : null}
           </Field>
         </fieldset>
+
+        {kind === "item" ? (
+          <fieldset className={sectionClass}>
+            <legend className={legendClass}>How-to guide</legend>
+            <div className="flex items-start gap-3 rounded-xl bg-sun-tint p-4 text-sm text-ink">
+              <SparklesIcon
+                aria-hidden="true"
+                className="mt-0.5 size-5 shrink-0"
+              />
+              <p>
+                AI can draft these instructions from your photo. Check every
+                step and safety note before listing.
+              </p>
+            </div>
+            <FieldGroup>
+              <Field>
+                <FieldLabel htmlFor="guide-body">How to use it</FieldLabel>
+                <Textarea
+                  id="guide-body"
+                  name="guideBody"
+                  rows={5}
+                  maxLength={1000}
+                  value={guideBody}
+                  onChange={(event) => setGuideBody(event.target.value)}
+                  placeholder="Optional short steps for using this item"
+                />
+                <FieldDescription>
+                  Leave blank if the item does not need instructions.
+                </FieldDescription>
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="guide-safety-note">Safety note</FieldLabel>
+                <Textarea
+                  id="guide-safety-note"
+                  name="guideSafetyNote"
+                  rows={2}
+                  maxLength={600}
+                  value={guideSafetyNote}
+                  onChange={(event) => setGuideSafetyNote(event.target.value)}
+                  placeholder="Optional warning or handling advice"
+                />
+              </Field>
+            </FieldGroup>
+          </fieldset>
+        ) : null}
 
         <fieldset className={sectionClass}>
           <legend className={legendClass}>Lending terms</legend>
           {kind === "item" ? (
-          <div className="grid gap-3 sm:grid-cols-2">
-            <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg border border-ink-muted bg-surface px-4 text-sm font-bold text-ink">
-              <Checkbox
-                name="requiresDeposit"
-                checked={requiresDeposit}
-                onCheckedChange={(checked) => setRequiresDeposit(checked === true)}
-              />
-              Require a deposit
-            </label>
-            <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg border border-ink-muted bg-surface px-4 text-sm font-bold text-ink disabled:cursor-not-allowed disabled:opacity-50" aria-disabled={!requiresDeposit}>
-              <Checkbox name="allowDepositWaiver" disabled={!requiresDeposit} />
-              Allow highly trusted borrowers to skip it
-            </label>
-          </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg border border-ink-muted bg-surface px-4 text-sm font-bold text-ink">
+                <Checkbox
+                  name="requiresDeposit"
+                  checked={requiresDeposit}
+                  onCheckedChange={(checked) =>
+                    setRequiresDeposit(checked === true)
+                  }
+                />
+                Require a deposit
+              </label>
+              <label
+                className="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg border border-ink-muted bg-surface px-4 text-sm font-bold text-ink disabled:cursor-not-allowed disabled:opacity-50"
+                aria-disabled={!requiresDeposit}
+              >
+                <Checkbox
+                  name="allowDepositWaiver"
+                  disabled={!requiresDeposit}
+                />
+                Allow highly trusted borrowers to skip it
+              </label>
+            </div>
           ) : null}
           <div className="grid gap-4 sm:grid-cols-3">
             <Field>
-              <FieldLabel htmlFor="max-loan-days">{kind === "item" ? "Maximum loan days" : "Scheduling window (days)"}</FieldLabel>
-              <Input id="max-loan-days" name="maxLoanDays" type="number" min="1" max="30" defaultValue={kind === "item" ? "3" : "1"} required onChange={(event) => update("days", event.target.value)} />
+              <FieldLabel htmlFor="max-loan-days">
+                {kind === "item"
+                  ? "Maximum loan days"
+                  : "Scheduling window (days)"}
+              </FieldLabel>
+              <Input
+                id="max-loan-days"
+                name="maxLoanDays"
+                type="number"
+                min="1"
+                max="30"
+                defaultValue={kind === "item" ? "3" : "1"}
+                required
+                onChange={(event) => update("days", event.target.value)}
+              />
             </Field>
-            {kind === "item" ? (<>
-            <Field>
-              <FieldLabel htmlFor="deposit">Deposit (RM)</FieldLabel>
-              <Input id="deposit" name="depositRm" type="number" min="0" step="0.01" defaultValue="0" disabled={!requiresDeposit} onChange={(event) => update("deposit", event.target.value)} />
-              <FieldDescription>Recorded only. BorrowLah never handles money.</FieldDescription>
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="estimated-price">New price (RM, optional)</FieldLabel>
-              <Input id="estimated-price" name="estimatedNewPriceRm" type="number" min="0" step="0.01" placeholder="250" />
-              <FieldDescription>Used for estimated impact only.</FieldDescription>
-            </Field>
-            </>) : null}
+            {kind === "item" ? (
+              <>
+                <Field>
+                  <FieldLabel htmlFor="deposit">Deposit (RM)</FieldLabel>
+                  <Input
+                    id="deposit"
+                    name="depositRm"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    defaultValue="0"
+                    disabled={!requiresDeposit}
+                    onChange={(event) => update("deposit", event.target.value)}
+                  />
+                  <FieldDescription>
+                    Recorded only. BorrowLah never handles money.
+                  </FieldDescription>
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="estimated-price">
+                    New price (RM, optional)
+                  </FieldLabel>
+                  <Input
+                    id="estimated-price"
+                    name="estimatedNewPriceRm"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="250"
+                    value={suggestedPrice}
+                    onChange={(event) => setSuggestedPrice(event.target.value)}
+                  />
+                  <FieldDescription>
+                    Used for estimated impact only.
+                  </FieldDescription>
+                </Field>
+              </>
+            ) : null}
           </div>
-          {kind === "item" ? (<Field>
-            <FieldLabel htmlFor="minimum-trust">Minimum trust tier</FieldLabel>
-            <NativeSelect id="minimum-trust" name="minTrustTier" defaultValue="" className="w-full">
-              <NativeSelectOption value="">Any neighbour</NativeSelectOption>
-              <NativeSelectOption value="building">Building or higher</NativeSelectOption>
-              <NativeSelectOption value="trusted">Trusted or higher</NativeSelectOption>
-              <NativeSelectOption value="highly_trusted">Highly trusted only</NativeSelectOption>
-            </NativeSelect>
-            <FieldDescription>Borrowers see this requirement before requesting the item.</FieldDescription>
-          </Field>) : null}
+          {kind === "item" ? (
+            <Field>
+              <FieldLabel htmlFor="minimum-trust">
+                Minimum trust tier
+              </FieldLabel>
+              <NativeSelect
+                id="minimum-trust"
+                name="minTrustTier"
+                defaultValue=""
+                className="w-full"
+              >
+                <NativeSelectOption value="">Any neighbour</NativeSelectOption>
+                <NativeSelectOption value="building">
+                  Building or higher
+                </NativeSelectOption>
+                <NativeSelectOption value="trusted">
+                  Trusted or higher
+                </NativeSelectOption>
+                <NativeSelectOption value="highly_trusted">
+                  Highly trusted only
+                </NativeSelectOption>
+              </NativeSelect>
+              <FieldDescription>
+                Borrowers see this requirement before requesting the item.
+              </FieldDescription>
+            </Field>
+          ) : null}
           <Field>
             <FieldLabel htmlFor="handover-option">Handover</FieldLabel>
-            <Input id="handover-option" name="handoverOptions" defaultValue="Meet in a shared space" required />
-            <FieldDescription>Name a shared space, like the lobby or Dewan Komuniti. Never a private address.</FieldDescription>
+            <Input
+              id="handover-option"
+              name="handoverOptions"
+              defaultValue="Meet in a shared space"
+              required
+            />
+            <FieldDescription>
+              Name a shared space, like the lobby or Dewan Komuniti. Never a
+              private address.
+            </FieldDescription>
           </Field>
         </fieldset>
       </div>
@@ -324,15 +595,25 @@ export function ItemForm({
               alt=""
               className="border border-hairline bg-sun-tint"
               badge={
-                <span className={`rounded-full px-2.5 py-1 text-sm font-bold text-ink ${kind === "item" && deposit > 0 ? "bg-surface" : "bg-mint-tint"}`}>
-                  {kind === "skill" ? "Skill session" : deposit > 0 ? `RM ${deposit.toFixed(2)} deposit` : "Free"}
+                <span
+                  className={`rounded-full px-2.5 py-1 text-sm font-bold text-ink ${kind === "item" && deposit > 0 ? "bg-surface" : "bg-mint-tint"}`}
+                >
+                  {kind === "skill"
+                    ? "Skill session"
+                    : deposit > 0
+                      ? `RM ${deposit.toFixed(2)} deposit`
+                      : "Free"}
                 </span>
               }
               sizes="22rem"
             />
-            <p className="mt-2 font-display text-lg font-bold text-ink">{draft.title || "Your item title"}</p>
+            <p className="mt-2 font-display text-lg font-bold text-ink">
+              {draft.title || "Your item title"}
+            </p>
             <p className="text-sm text-ink-muted first-letter:uppercase">
-              {draft.condition.replace("_", " ")} · {kind === "skill" ? "session" : `up to ${draft.days || "3"} days`}{categoryName ? ` · ${categoryName}` : ""}
+              {draft.condition.replace("_", " ")} ·{" "}
+              {kind === "skill" ? "session" : `up to ${draft.days || "3"} days`}
+              {categoryName ? ` · ${categoryName}` : ""}
             </p>
           </div>
         </div>
@@ -347,20 +628,40 @@ export function ItemForm({
             <AlertDescription>
               {state.message}{" "}
               {state.itemId ? (
-                <button type="button" className="font-bold underline underline-offset-4" onClick={() => router.push(`/borrow/items/${state.itemId}`)}>
+                <button
+                  type="button"
+                  className="font-bold underline underline-offset-4"
+                  onClick={() => router.push(`/borrow/items/${state.itemId}`)}
+                >
                   View item
                 </button>
               ) : null}
             </AlertDescription>
           </Alert>
         ) : null}
-        <Button type="submit" variant="cta" size="cta" className="w-full" disabled={pending || uploading}>
+        <Button
+          type="submit"
+          variant="cta"
+          size="cta"
+          className="w-full"
+          disabled={pending || uploading || analyzing}
+        >
           {pending ? <Spinner data-icon="inline-start" /> : null}
           List item
         </Button>
         <p className="text-sm text-ink-muted">
-          You earn BetterPoints when a loan is completed and both of you confirm the return.
+          You earn BetterPoints when a loan is completed and both of you confirm
+          the return.
         </p>
+        <PublicImageCropDialog
+          file={cropFile}
+          title="Crop item photo"
+          aspectLabel="portrait 3:4"
+          outputWidth={900}
+          outputHeight={1200}
+          onCancel={() => setCropFile(null)}
+          onConfirm={handlePhoto}
+        />
       </aside>
     </form>
   )

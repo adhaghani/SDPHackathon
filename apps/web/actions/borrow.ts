@@ -25,12 +25,17 @@ export type BorrowActionState = {
 
 function borrowErrorMessage(error: { message: string }): string {
   const message = error.message.toLowerCase()
-  if (message.includes("guide_ack_required")) return "Read the item how-to and tick the acknowledgement before confirming handover."
-  if (message.includes("cannot_book_own_item")) return "You cannot borrow your own item."
-  if (message.includes("dates_unavailable")) return "Those dates are already booked."
+  if (message.includes("guide_ack_required"))
+    return "Read the item how-to and tick the acknowledgement before confirming handover."
+  if (message.includes("cannot_book_own_item"))
+    return "You cannot borrow your own item."
+  if (message.includes("dates_unavailable"))
+    return "Those dates are already booked."
   if (message.includes("loan_too_long")) return "Choose a shorter loan window."
-  if (message.includes("item_not_available")) return "That item is not available."
-  if (message.includes("transition_not_allowed")) return "That action is not available for this booking."
+  if (message.includes("item_not_available"))
+    return "That item is not available."
+  if (message.includes("transition_not_allowed"))
+    return "That action is not available for this booking."
   return "The request could not be completed. Try again."
 }
 
@@ -41,6 +46,8 @@ export async function createItem(
   const parsed = itemFormSchema.safeParse({
     title: formData.get("title"),
     description: formData.get("description"),
+    guideBody: formData.get("guideBody") || "",
+    guideSafetyNote: formData.get("guideSafetyNote") || "",
     categorySlug: formData.get("categorySlug"),
     kind: formData.get("kind") || "item",
     condition: formData.get("condition"),
@@ -55,7 +62,8 @@ export async function createItem(
     photoPath: formData.get("photoPath") || undefined,
     durationMinutes: formData.get("durationMinutes") || undefined,
     meetingFacilityId: formData.get("meetingFacilityId") || "",
-    meetingArrangement: formData.get("meetingArrangement") || "arranged_by_message",
+    meetingArrangement:
+      formData.get("meetingArrangement") || "arranged_by_message",
     guardianAcknowledgement: formData.get("guardianAcknowledgement") === "on",
   })
 
@@ -74,7 +82,8 @@ export async function createItem(
     .select("id")
     .eq("slug", parsed.data.categorySlug)
     .single()
-  if (category.error || !category.data) return { status: "error", message: "Choose a valid category." }
+  if (category.error || !category.data)
+    return { status: "error", message: "Choose a valid category." }
 
   const { data, error } = await supabase.rpc("create_item", {
     p_payload: {
@@ -86,9 +95,10 @@ export async function createItem(
       photo_paths: [parsed.data.photoPath || "/demo/item-placeholder.svg"],
       kind: parsed.data.kind,
       estimated_new_price_rm: parsed.data.estimatedNewPriceRm ?? null,
-      value_source: parsed.data.estimatedNewPriceRm == null
-        ? "category_default"
-        : parsed.data.valueSource,
+      value_source:
+        parsed.data.estimatedNewPriceRm == null
+          ? "category_default"
+          : parsed.data.valueSource,
       requires_deposit: parsed.data.requiresDeposit,
       deposit_rm: parsed.data.depositRm,
       allow_deposit_waiver: parsed.data.allowDepositWaiver,
@@ -99,6 +109,8 @@ export async function createItem(
       guardian_acknowledgement: parsed.data.guardianAcknowledgement,
       max_loan_days: parsed.data.maxLoanDays,
       handover_options: parsed.data.handoverOptions,
+      guide_body: parsed.data.guideBody,
+      guide_safety_note: parsed.data.guideSafetyNote,
     },
   })
   if (error) return { status: "error", message: borrowErrorMessage(error) }
@@ -140,7 +152,8 @@ export async function searchBorrowItems(formData: FormData): Promise<void> {
     .eq("hidden", false)
 
   const normalizedTerm = normalizeSearchTerm(parsed.data.q)
-  if (normalizedTerm) countQuery = countQuery.ilike("title", `%${normalizedTerm}%`)
+  if (normalizedTerm)
+    countQuery = countQuery.ilike("title", `%${normalizedTerm}%`)
   if (categoryId) countQuery = countQuery.eq("category_id", categoryId)
   if (parsed.data.free === "true") countQuery = countQuery.eq("deposit_rm", 0)
 
@@ -198,7 +211,11 @@ export async function requestBooking(
   const result = data as { booking_id?: string }
   revalidatePath("/borrow")
   revalidatePath("/borrow/mine")
-  return { status: "success", message: "Request sent.", bookingId: result.booking_id }
+  return {
+    status: "success",
+    message: "Request sent.",
+    bookingId: result.booking_id,
+  }
 }
 
 export async function transitionBooking(
@@ -211,7 +228,9 @@ export async function transitionBooking(
     wouldHaveBought: formData.get("wouldHaveBought") || undefined,
     handoverNote: formData.get("handoverNote") || undefined,
     returnNote: formData.get("returnNote") || undefined,
-    guideAcknowledged: formData.get("guideAcknowledged") === "on" || formData.get("guideAcknowledged") === "true",
+    guideAcknowledged:
+      formData.get("guideAcknowledged") === "on" ||
+      formData.get("guideAcknowledged") === "true",
     returnCondition: formData.get("returnCondition") || "good",
     returnConditionReason: formData.get("returnConditionReason") || "",
   })
@@ -229,12 +248,17 @@ export async function transitionBooking(
       p_booking_id: parsed.data.bookingId,
       p_details: parsed.data.returnConditionReason,
     })
-    if (error) return { status: "error", message: "That return rating can no longer be contested." }
+    if (error)
+      return {
+        status: "error",
+        message: "That return rating can no longer be contested.",
+      }
     revalidatePath(`/borrow/bookings/${parsed.data.bookingId}`)
     revalidatePath("/admin/disputes")
     return {
       status: "success",
-      message: "The rating is contested. Its trust effect is frozen until the township office reviews it.",
+      message:
+        "The rating is contested. Its trust effect is frozen until the township office reviews it.",
       bookingId: parsed.data.bookingId,
     }
   }
@@ -247,16 +271,26 @@ export async function transitionBooking(
     if (error) return { status: "error", message: borrowErrorMessage(error) }
     revalidatePath(`/borrow/bookings/${parsed.data.bookingId}`)
     revalidatePath("/borrow/mine")
-    return { status: "success", message: "Issue reported. The township office will review it.", bookingId: parsed.data.bookingId }
+    return {
+      status: "success",
+      message: "Issue reported. The township office will review it.",
+      bookingId: parsed.data.bookingId,
+    }
   }
 
   const { data, error } = await supabase.rpc("transition_booking", {
     p_booking_id: parsed.data.bookingId,
     p_action: parsed.data.action,
     p_payload: {
-      ...(parsed.data.wouldHaveBought ? { would_have_bought: parsed.data.wouldHaveBought } : {}),
-      ...(parsed.data.handoverNote ? { handover_note: parsed.data.handoverNote } : {}),
-      ...(parsed.data.returnNote ? { return_note: parsed.data.returnNote } : {}),
+      ...(parsed.data.wouldHaveBought
+        ? { would_have_bought: parsed.data.wouldHaveBought }
+        : {}),
+      ...(parsed.data.handoverNote
+        ? { handover_note: parsed.data.handoverNote }
+        : {}),
+      ...(parsed.data.returnNote
+        ? { return_note: parsed.data.returnNote }
+        : {}),
       guide_acknowledged: parsed.data.guideAcknowledged,
       return_condition: parsed.data.returnCondition,
       return_condition_reason: parsed.data.returnConditionReason,
@@ -264,7 +298,10 @@ export async function transitionBooking(
   })
   if (error) return { status: "error", message: borrowErrorMessage(error) }
 
-  const result = data as { status?: string; lender_points?: { delta?: number } | null }
+  const result = data as {
+    status?: string
+    lender_points?: { delta?: number } | null
+  }
   revalidatePath(`/borrow/bookings/${parsed.data.bookingId}`)
   revalidatePath("/borrow/mine")
   revalidatePath("/home")
@@ -296,7 +333,11 @@ export async function sendBookingMessage(
     p_booking_id: parsed.data.bookingId,
     p_body: parsed.data.body,
   })
-  if (error) return { status: "error", message: "Only the two booking participants can use this chat." }
+  if (error)
+    return {
+      status: "error",
+      message: "Only the two booking participants can use this chat.",
+    }
 
   revalidatePath(`/borrow/bookings/${parsed.data.bookingId}`)
   return { status: "success", message: "Message sent." }

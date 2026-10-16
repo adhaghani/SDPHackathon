@@ -4,7 +4,7 @@ import { useActionState, useState } from "react"
 import { useRouter } from "next/navigation"
 
 import { createEvent } from "@/actions/events"
-import { prepareImageForUpload } from "@/lib/media"
+import { PublicImageCropDialog } from "@/components/shared/public-image-crop-dialog"
 import { getBrowserClient } from "@/lib/supabase/browser"
 import { Alert, AlertDescription } from "@workspace/ui/components/alert"
 import { Button } from "@workspace/ui/components/button"
@@ -20,12 +20,20 @@ import {
 import { DateField } from "@/components/forms/date-field"
 import { DateTimeField } from "@/components/forms/date-time-field"
 import { Input } from "@workspace/ui/components/input"
-import { NativeSelect, NativeSelectOption } from "@workspace/ui/components/native-select"
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from "@workspace/ui/components/native-select"
 import { Spinner } from "@workspace/ui/components/spinner"
 import { Textarea } from "@workspace/ui/components/textarea"
 
 const idleState = { status: "idle" } as const
-const accessibilityOptions = ["step-free", "seated or low-impact", "quiet", "family-friendly"]
+const accessibilityOptions = [
+  "step-free",
+  "seated or low-impact",
+  "quiet",
+  "family-friendly",
+]
 const languageOptions = ["English", "Bahasa Malaysia", "Mandarin", "Tamil"]
 
 export function EventForm({
@@ -39,21 +47,28 @@ export function EventForm({
   const [coverMessage, setCoverMessage] = useState<string | null>(null)
 
   const [uploading, setUploading] = useState(false)
+  const [cropFile, setCropFile] = useState<File | null>(null)
 
-  async function handleCover(file: File | undefined) {
-    if (!file) return
+  async function handleCover(blob: Blob) {
     setUploading(true)
     setCoverMessage("Uploading image…")
     try {
-      const blob = await prepareImageForUpload(file, { maxDimension: 1200, quality: 0.82 })
       const path = `events/${crypto.randomUUID()}.webp`
-      const { error } = await getBrowserClient().storage.from("item-photos").upload(path, blob, { upsert: true })
+      const { error } = await getBrowserClient()
+        .storage.from("item-photos")
+        .upload(path, blob, { upsert: true })
       if (error) throw error
-      const { data } = getBrowserClient().storage.from("item-photos").getPublicUrl(path)
+      const { data } = getBrowserClient()
+        .storage.from("item-photos")
+        .getPublicUrl(path)
       setCoverPath(data.publicUrl)
       setCoverMessage("Cover image compressed and uploaded.")
+      setCropFile(null)
     } catch {
-      setCoverMessage("Cover upload failed. Please try again. Your previous image is unchanged.")
+      setCropFile(null)
+      setCoverMessage(
+        "Cover upload failed. Please try again. Your previous image is unchanged."
+      )
     } finally {
       setUploading(false)
     }
@@ -70,14 +85,37 @@ export function EventForm({
             type="file"
             disabled={uploading || pending}
             accept="image/png,image/jpeg,image/webp"
-            onChange={(event) => void handleCover(event.target.files?.[0])}
+            onChange={(event) => {
+              const file = event.target.files?.[0]
+              event.target.value = ""
+              if (file) setCropFile(file)
+            }}
           />
-          <FieldDescription>Optional. Images are compressed before upload; a themed poster is used as a fallback.</FieldDescription>
-          {coverMessage ? <p className="text-sm text-muted-foreground">{coverMessage}</p> : null}
+          <FieldDescription>
+            Optional. Images are compressed before upload; a themed poster is
+            used as a fallback.
+          </FieldDescription>
+          {coverMessage ? (
+            <p className="text-sm text-muted-foreground">{coverMessage}</p>
+          ) : null}
         </Field>
+        <PublicImageCropDialog
+          file={cropFile}
+          title="Crop event cover"
+          aspectLabel="portrait 3:4"
+          outputWidth={900}
+          outputHeight={1200}
+          onCancel={() => setCropFile(null)}
+          onConfirm={handleCover}
+        />
         <Field data-invalid={Boolean(state.fieldErrors?.title)}>
           <FieldLabel htmlFor="title">Event title</FieldLabel>
-          <Input id="title" name="title" required aria-invalid={Boolean(state.fieldErrors?.title)} />
+          <Input
+            id="title"
+            name="title"
+            required
+            aria-invalid={Boolean(state.fieldErrors?.title)}
+          />
           <FieldError>{state.fieldErrors?.title?.[0]}</FieldError>
         </Field>
         <Field>
@@ -86,7 +124,12 @@ export function EventForm({
         </Field>
         <Field data-invalid={Boolean(state.fieldErrors?.categorySlug)}>
           <FieldLabel htmlFor="categorySlug">Category</FieldLabel>
-          <NativeSelect id="categorySlug" name="categorySlug" className="w-full" required>
+          <NativeSelect
+            id="categorySlug"
+            name="categorySlug"
+            className="w-full"
+            required
+          >
             <NativeSelectOption value="">Choose a category</NativeSelectOption>
             {categories.map((category) => (
               <NativeSelectOption key={category.id} value={category.slug}>
@@ -115,46 +158,94 @@ export function EventForm({
         <div className="grid gap-4 sm:grid-cols-3">
           <Field>
             <FieldLabel htmlFor="event-recurrence">Repeat</FieldLabel>
-            <NativeSelect id="event-recurrence" name="recurrence" defaultValue="none" className="w-full">
-              <NativeSelectOption value="none">Does not repeat</NativeSelectOption>
+            <NativeSelect
+              id="event-recurrence"
+              name="recurrence"
+              defaultValue="none"
+              className="w-full"
+            >
+              <NativeSelectOption value="none">
+                Does not repeat
+              </NativeSelectOption>
               <NativeSelectOption value="weekly">Weekly</NativeSelectOption>
               <NativeSelectOption value="monthly">Monthly</NativeSelectOption>
             </NativeSelect>
           </Field>
           <Field>
-            <FieldLabel htmlFor="event-recurrence-until">Repeat until</FieldLabel>
-            <DateField id="event-recurrence-until" name="recurrenceUntil" label="Repeat until" />
+            <FieldLabel htmlFor="event-recurrence-until">
+              Repeat until
+            </FieldLabel>
+            <DateField
+              id="event-recurrence-until"
+              name="recurrenceUntil"
+              label="Repeat until"
+            />
           </Field>
           <Field>
-            <FieldLabel htmlFor="event-recurrence-interval">Interval days</FieldLabel>
-            <Input id="event-recurrence-interval" name="recurrenceIntervalDays" type="number" min="1" max="60" placeholder="7" />
+            <FieldLabel htmlFor="event-recurrence-interval">
+              Interval days
+            </FieldLabel>
+            <Input
+              id="event-recurrence-interval"
+              name="recurrenceIntervalDays"
+              type="number"
+              min="1"
+              max="60"
+              placeholder="7"
+            />
           </Field>
         </div>
         <Field data-invalid={Boolean(state.fieldErrors?.locationText)}>
           <FieldLabel htmlFor="locationText">Shared location</FieldLabel>
-          <Input id="locationText" name="locationText" placeholder="Clubhouse lawn" required />
-          <FieldDescription>Use a shared space, never a private address.</FieldDescription>
+          <Input
+            id="locationText"
+            name="locationText"
+            placeholder="Clubhouse lawn"
+            required
+          />
+          <FieldDescription>
+            Use a shared space, never a private address.
+          </FieldDescription>
           <FieldError>{state.fieldErrors?.locationText?.[0]}</FieldError>
         </Field>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field>
             <FieldLabel htmlFor="capacity">Capacity</FieldLabel>
-            <Input id="capacity" name="capacity" type="number" min="1" placeholder="40" />
+            <Input
+              id="capacity"
+              name="capacity"
+              type="number"
+              min="1"
+              placeholder="40"
+            />
             <FieldDescription>Leave blank for unlimited.</FieldDescription>
           </Field>
           <Field>
             <FieldLabel htmlFor="volunteerSlots">Volunteer slots</FieldLabel>
-            <Input id="volunteerSlots" name="volunteerSlots" type="number" min="0" placeholder="8" />
+            <Input
+              id="volunteerSlots"
+              name="volunteerSlots"
+              type="number"
+              min="0"
+              placeholder="8"
+            />
           </Field>
         </div>
       </FieldGroup>
 
       <FieldSet aria-label="Accessibility and language">
-        <legend className="font-display text-base font-bold">Access and language</legend>
+        <legend className="font-display text-base font-bold">
+          Access and language
+        </legend>
         <div className="grid gap-3 sm:grid-cols-2">
           {accessibilityOptions.map((option) => (
             <Field key={option} orientation="horizontal">
-              <Checkbox id={`access-${option}`} name="accessibilityTags" value={option} aria-label={option} />
+              <Checkbox
+                id={`access-${option}`}
+                name="accessibilityTags"
+                value={option}
+                aria-label={option}
+              />
               <FieldLabel htmlFor={`access-${option}`}>{option}</FieldLabel>
             </Field>
           ))}
@@ -162,7 +253,13 @@ export function EventForm({
         <div className="grid gap-3 sm:grid-cols-2">
           {languageOptions.map((option) => (
             <Field key={option} orientation="horizontal">
-              <Checkbox id={`language-${option}`} name="languages" value={option} defaultChecked={option === "English"} aria-label={option} />
+              <Checkbox
+                id={`language-${option}`}
+                name="languages"
+                value={option}
+                defaultChecked={option === "English"}
+                aria-label={option}
+              />
               <FieldLabel htmlFor={`language-${option}`}>{option}</FieldLabel>
             </Field>
           ))}
@@ -191,7 +288,12 @@ export function EventForm({
         </Alert>
       ) : null}
 
-      <Button type="submit" variant="cta" className="h-11" disabled={pending || uploading}>
+      <Button
+        type="submit"
+        variant="cta"
+        className="h-11"
+        disabled={pending || uploading}
+      >
         {pending ? <Spinner data-icon="inline-start" /> : null}
         Create event
       </Button>

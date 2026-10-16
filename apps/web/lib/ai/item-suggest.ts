@@ -4,6 +4,8 @@ export type ListingSuggestion = {
   estimatedValueRm: number | null
   condition: "like_new" | "good" | "fair"
   description: string
+  guideBody: string
+  safetyNote: string
   source: "ai" | "fallback"
 }
 
@@ -29,25 +31,35 @@ export function fallbackSuggestion(fileName: string): ListingSuggestion {
     estimatedValueRm: null,
     condition: "good",
     description: "",
+    guideBody: "",
+    safetyNote: "",
     source: "fallback",
   }
 }
 
-export function parseListingSuggestion(value: string): ListingSuggestion | null {
+export function parseListingSuggestion(
+  value: string
+): ListingSuggestion | null {
   try {
     const start = value.indexOf("{")
     const end = value.lastIndexOf("}")
     if (start < 0 || end <= start) return null
-    const parsed = JSON.parse(value.slice(start, end + 1)) as Record<string, unknown>
-    const title = typeof parsed.title === "string" ? parsed.title.trim().slice(0, 100) : ""
+    const parsed = JSON.parse(value.slice(start, end + 1)) as Record<
+      string,
+      unknown
+    >
+    const title =
+      typeof parsed.title === "string" ? parsed.title.trim().slice(0, 100) : ""
     if (!title) return null
     const categorySlug =
-      typeof parsed.category === "string" && CATEGORY_SLUGS.includes(parsed.category)
+      typeof parsed.category === "string" &&
+      CATEGORY_SLUGS.includes(parsed.category)
         ? parsed.category
         : ""
-    const estimated = typeof parsed.estimated_value_rm === "number"
-      ? parsed.estimated_value_rm
-      : NaN
+    const estimated =
+      typeof parsed.estimated_value_rm === "number"
+        ? parsed.estimated_value_rm
+        : NaN
     const condition =
       parsed.condition === "like_new" || parsed.condition === "fair"
         ? parsed.condition
@@ -55,10 +67,21 @@ export function parseListingSuggestion(value: string): ListingSuggestion | null 
     return {
       title,
       categorySlug,
-      estimatedValueRm: Number.isFinite(estimated) && estimated >= 0 ? estimated : null,
+      estimatedValueRm:
+        Number.isFinite(estimated) && estimated >= 0 ? estimated : null,
       condition,
       description:
-        typeof parsed.description === "string" ? parsed.description.trim().slice(0, 1200) : "",
+        typeof parsed.description === "string"
+          ? parsed.description.trim().slice(0, 1200)
+          : "",
+      guideBody:
+        typeof parsed.guide_body === "string"
+          ? parsed.guide_body.trim().slice(0, 1000)
+          : "",
+      safetyNote:
+        typeof parsed.safety_note === "string"
+          ? parsed.safety_note.trim().slice(0, 600)
+          : "",
       source: "ai",
     }
   } catch {

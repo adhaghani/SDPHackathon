@@ -156,7 +156,7 @@ export default async function EventDetailPage({
           src={event.cover_path ?? "/demo/event-placeholder.svg"}
           alt=""
           priority
-          ratio="aspect-[4/3] lg:aspect-[3/4]"
+          ratio="aspect-[3/4]"
           sizes="(min-width: 1280px) 22rem, (min-width: 1024px) 17rem, (min-width: 768px) 60vw, 100vw"
         />
 

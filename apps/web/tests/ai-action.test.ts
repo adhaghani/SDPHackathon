@@ -1,9 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-const mocks = vi.hoisted(() => ({ member: vi.fn(), suggest: vi.fn() }))
+const mocks = vi.hoisted(() => ({
+  member: vi.fn(),
+  suggest: vi.fn(),
+  suggestGiveaway: vi.fn(),
+}))
 vi.mock("@/lib/data", () => ({ requireActiveMember: mocks.member }))
-vi.mock("@/lib/ai", () => ({ suggestListingFromPhoto: mocks.suggest }))
-import { suggestListing } from "@/actions/ai"
+vi.mock("@/lib/ai", () => ({
+  suggestListingFromPhoto: mocks.suggest,
+  suggestGiveawayFromPhoto: mocks.suggestGiveaway,
+}))
+import { suggestGiveawayListing, suggestListing } from "@/actions/ai"
 
 beforeEach(() => vi.resetAllMocks())
 
@@ -26,6 +33,22 @@ describe("photo suggestion action", () => {
     mocks.suggest.mockResolvedValue({ source: "ai", title: "Drill" })
     expect(await suggestListing({ status: "idle" }, photoForm())).toMatchObject({
       status: "success", suggestion: { title: "Drill", source: "ai" },
+    })
+  })
+
+  it("returns giveaway-specific suggestions for an active member", async () => {
+    mocks.member.mockResolvedValue({})
+    mocks.suggestGiveaway.mockResolvedValue({
+      source: "ai",
+      title: "Desk fan",
+      condition: "worn",
+    })
+
+    expect(
+      await suggestGiveawayListing({ status: "idle" }, photoForm())
+    ).toMatchObject({
+      status: "success",
+      suggestion: { title: "Desk fan", condition: "worn", source: "ai" },
     })
   })
 })

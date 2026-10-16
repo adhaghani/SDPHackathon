@@ -154,7 +154,7 @@ function HelpConversation({
     <div className="grid min-w-0 gap-7 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
       <section
         aria-labelledby="ask-help-heading"
-        className="flex h-[min(700px,calc(100dvh-18rem))] min-h-[480px] min-w-0 flex-col overflow-hidden rounded-[22px] border border-hairline bg-surface"
+        className="flex h-[min(760px,calc(100dvh-7rem))] min-h-[640px] min-w-0 flex-col overflow-hidden rounded-[22px] border border-hairline bg-surface lg:h-[min(700px,calc(100dvh-18rem))] lg:min-h-[480px]"
       >
         <header className="flex items-center justify-between gap-3 border-b border-hairline p-4 sm:px-6">
           <div>

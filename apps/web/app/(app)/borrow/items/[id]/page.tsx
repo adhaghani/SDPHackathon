@@ -1,16 +1,23 @@
 import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { CalendarRangeIcon, ChevronLeftIcon, HandshakeIcon, ShieldCheckIcon, TagIcon, WalletIcon } from "lucide-react"
+import {
+  CalendarRangeIcon,
+  HandshakeIcon,
+  ShieldCheckIcon,
+  TagIcon,
+  WalletIcon,
+} from "lucide-react"
 
 import { HandoverSpot } from "@/components/block/handover-spot"
 import { HandoverSteps } from "@/components/block/handover-steps"
 import { SectionRetry } from "@/components/home/section-retry"
 import { ItemBookingFlow } from "@/components/block/item-booking-flow"
 import { SaveItemButton } from "@/components/block/save-item-button"
-import { ItemGuideForm } from "@/components/borrow/item-guide-form"
+import { ItemGuideDialog } from "@/components/borrow/item-guide-dialog"
 import { ReportForm } from "@/components/reports/report-form"
 import { MediaPoster } from "@/components/shared/media-poster"
+import { PageBand } from "@/components/shared/page-band"
 import { requireActiveMember } from "@/lib/data"
 import { getSavedItemIds } from "@/lib/saved-items"
 import { isDemoMode } from "@/lib/env"
@@ -30,7 +37,9 @@ export default async function ItemDetailPage({
   const [itemResult, bookingsResult] = await Promise.all([
     supabase
       .from("items")
-      .select("id,title,description,condition,photo_paths,deposit_rm,estimated_new_price_rm,max_loan_days,handover_options,owner_id,category_id,kind,value_source,requires_deposit,allow_deposit_waiver,min_trust_tier,duration_minutes,meeting_arrangement,guardian_acknowledgement,item_categories(name,slug,typical_new_price_rm,hourly_rate_rm)")
+      .select(
+        "id,title,description,condition,photo_paths,deposit_rm,estimated_new_price_rm,max_loan_days,handover_options,owner_id,category_id,kind,value_source,requires_deposit,allow_deposit_waiver,min_trust_tier,duration_minutes,meeting_arrangement,guardian_acknowledgement,item_categories(name,slug,typical_new_price_rm,hourly_rate_rm)"
+      )
       .eq("id", id)
       .eq("township_id", active.townshipId)
       .maybeSingle(),
@@ -40,8 +49,19 @@ export default async function ItemDetailPage({
   const item = itemResult.data
   const isOwner = item.owner_id === active.user.id
 
-  const [ownerResult, relatedResult, guideResult, historyResult, valueResult, lenderHistoryResult] = await Promise.all([
-    supabase.from("public_profiles").select("display_name").eq("id", item.owner_id).maybeSingle(),
+  const [
+    ownerResult,
+    relatedResult,
+    guideResult,
+    historyResult,
+    valueResult,
+    lenderHistoryResult,
+  ] = await Promise.all([
+    supabase
+      .from("public_profiles")
+      .select("display_name")
+      .eq("id", item.owner_id)
+      .maybeSingle(),
     supabase
       .from("items")
       .select("id,title,photo_paths,deposit_rm,max_loan_days")
@@ -74,180 +94,248 @@ export default async function ItemDetailPage({
 
   const guide = guideResult.data
   const photo = item.photo_paths?.[0] ?? "/demo/item-placeholder.svg"
+  const isDemoArtwork = photo.startsWith("/demo/")
   const free = Number(item.deposit_rm) === 0
   const lender = ownerResult.data?.display_name ?? "A neighbour"
   const handoverPlace = item.handover_options?.[0] ?? "a shared township space"
   const lenderCompleted = lenderHistoryResult.data ?? []
-  const allConfirmed = lenderCompleted.filter((booking) => booking.lender_return_confirmed_at && booking.borrower_return_marked_at).length
+  const allConfirmed = lenderCompleted.filter(
+    (booking) =>
+      booking.lender_return_confirmed_at && booking.borrower_return_marked_at
+  ).length
   const trustLine = lenderCompleted.length
     ? `Lent ${lenderCompleted.length} ${lenderCompleted.length === 1 ? "time" : "times"} · ${allConfirmed} returns confirmed by both`
     : "New lender · shared-space handover"
 
   const facts = [
-    { icon: TagIcon, label: "Condition", value: item.condition.replaceAll("_", " ") },
-    { icon: CalendarRangeIcon, label: "Loan limit", value: `Up to ${item.max_loan_days} ${item.max_loan_days === 1 ? "day" : "days"}` },
+    {
+      icon: TagIcon,
+      label: "Condition",
+      value: item.condition.replaceAll("_", " "),
+    },
+    {
+      icon: CalendarRangeIcon,
+      label: "Loan limit",
+      value: `Up to ${item.max_loan_days} ${item.max_loan_days === 1 ? "day" : "days"}`,
+    },
     {
       icon: WalletIcon,
       label: "Deposit",
-      value: free ? "None" : `${formatMoney(item.deposit_rm)}, arranged in person`,
+      value: free
+        ? "None"
+        : `${formatMoney(item.deposit_rm)}, arranged in person`,
     },
     { icon: HandshakeIcon, label: "Handover", value: handoverPlace },
     {
       icon: ShieldCheckIcon,
       label: "Trust requirement",
-      value: item.min_trust_tier ? `${trustTierLabel(item.min_trust_tier)} or higher` : "Any neighbour",
+      value: item.min_trust_tier
+        ? `${trustTierLabel(item.min_trust_tier)} or higher`
+        : "Any neighbour",
     },
     ...(item.kind === "skill"
-      ? [{ icon: CalendarRangeIcon, label: "Session duration", value: `${item.duration_minutes ?? 60} minutes` }]
+      ? [
+          {
+            icon: CalendarRangeIcon,
+            label: "Session duration",
+            value: `${item.duration_minutes ?? 60} minutes`,
+          },
+        ]
       : []),
   ]
   const related = relatedResult.data ?? []
 
   return (
-    <div className="-mx-4 overflow-hidden rounded-none bg-sky text-ink sm:-mx-6 md:mx-0 md:rounded-[32px]">
-      <div className="relative h-[270px]">
-        <div className="absolute top-4 left-4 z-10">
-          <Link
-            href="/borrow"
-            aria-label="Back"
-            className="grid size-11 place-items-center rounded-full bg-white text-ink"
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-7 text-ink">
+      <PageBand
+        back={{ href: "/borrow", label: "Borrow" }}
+        eyebrow={`Pinjam · ${item.item_categories?.name ?? item.kind}`}
+        title={item.title}
+        description={`Shared by ${lender} in ${active.membership.townships?.name ?? "your township"}.`}
+      />
+
+      <section className="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(22rem,.95fr)] lg:items-start">
+        <div
+          className={
+            isDemoArtwork
+              ? "relative aspect-[4/3] overflow-hidden rounded-[24px] bg-paper"
+              : "relative mx-auto aspect-[3/4] w-full max-w-lg overflow-hidden rounded-[24px] bg-paper"
+          }
+        >
+          <div className="absolute top-4 right-4 z-10">
+            <SaveItemButton
+              itemId={item.id}
+              initiallySaved={savedItemIds.includes(item.id)}
+            />
+          </div>
+          <Image
+            unoptimized
+            src={photo}
+            alt={item.title}
+            fill
+            priority
+            sizes="(min-width: 1024px) 52vw, 100vw"
+            className={
+              isDemoArtwork ? "object-cover" : "object-contain p-4 sm:p-6"
+            }
+          />
+        </div>
+
+        <div className="flex min-w-0 flex-col gap-5">
+          <div className="flex items-center gap-2.5">
+            <span
+              aria-hidden="true"
+              className="grid size-10 place-items-center rounded-full bg-mustard text-sm font-bold"
+            >
+              {lender.slice(0, 1).toUpperCase()}
+            </span>
+            <div className="min-w-0">
+              <div className="truncate text-[15px] leading-5 font-bold">
+                {lender} · {active.membership.townships?.name ?? "Township"}
+              </div>
+              <div className="text-[13px] leading-[18px] text-ink-soft">
+                {trustLine}
+              </div>
+            </div>
+          </div>
+
+          {item.description ? (
+            <p className="max-w-[70ch] text-[15px] leading-6 whitespace-pre-line text-ink-soft">
+              {item.description}
+            </p>
+          ) : null}
+
+          <dl className="grid gap-4 sm:grid-cols-2">
+            {facts.map(({ icon: Icon, label, value }) => (
+              <div key={label} className="flex gap-3">
+                <span
+                  aria-hidden="true"
+                  className="grid size-10 shrink-0 place-items-center rounded-[14px] bg-paper"
+                >
+                  <Icon className="size-5 text-ink" strokeWidth={1.8} />
+                </span>
+                <div className="min-w-0">
+                  <dt className="text-sm text-ink-soft">{label}</dt>
+                  <dd className="font-bold first-letter:uppercase">{value}</dd>
+                </div>
+              </div>
+            ))}
+          </dl>
+
+          {bookingsResult.error ? (
+            <SectionRetry label="Loan availability" />
+          ) : (
+            <ItemBookingFlow
+              itemId={item.id}
+              handoverOptions={
+                item.handover_options?.length
+                  ? item.handover_options
+                  : ["Meet in a shared space"]
+              }
+              maxLoanDays={item.max_loan_days}
+              bookings={bookingsResult.data ?? []}
+              isOwner={isOwner}
+            />
+          )}
+        </div>
+      </section>
+
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(20rem,.9fr)] lg:items-start">
+        <div className="flex flex-col gap-6">
+          <HandoverSpot place={handoverPlace} />
+          <section className="bb-card p-5 sm:p-6">
+            <h2 className="text-h2">How borrowing works</h2>
+            <div className="mt-4">
+              <HandoverSteps currentStep={0} />
+            </div>
+          </section>
+        </div>
+
+        <div className="flex flex-col gap-5">
+          <section
+            aria-labelledby="guide-heading"
+            className="bb-card p-5 sm:p-6"
           >
-            <ChevronLeftIcon aria-hidden="true" className="size-[22px]" strokeWidth={2.25} />
-          </Link>
+            <h2 id="guide-heading" className="text-h2">
+              How-to guide
+            </h2>
+            <p className="mt-2 text-sm text-ink-soft">
+              {guide
+                ? "Read the owner's instructions before arranging the handover."
+                : isOwner
+                  ? "Add clear instructions before handing this item over."
+                  : "The owner has not uploaded a how-to guide yet."}
+            </p>
+            {guide || isOwner ? (
+              <div className="mt-4">
+                <ItemGuideDialog
+                  itemId={item.id}
+                  guide={guide}
+                  isOwner={isOwner}
+                />
+              </div>
+            ) : null}
+          </section>
+
+          <div className="rounded-[20px] bg-lime p-5 text-sm text-ink">
+            <ShieldCheckIcon aria-hidden="true" className="mb-2 size-5" />
+            <strong>Borrow safely.</strong> Meet in shared spaces like the lobby
+            or Dewan Komuniti. Never share bank or ID details.
+          </div>
         </div>
-        <div className="absolute top-4 right-4 z-10">
-          <SaveItemButton itemId={item.id} initiallySaved={savedItemIds.includes(item.id)} />
-        </div>
-        <Image unoptimized
-          src={photo}
-          alt={item.title}
-          fill
-          priority
-          sizes="(min-width: 768px) 50vw, 100vw"
-          className="object-contain p-12 mix-blend-multiply"
-        />
       </div>
 
-      <section className="relative -mt-6 min-h-[600px] rounded-t-[32px] bg-white px-5 pt-6 pb-10 text-ink sm:px-7 md:px-10">
-        <div className="flex flex-col gap-2">
-          <span className="inline-flex w-fit rounded-[6px] bg-sky px-2 py-0.5 text-[11px] leading-4 font-bold tracking-[0.06em] uppercase">
-            PINJAM · {item.item_categories?.name ?? item.kind}
-          </span>
-          <h1 className="text-h1 text-balance">{item.title}</h1>
-          <div className="flex items-center gap-2.5">
-            <span aria-hidden="true" className="grid size-9 place-items-center rounded-full bg-mustard text-sm font-bold">{lender.slice(0, 1).toUpperCase()}</span>
-            <div>
-              <div className="text-[15px] leading-5 font-bold">{lender} · {active.membership.townships?.name ?? "Township"}</div>
-              <div className="text-[13px] leading-[18px] text-ink-soft">{trustLine}</div>
-            </div>
-          </div>
+      {!isOwner ? (
+        <div>
+          <ReportForm
+            townshipId={active.townshipId}
+            targetType="item"
+            targetId={item.id}
+          />
         </div>
+      ) : null}
 
-        <div className="mt-[22px]">
-          {bookingsResult.error ? <SectionRetry label="Loan availability" /> : <ItemBookingFlow
-            itemId={item.id}
-            handoverOptions={item.handover_options?.length ? item.handover_options : ["Meet in a shared space"]}
-            maxLoanDays={item.max_loan_days}
-            bookings={bookingsResult.data ?? []}
-            isOwner={isOwner}
-          />}
-        </div>
-
-        <div className="mt-[22px]">
-          <HandoverSpot place={handoverPlace} />
-        </div>
-
-        <section className="mt-[22px]">
-          <h2 className="text-[15px] leading-5 font-bold">How it works</h2>
-          <div className="mt-3">
-            <HandoverSteps currentStep={0} />
+      {related.length ? (
+        <section
+          aria-labelledby="related-heading"
+          className="border-t border-hairline pt-8"
+        >
+          <div className="flex items-baseline justify-between gap-3">
+            <h2 id="related-heading" className="text-h2">
+              More to borrow nearby
+            </h2>
+            <Link
+              href="/borrow"
+              className="text-sm font-bold underline underline-offset-4"
+            >
+              See all
+            </Link>
           </div>
-        </section>
-
-
-        <div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,.85fr)_minmax(0,1.15fr)] lg:gap-12">
-          <div className="flex flex-col gap-6">
-            <section>
-              <h2 className="text-h2">Good to know</h2>
-              <dl className="mt-4 grid gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-1">
-                {facts.map(({ icon: Icon, label, value }) => (
-                  <div key={label} className="flex gap-3">
-                    <span aria-hidden="true" className="grid size-10 shrink-0 place-items-center rounded-[14px] bg-paper">
-                      <Icon className="size-5 text-ink" strokeWidth={1.8} />
-                    </span>
-                    <div className="min-w-0">
-                      <dt className="text-sm text-ink-soft">{label}</dt>
-                      <dd className="font-bold first-letter:uppercase">{value}</dd>
-                    </div>
-                  </div>
-                ))}
-              </dl>
-            </section>
-
-            <div className="rounded-[20px] bg-lime p-4 text-sm text-ink">
-              <ShieldCheckIcon aria-hidden="true" className="mb-2 size-5" />
-              <strong>Borrow safely.</strong> Meet in shared spaces like the lobby or Dewan Komuniti. Never share bank or ID details.
-            </div>
-          </div>
-
-          <section aria-labelledby="guide-heading" className="rounded-[20px] bg-white p-5 sm:p-6">
-            <h2 id="guide-heading" className="text-h2">How to use it</h2>
-            <p className="mt-3 max-w-[70ch] whitespace-pre-line text-[15px] leading-[22px]">{item.description}</p>
-            {guide ? (
-              <div className="mt-5 border-t border-hairline pt-5">
-                <p className="whitespace-pre-line">{guide.body}</p>
-                {guide.photo_paths?.length ? (
-                  <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                    {guide.photo_paths.map((src, index) => (
-                      <a key={src} href={src} target="_blank" rel="noopener noreferrer" className="relative block aspect-[4/3] overflow-hidden rounded-lg bg-paper">
-                        <Image unoptimized src={src} alt={`How-to guide photo ${index + 1}`} fill sizes="(min-width: 640px) 20vw, 100vw" className="object-contain" />
-                      </a>
-                    ))}
-                  </div>
-                ) : null}
-                {guide.safety_note ? (
-                  <p className="mt-3 rounded-[16px] bg-tomato p-3 text-sm">
-                    <strong>Safety:</strong> {guide.safety_note}
+          <ul className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
+            {related.map((other) => (
+              <li key={other.id}>
+                <Link
+                  href={`/borrow/items/${other.id}`}
+                  className="block rounded-[18px]"
+                >
+                  <MediaPoster
+                    src={other.photo_paths?.[0] ?? "/demo/item-placeholder.svg"}
+                    alt=""
+                    className="bg-sky"
+                    sizes="(min-width: 768px) 20vw, 50vw"
+                  />
+                  <p className="mt-2 font-bold">{other.title}</p>
+                  <p className="text-sm text-ink-soft">
+                    {Number(other.deposit_rm) === 0
+                      ? "Free"
+                      : `${formatMoney(other.deposit_rm)} deposit`}
                   </p>
-                ) : null}
-              </div>
-            ) : isOwner ? (
-              <div className="mt-5 border-t border-hairline pt-5">
-                <p className="text-sm text-ink-soft">Add short instructions before handing this item over.</p>
-                <div className="mt-4"><ItemGuideForm itemId={item.id} /></div>
-              </div>
-            ) : (
-              <p className="mt-4 text-sm text-ink-soft">The owner has not added a how-to guide yet.</p>
-            )}
-          </section>
-        </div>
-
-        {!isOwner ? (
-          <div className="mt-8">
-            <ReportForm townshipId={active.townshipId} targetType="item" targetId={item.id} />
-          </div>
-        ) : null}
-
-        {related.length ? (
-          <section aria-labelledby="related-heading" className="mt-12 border-t border-hairline pt-8">
-            <div className="flex items-baseline justify-between gap-3">
-              <h2 id="related-heading" className="text-h2">More to borrow nearby</h2>
-              <Link href="/borrow" className="text-sm font-bold underline underline-offset-4">See all</Link>
-            </div>
-            <ul className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
-              {related.map((other) => (
-                <li key={other.id}>
-                  <Link href={`/borrow/items/${other.id}`} className="block rounded-[18px]">
-                    <MediaPoster src={other.photo_paths?.[0] ?? "/demo/item-placeholder.svg"} alt="" className="bg-sky" sizes="(min-width: 768px) 20vw, 50vw" />
-                    <p className="mt-2 font-bold">{other.title}</p>
-                    <p className="text-sm text-ink-soft">{Number(other.deposit_rm) === 0 ? "Free" : `${formatMoney(other.deposit_rm)} deposit`}</p>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </section>
-        ) : null}
-      </section>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
     </div>
   )
 }

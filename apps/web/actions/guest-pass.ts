@@ -2,11 +2,11 @@
 
 import { revalidatePath } from "next/cache"
 import { headers } from "next/headers"
-import { redirect } from "next/navigation"
 
 import { requireActiveMember } from "@/lib/data"
 import { createClient } from "@/lib/supabase/server"
 import { createGuestPassSecrets, hashToByteaInput, sha256Hex } from "@/lib/guest-pass-token"
+import { decryptGuestPassCredentials, encryptGuestPassCredentials } from "@/lib/guest-pass-sharing"
 import { z } from "zod"
 
 export type GuestPassActionState = {
@@ -15,6 +15,7 @@ export type GuestPassActionState = {
   passId?: string
   token?: string
   shortCode?: string
+  needsReplacement?: boolean
 }
 
 const createSchema = z.object({
@@ -60,7 +61,8 @@ export async function createGuestPass(
 
   const secrets = createGuestPassSecrets()
   const supabase = await createClient()
-  const { data, error } = await supabase.rpc("create_visitor_pass", {
+  const { data, error } = await supabase.rpc("create_shareable_visitor_pass", {
+    p_encrypted_credentials: encryptGuestPassCredentials(secrets, active.user.id),
     p_token_hash: hashToByteaInput(secrets.tokenHash),
     p_short_code_hash: hashToByteaInput(secrets.shortCodeHash),
     p_visitor_name: parsed.data.visitorName,
@@ -90,6 +92,40 @@ export async function createGuestPass(
     passId,
     token: secrets.token,
     shortCode: secrets.shortCode,
+  }
+}
+
+export async function shareGuestPass(
+  _state: GuestPassActionState,
+  formData: FormData
+): Promise<GuestPassActionState> {
+  const parsed = revokeSchema.safeParse({ passId: formData.get("passId") })
+  if (!parsed.success) return errorState("That guest pass is not available.")
+
+  const active = await requireActiveMember()
+  if (active.membership.role === "guard") return errorState("Guards cannot share guest passes.")
+
+  const replacement = formData.get("replaceLink") === "true" ? createGuestPassSecrets() : null
+  const supabase = await createClient()
+  const { data, error } = await supabase.rpc("share_visitor_pass", {
+    p_pass_id: parsed.data.passId,
+    ...(replacement ? {
+      p_encrypted_credentials: encryptGuestPassCredentials(replacement, active.user.id),
+      p_token_hash: hashToByteaInput(replacement.tokenHash),
+      p_short_code_hash: hashToByteaInput(replacement.shortCodeHash),
+    } : {}),
+  })
+  if (error || !data) return errorState("This pass could not be shared. It may have expired or been revoked.")
+
+  const result = data as { encrypted_credentials?: string; needs_replacement?: boolean }
+  if (result.needs_replacement) return { status: "success", needsReplacement: true, passId: parsed.data.passId }
+
+  try {
+    if (!result.encrypted_credentials) return errorState("The share link is not available.")
+    const credentials = decryptGuestPassCredentials(result.encrypted_credentials, active.user.id)
+    return { status: "success", passId: parsed.data.passId, ...credentials }
+  } catch {
+    return errorState("The saved link could not be opened. Please contact support.")
   }
 }
 

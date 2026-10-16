@@ -37,6 +37,7 @@ export default async function HomePage() {
     ticketsResult,
     recyclingSummaryResult,
     recyclingCampaignResult,
+    recyclingGuideResult,
   ] = await Promise.all([
     settleSection(
       supabase
@@ -107,6 +108,16 @@ export default async function HomePage() {
         p_township_id: active.townshipId,
       })
     ),
+    settleSection(
+      supabase
+        .from("points_ledger")
+        .select("id")
+        .eq("user_id", active.user.id)
+        .eq("township_id", active.townshipId)
+        .eq("action_type", "recycling_guide_completed")
+        .limit(1)
+        .maybeSingle()
+    ),
   ])
 
   const savedItemsResult = savedItemIds.length
@@ -173,6 +184,9 @@ export default async function HomePage() {
   const recyclingCampaign = parseRecyclingCampaign(
     (recyclingCampaignResult.data ?? {}) as Record<string, unknown>
   )
+  const recyclingGuideReward =
+    resolveRewardRule(rulesResult.data ?? [], "recycling_guide_completed")
+      ?.points ?? 5
 
   const feed = [
     ...items.slice(0, 1).map((item) => ({
@@ -289,7 +303,11 @@ export default async function HomePage() {
           {recyclingSummaryResult.error ? (
             <SectionRetry label="Your recycling impact" />
           ) : (
-            <RecyclingImpactSummary summary={recyclingSummary} />
+            <RecyclingImpactSummary
+              summary={recyclingSummary}
+              guideCompleted={Boolean(recyclingGuideResult.data)}
+              guideRewardPoints={recyclingGuideReward}
+            />
           )}
           {recyclingCampaignResult.error ? (
             <SectionRetry label="Township recycling goal" />

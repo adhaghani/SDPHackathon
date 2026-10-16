@@ -2,12 +2,17 @@ import "server-only"
 
 import { deterministicAdminSummary } from "@/lib/ai-search"
 
+import {
+  fallbackGiveawaySuggestion,
+  parseGiveawaySuggestion,
+  type GiveawaySuggestion,
+} from "./giveaway-suggest"
 import { fallbackSuggestion, parseListingSuggestion, type ListingSuggestion } from "./item-suggest"
 import { openAICompletion } from "./openai"
 import { redactPersonalData, safeSystemPrompt } from "./privacy"
 import { AI_PROMPTS } from "./prompts"
 
-export type { ListingSuggestion }
+export type { GiveawaySuggestion, ListingSuggestion }
 
 function aiConfig() {
   const apiKey = process.env.AI_API_KEY?.trim()
@@ -68,6 +73,20 @@ export async function suggestListingFromPhoto(
     imageDataUrl
   )
   return (text && parseListingSuggestion(text)) || fallback
+}
+
+export async function suggestGiveawayFromPhoto(
+  imageDataUrl: string,
+  fileName: string
+): Promise<GiveawaySuggestion> {
+  const fallback = fallbackGiveawaySuggestion(fileName)
+  if (!aiConfig()) return fallback
+  const text = await complete(
+    AI_PROMPTS.giveawayPhoto,
+    "Draft a free giveaway listing for the photographed item. Do not mention people, locations, documents, screens, addresses or any personal details visible in the image.",
+    imageDataUrl
+  )
+  return (text && parseGiveawaySuggestion(text)) || fallback
 }
 
 export type HelpArticleContext = {

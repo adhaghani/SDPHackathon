@@ -1,10 +1,11 @@
 "use client"
 
-import { useActionState, useState } from "react"
+import { useActionState, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 
+import { suggestGiveawayListing, type SuggestGiveawayState } from "@/actions/ai"
 import { createGiveaway } from "@/actions/giveaway"
-import { prepareImageForUpload } from "@/lib/media"
+import { PublicImageCropDialog } from "@/components/shared/public-image-crop-dialog"
 import { getBrowserClient } from "@/lib/supabase/browser"
 import { Alert, AlertDescription } from "@workspace/ui/components/alert"
 import { Button } from "@workspace/ui/components/button"
@@ -24,6 +25,7 @@ import { Spinner } from "@workspace/ui/components/spinner"
 import { Textarea } from "@workspace/ui/components/textarea"
 
 const idleState = { status: "idle" } as const
+const idleSuggestion: SuggestGiveawayState = { status: "idle" }
 
 export function GiveawayForm({
   categories,
@@ -34,18 +36,34 @@ export function GiveawayForm({
   const [state, action, pending] = useActionState(createGiveaway, idleState)
   const [photoPath, setPhotoPath] = useState("/demo/item-placeholder.svg")
   const [photoMessage, setPhotoMessage] = useState<string | null>(null)
+  const [analysingPhoto, setAnalysingPhoto] = useState(false)
+  const [suggestion, setSuggestion] =
+    useState<SuggestGiveawayState>(idleSuggestion)
+  const [draft, setDraft] = useState({
+    title: "",
+    description: "",
+    category: "",
+    condition: "unusable" as "unusable" | "worn" | "good",
+  })
+  const editedRef = useRef({
+    title: false,
+    description: false,
+    category: false,
+    condition: false,
+  })
+
+  function markEdited(field: keyof typeof editedRef.current) {
+    editedRef.current[field] = true
+  }
 
   const [uploading, setUploading] = useState(false)
+  const [cropFile, setCropFile] = useState<File | null>(null)
 
-  async function handlePhoto(file: File | undefined) {
-    if (!file) return
+  async function handlePhoto(blob: Blob, file: File) {
     setUploading(true)
     setPhotoMessage("Uploading image…")
+    setSuggestion(idleSuggestion)
     try {
-      const blob = await prepareImageForUpload(file, {
-        maxDimension: 1600,
-        quality: 0.82,
-      })
       const path = `giveaways/${crypto.randomUUID()}.webp`
       const { error } = await getBrowserClient()
         .storage.from("item-photos")
@@ -56,11 +74,55 @@ export function GiveawayForm({
         .getPublicUrl(path)
       setPhotoPath(data.publicUrl)
       setPhotoMessage("Photo compressed and uploaded.")
+      setAnalysingPhoto(true)
+
+      const reader = new FileReader()
+      const imageDataUrl = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve(String(reader.result ?? ""))
+        reader.onerror = () => reject(new Error("photo_read_failed"))
+        reader.readAsDataURL(blob)
+      })
+      const suggestionForm = new FormData()
+      suggestionForm.set("imageDataUrl", imageDataUrl)
+      suggestionForm.set("fileName", file.name)
+      const result = await suggestGiveawayListing(
+        idleSuggestion,
+        suggestionForm
+      ).catch(() => ({
+        status: "error" as const,
+        message:
+          "Photo uploaded. AI suggestions are unavailable, so please add the details manually.",
+      }))
+      setSuggestion(result)
+
+      if (result.status === "success" && result.suggestion?.source === "ai") {
+        const nextCategory = result.suggestion.categorySlug
+        const currentEdits = editedRef.current
+        setDraft((current) => ({
+          title: currentEdits.title
+            ? current.title
+            : result.suggestion?.title || current.title,
+          description: currentEdits.description
+            ? current.description
+            : result.suggestion?.description || current.description,
+          category:
+            !currentEdits.category &&
+            categories.some((category) => category.slug === nextCategory)
+              ? nextCategory
+              : current.category,
+          condition: currentEdits.condition
+            ? current.condition
+            : result.suggestion?.condition || current.condition,
+        }))
+      }
+      setCropFile(null)
     } catch {
+      setCropFile(null)
       setPhotoMessage(
         "Photo upload failed. Please try again. Your previous image is unchanged."
       )
     } finally {
+      setAnalysingPhoto(false)
       setUploading(false)
     }
   }
@@ -87,6 +149,14 @@ export function GiveawayForm({
               required
               placeholder="Desk fan that no longer spins"
               aria-invalid={Boolean(state.fieldErrors?.title)}
+              value={draft.title}
+              onChange={(event) => {
+                markEdited("title")
+                setDraft((current) => ({
+                  ...current,
+                  title: event.target.value,
+                }))
+              }}
             />
             <FieldError>{state.fieldErrors?.title?.[0]}</FieldError>
           </Field>
@@ -100,6 +170,14 @@ export function GiveawayForm({
               name="description"
               rows={4}
               placeholder="Mention what still works, what is broken, and anything useful for a repair or parts."
+              value={draft.description}
+              onChange={(event) => {
+                markEdited("description")
+                setDraft((current) => ({
+                  ...current,
+                  description: event.target.value,
+                }))
+              }}
             />
           </Field>
 
@@ -109,16 +187,32 @@ export function GiveawayForm({
               <Input
                 id="giveaway-photo"
                 type="file"
-                disabled={uploading || pending}
+                disabled={uploading || analysingPhoto || pending}
                 accept="image/png,image/jpeg,image/webp"
-                onChange={(event) => void handlePhoto(event.target.files?.[0])}
+                onChange={(event) => {
+                  const file = event.target.files?.[0]
+                  event.target.value = ""
+                  if (file) setCropFile(file)
+                }}
               />
               <FieldDescription>
-                Optional. Images are compressed before upload.
+                Optional. Upload a clear photo and AI can draft the item details
+                for you.
               </FieldDescription>
               {photoMessage ? (
-                <p className="text-sm text-ink-muted">{photoMessage}</p>
+                <p className="text-sm text-ink-muted" aria-live="polite">
+                  {photoMessage}
+                </p>
               ) : null}
+              <PublicImageCropDialog
+                file={cropFile}
+                title="Crop giveaway photo"
+                aspectLabel="landscape 4:3"
+                outputWidth={1200}
+                outputHeight={900}
+                onCancel={() => setCropFile(null)}
+                onConfirm={handlePhoto}
+              />
             </Field>
 
             <Field>
@@ -126,8 +220,15 @@ export function GiveawayForm({
               <NativeSelect
                 id="giveaway-condition"
                 name="condition"
-                defaultValue="unusable"
+                value={draft.condition}
                 className="w-full"
+                onChange={(event) => {
+                  markEdited("condition")
+                  setDraft((current) => ({
+                    ...current,
+                    condition: event.target.value as typeof draft.condition,
+                  }))
+                }}
               >
                 <NativeSelectOption value="unusable">
                   Unusable / for parts
@@ -147,8 +248,15 @@ export function GiveawayForm({
             <NativeSelect
               id="giveaway-category"
               name="categorySlug"
-              defaultValue=""
+              value={draft.category}
               className="w-full"
+              onChange={(event) => {
+                markEdited("category")
+                setDraft((current) => ({
+                  ...current,
+                  category: event.target.value,
+                }))
+              }}
             >
               <NativeSelectOption value="">
                 Choose a category
@@ -160,6 +268,24 @@ export function GiveawayForm({
               ))}
             </NativeSelect>
           </Field>
+
+          {analysingPhoto ? (
+            <p
+              className="flex items-center gap-2 rounded-lg bg-lilac-tint p-3 text-sm font-bold text-ink"
+              aria-live="polite"
+              aria-busy="true"
+            >
+              <Spinner data-icon="inline-start" />
+              AI is creating your listing details…
+            </p>
+          ) : suggestion.message ? (
+            <p
+              className="rounded-lg bg-lilac-tint p-3 text-sm text-ink"
+              aria-live="polite"
+            >
+              {suggestion.message}
+            </p>
+          ) : null}
         </FieldGroup>
       </div>
 
@@ -212,7 +338,12 @@ export function GiveawayForm({
       ) : null}
 
       <div className="flex flex-wrap items-center gap-3">
-        <Button type="submit" variant="cta" size="cta" disabled={pending || uploading}>
+        <Button
+          type="submit"
+          variant="cta"
+          size="cta"
+          disabled={pending || uploading}
+        >
           {pending ? <Spinner data-icon="inline-start" /> : null}
           Publish giveaway
         </Button>

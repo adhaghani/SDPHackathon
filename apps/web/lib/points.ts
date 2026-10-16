@@ -25,12 +25,14 @@ export const POINT_RULES = {
   invite_accepted: "Neighbour joined and completed a first borrow",
   neighbour_of_month: "Selected as Neighbour of the month",
   recycling_goal_completed: "Township recycling goal completed",
+  recycling_guide_completed: "Recycling guide completed",
 } as const satisfies Record<string, string>
 
 export type PointActionType = keyof typeof POINT_RULES
 
 export function pointReason(actionType: string, delta: number): string {
-  const reason = POINT_RULES[actionType as PointActionType] ?? "Verified township activity"
+  const reason =
+    POINT_RULES[actionType as PointActionType] ?? "Verified township activity"
   return `${delta} BP · ${reason}`
 }
 
@@ -47,8 +49,10 @@ export function resolveRewardRule(
 
   return (
     [...candidates].sort((left, right) => {
-      const leftScore = (left.category_slug ? 2 : 0) + (left.township_id ? 1 : 0)
-      const rightScore = (right.category_slug ? 2 : 0) + (right.township_id ? 1 : 0)
+      const leftScore =
+        (left.category_slug ? 2 : 0) + (left.township_id ? 1 : 0)
+      const rightScore =
+        (right.category_slug ? 2 : 0) + (right.township_id ? 1 : 0)
       return rightScore - leftScore
     })[0] ?? null
   )
@@ -76,7 +80,9 @@ export function levelForPoints(
 ) {
   return (
     [...levels]
-      .sort((left, right) => right.min_lifetime_points - left.min_lifetime_points)
+      .sort(
+        (left, right) => right.min_lifetime_points - left.min_lifetime_points
+      )
       .find((level) => lifetimePoints >= level.min_lifetime_points) ?? levels[0]
   )
 }

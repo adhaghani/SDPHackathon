@@ -41,19 +41,33 @@ export function RewardCard({
   return (
     <li
       className={cn(
-        "flex h-[264px] min-w-[200px] max-w-[200px] flex-col gap-2 overflow-hidden rounded-[22px] p-3.5 text-ink",
+        "flex h-[264px] max-w-[200px] min-w-[200px] flex-col gap-2 overflow-hidden rounded-[22px] p-3.5 text-ink",
         affordable ? "bg-mustard" : "bg-paper"
       )}
     >
-      <div className="relative h-20 shrink-0 overflow-hidden rounded-lg bg-white">
-        <Image unoptimized src={imagePath || rewardImageFor(kind)} alt={title} fill sizes="172px" className="object-cover" />
+      <div className="relative aspect-[2/1] shrink-0 overflow-hidden rounded-lg bg-white">
+        <Image
+          unoptimized
+          src={imagePath || rewardImageFor(kind)}
+          alt={title}
+          fill
+          sizes="172px"
+          className="object-cover"
+        />
       </div>
       <p className="truncate text-xs font-bold tracking-[0.06em] uppercase">
         {partnerName ?? "Township"} · {kindLabels[kind] ?? kind}
       </p>
-      <p className="line-clamp-2 min-h-[48px] text-[22px] leading-6 font-extrabold text-balance">{title}</p>
+      <p className="line-clamp-2 min-h-[48px] text-[22px] leading-6 font-extrabold text-balance">
+        {title}
+      </p>
       <div className="mt-auto min-h-[44px] pt-1">
-        <RedeemButton rewardId={id} costBp={costBp} missingBp={missing} soldOut={stock === 0} />
+        <RedeemButton
+          rewardId={id}
+          costBp={costBp}
+          missingBp={missing}
+          soldOut={stock === 0}
+        />
       </div>
     </li>
   )

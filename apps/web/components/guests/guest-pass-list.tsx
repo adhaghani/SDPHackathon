@@ -1,9 +1,10 @@
 "use client"
 
 import { useState, useActionState } from "react"
-import { LogInIcon, LogOutIcon, RefreshCwIcon } from "lucide-react"
+import { RefreshCwIcon } from "lucide-react"
 
 import { duplicateGuestPass, revokeGuestPass, setGuestPassCheckoutMute } from "@/actions/guest-pass"
+import { SavedGuestPassShareButton } from "@/components/guests/guest-pass-sharing"
 import { Alert, AlertDescription } from "@workspace/ui/components/alert"
 import { Button } from "@workspace/ui/components/button"
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@workspace/ui/components/empty"
@@ -111,6 +112,9 @@ export function GuestPassList({ passes }: { passes: GuestPassRow[] }) {
               </dl>
 
               <div className="mt-5 flex flex-wrap gap-2">
+                {pass.status === "active" && new Date(pass.valid_until) > new Date() && pass.entries_used < pass.max_entries ? (
+                  <SavedGuestPassShareButton passId={pass.id} />
+                ) : null}
                 <form action={muteAction}>
                   <input type="hidden" name="passId" value={pass.id} />
                   <input type="hidden" name="mute" value={pass.mute_checkout_notifications ? "false" : "true"} />

@@ -22,16 +22,65 @@ export type RecyclingAdminActionState = {
   message?: string
 }
 
+export type RecyclingGuideActionState = {
+  status: "idle" | "error" | "success"
+  message?: string
+  awarded?: boolean
+  points?: number
+}
+
+export async function completeRecyclingGuideAction(
+  _state: RecyclingGuideActionState
+): Promise<RecyclingGuideActionState> {
+  const active = await requireActiveMember()
+  const supabase = await createClient()
+  const { data, error } = await supabase.rpc("complete_recycling_guide", {
+    p_township_id: active.townshipId,
+  })
+
+  if (error) {
+    return {
+      status: "error",
+      message: "The guide could not be completed. Try again.",
+    }
+  }
+
+  const result = data as { awarded?: boolean; points?: number }
+  revalidatePath("/home")
+  revalidatePath("/rewards")
+  revalidatePath("/rewards/activity")
+
+  return {
+    status: "success",
+    awarded: Boolean(result.awarded),
+    points: Number(result.points ?? 0),
+    message: result.awarded
+      ? `Guide completed. You earned ${Number(result.points ?? 0)} BP.`
+      : "You have already completed this guide.",
+  }
+}
+
 function recyclingErrorMessage(error: { message: string }) {
   const message = error.message.toLowerCase()
-  if (message.includes("daily_limit")) return "You have reached the 100 kg daily estimate limit."
-  if (message.includes("invalid_unit") || message.includes("invalid_material")) return "That recyclable item is not available."
-  if (message.includes("invalid_quantity") || message.includes("invalid_custom_kg")) return "Check the quantity or estimated weight."
-  if (message.includes("invalid_date")) return "Choose a valid, non-future date."
-  if (message.includes("not_active_member")) return "Your township membership must be active to log recycling."
-  if (message.includes("active_campaign_exists")) return "End or update the current campaign before creating another."
-  if (message.includes("campaign_locked")) return "A completed campaign cannot be edited."
-  if (message.includes("admin_required")) return "Only the township office can update recycling settings."
+  if (message.includes("daily_limit"))
+    return "You have reached the 100 kg daily estimate limit."
+  if (message.includes("invalid_unit") || message.includes("invalid_material"))
+    return "That recyclable item is not available."
+  if (
+    message.includes("invalid_quantity") ||
+    message.includes("invalid_custom_kg")
+  )
+    return "Check the quantity or estimated weight."
+  if (message.includes("invalid_date"))
+    return "Choose a valid, non-future date."
+  if (message.includes("not_active_member"))
+    return "Your township membership must be active to log recycling."
+  if (message.includes("active_campaign_exists"))
+    return "End or update the current campaign before creating another."
+  if (message.includes("campaign_locked"))
+    return "A completed campaign cannot be edited."
+  if (message.includes("admin_required"))
+    return "Only the township office can update recycling settings."
   return "The recycling estimate could not be saved. Try again."
 }
 
@@ -43,7 +92,10 @@ export async function logRecyclingAction(
   try {
     lines = JSON.parse(String(formData.get("lines") || "[]"))
   } catch {
-    return { status: "error", message: "Check the recyclable items you selected." }
+    return {
+      status: "error",
+      message: "Check the recyclable items you selected.",
+    }
   }
 
   const parsed = recyclingLogSchema.safeParse({
@@ -56,7 +108,8 @@ export async function logRecyclingAction(
   if (!parsed.success) {
     return {
       status: "error",
-      message: parsed.error.issues[0]?.message ?? "Check the recycling estimate.",
+      message:
+        parsed.error.issues[0]?.message ?? "Check the recycling estimate.",
     }
   }
 
@@ -113,12 +166,18 @@ export async function saveRecyclingCampaignAction(
     }
   }
   if (parsed.data.endsOn < parsed.data.startsOn) {
-    return { status: "error", message: "The end date must be on or after the start date." }
+    return {
+      status: "error",
+      message: "The end date must be on or after the start date.",
+    }
   }
 
   const active = await requireActiveMember()
   if (active.membership?.role !== "township_admin") {
-    return { status: "error", message: "Only the township office can set a recycling campaign." }
+    return {
+      status: "error",
+      message: "Only the township office can set a recycling campaign.",
+    }
   }
 
   const supabase = await createClient()
@@ -160,7 +219,10 @@ export async function saveRecyclingFactorAction(
 
   const active = await requireActiveMember()
   if (active.membership?.role !== "township_admin") {
-    return { status: "error", message: "Only the township office can update impact factors." }
+    return {
+      status: "error",
+      message: "Only the township office can update impact factors.",
+    }
   }
 
   const supabase = await createClient()

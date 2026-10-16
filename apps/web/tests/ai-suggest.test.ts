@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest"
 
-import { fallbackSuggestion, parseListingSuggestion } from "@/lib/ai/item-suggest"
+import {
+  fallbackSuggestion,
+  parseListingSuggestion,
+} from "@/lib/ai/item-suggest"
 import { redactPersonalData } from "@/lib/ai/privacy"
 
 describe("Snap to list fallback and parsing", () => {
@@ -13,21 +16,30 @@ describe("Snap to list fallback and parsing", () => {
 
   it("accepts a structured AI response only from known categories", () => {
     const parsed = parseListingSuggestion(
-      '{"title":"Folding ladder","category":"home-tools","estimated_value_rm":180,"condition":"good","description":"Telescopic ladder."}'
+      '{"title":"Folding ladder","category":"home-tools","estimated_value_rm":180,"condition":"good","description":"Telescopic ladder.","guide_body":"Open it fully on level ground.","safety_note":"Confirm every lock before use."}'
     )
     expect(parsed).toMatchObject({
       title: "Folding ladder",
       categorySlug: "home-tools",
       estimatedValueRm: 180,
+      guideBody: "Open it fully on level ground.",
+      safetyNote: "Confirm every lock before use.",
       source: "ai",
     })
-    expect(parseListingSuggestion('{"title":"Ladder","category":"unknown"}')?.categorySlug).toBe("")
+    expect(
+      parseListingSuggestion('{"title":"Ladder","category":"unknown"}')
+        ?.categorySlug
+    ).toBe("")
     expect(parseListingSuggestion("not json")).toBeNull()
   })
 
   it("preserves unknown replacement values rather than converting null to zero", () => {
     for (const value of [null, "", false, "unknown"]) {
-      expect(parseListingSuggestion(JSON.stringify({ title: "Drill", estimated_value_rm: value }))?.estimatedValueRm).toBeNull()
+      expect(
+        parseListingSuggestion(
+          JSON.stringify({ title: "Drill", estimated_value_rm: value })
+        )?.estimatedValueRm
+      ).toBeNull()
     }
   })
 
