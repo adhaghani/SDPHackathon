@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 
 import { createEvent } from "@/actions/events"
 import { PublicImageCropDialog } from "@/components/shared/public-image-crop-dialog"
+import { ImageUploadInput } from "@/components/shared/image-upload-input"
 import { getBrowserClient } from "@/lib/supabase/browser"
 import { Alert, AlertDescription } from "@workspace/ui/components/alert"
 import { Button } from "@workspace/ui/components/button"
@@ -80,14 +81,12 @@ export function EventForm({
       <FieldGroup>
         <Field>
           <FieldLabel htmlFor="event-cover">Cover image</FieldLabel>
-          <Input
+          <ImageUploadInput
             id="event-cover"
-            type="file"
             disabled={uploading || pending}
-            accept="image/png,image/jpeg,image/webp"
-            onChange={(event) => {
-              const file = event.target.files?.[0]
-              event.target.value = ""
+            hasImage={coverPath !== "/demo/event-placeholder.svg"}
+            onFiles={(files) => {
+              const file = files[0]
               if (file) setCropFile(file)
             }}
           />

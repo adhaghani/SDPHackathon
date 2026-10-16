@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { suggestGiveawayListing, type SuggestGiveawayState } from "@/actions/ai"
 import { createGiveaway } from "@/actions/giveaway"
 import { PublicImageCropDialog } from "@/components/shared/public-image-crop-dialog"
+import { ImageUploadInput } from "@/components/shared/image-upload-input"
 import { getBrowserClient } from "@/lib/supabase/browser"
 import { Alert, AlertDescription } from "@workspace/ui/components/alert"
 import { Button } from "@workspace/ui/components/button"
@@ -184,14 +185,12 @@ export function GiveawayForm({
           <div className="grid gap-4 sm:grid-cols-2">
             <Field>
               <FieldLabel htmlFor="giveaway-photo">Photo</FieldLabel>
-              <Input
+              <ImageUploadInput
                 id="giveaway-photo"
-                type="file"
                 disabled={uploading || analysingPhoto || pending}
-                accept="image/png,image/jpeg,image/webp"
-                onChange={(event) => {
-                  const file = event.target.files?.[0]
-                  event.target.value = ""
+                hasImage={photoPath !== "/demo/item-placeholder.svg"}
+                onFiles={(files) => {
+                  const file = files[0]
                   if (file) setCropFile(file)
                 }}
               />

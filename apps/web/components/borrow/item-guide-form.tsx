@@ -5,6 +5,7 @@ import Image from "next/image"
 
 import { saveItemGuide } from "@/actions/guides"
 import { PublicImageCropDialog } from "@/components/shared/public-image-crop-dialog"
+import { ImageUploadInput } from "@/components/shared/image-upload-input"
 import { getBrowserClient } from "@/lib/supabase/browser"
 import { Alert, AlertDescription } from "@workspace/ui/components/alert"
 import { Button } from "@workspace/ui/components/button"
@@ -13,7 +14,6 @@ import {
   FieldDescription,
   FieldLabel,
 } from "@workspace/ui/components/field"
-import { Input } from "@workspace/ui/components/input"
 import { Spinner } from "@workspace/ui/components/spinner"
 import { Textarea } from "@workspace/ui/components/textarea"
 
@@ -99,17 +99,12 @@ export function ItemGuideForm({
       </Field>
       <Field>
         <FieldLabel htmlFor="guide-photos">Photos</FieldLabel>
-        <Input
+        <ImageUploadInput
           id="guide-photos"
-          type="file"
-          accept="image/png,image/jpeg,image/webp"
           disabled={pending || uploading || photoPaths.length >= 3}
           multiple
-          onChange={(event) => {
-            const files = event.target.files
-              ? Array.from(event.target.files)
-              : []
-            event.target.value = ""
+          hasImage={photoPaths.length > 0}
+          onFiles={(files) => {
             const available = Math.max(0, 3 - photoPaths.length)
             setCropFiles(files.slice(0, available))
           }}

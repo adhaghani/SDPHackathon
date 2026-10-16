@@ -4,6 +4,7 @@ import { useActionState, useState } from "react"
 
 import { createPartnerChallenge, createPartnerReward } from "@/actions/sponsor"
 import { PublicImageCropDialog } from "@/components/shared/public-image-crop-dialog"
+import { ImageUploadInput } from "@/components/shared/image-upload-input"
 import { getBrowserClient } from "@/lib/supabase/browser"
 import { Alert, AlertDescription } from "@workspace/ui/components/alert"
 import { Button } from "@workspace/ui/components/button"
@@ -62,14 +63,12 @@ export function SponsorRewardForm() {
       <FieldGroup>
         <Field>
           <FieldLabel htmlFor="sponsor-reward-image">Image</FieldLabel>
-          <Input
+          <ImageUploadInput
             id="sponsor-reward-image"
-            type="file"
             disabled={uploading || pending}
-            accept="image/png,image/jpeg,image/webp"
-            onChange={(event) => {
-              const file = event.target.files?.[0]
-              event.target.value = ""
+            hasImage={imagePath !== "/demo/reward-voucher.svg"}
+            onFiles={(files) => {
+              const file = files[0]
               if (file) setCropFile(file)
             }}
           />
