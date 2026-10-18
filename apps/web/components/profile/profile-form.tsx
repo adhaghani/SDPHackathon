@@ -1,8 +1,9 @@
 "use client"
 
 import { useActionState } from "react"
+import { toast } from "sonner"
 
-import { updateProfile } from "@/actions/profile"
+import { updateProfile, type ProfileActionState } from "@/actions/profile"
 import { Alert, AlertDescription } from "@workspace/ui/components/alert"
 import { Button } from "@workspace/ui/components/button"
 import { Checkbox } from "@workspace/ui/components/checkbox"
@@ -11,6 +12,17 @@ import { Input } from "@workspace/ui/components/input"
 import { Spinner } from "@workspace/ui/components/spinner"
 
 const idleState = { status: "idle" } as const
+
+async function updateProfileWithFeedback(
+  state: ProfileActionState,
+  formData: FormData
+) {
+  const result = await updateProfile(state, formData)
+  if (result.status === "success") {
+    toast.success("Profile updated.", { id: "profile-updated" })
+  }
+  return result
+}
 
 export function ProfileForm({
   profile,
@@ -23,7 +35,7 @@ export function ProfileForm({
     show_in_highlights: boolean
   }
 }) {
-  const [state, action, pending] = useActionState(updateProfile, idleState)
+  const [state, action, pending] = useActionState(updateProfileWithFeedback, idleState)
   const prefs =
     profile.comfort_prefs && typeof profile.comfort_prefs === "object" && !Array.isArray(profile.comfort_prefs)
       ? (profile.comfort_prefs as Record<string, unknown>)
@@ -72,8 +84,8 @@ export function ProfileForm({
         </FieldLabel>
       </Field>
 
-      {state.message ? (
-        <Alert variant={state.status === "error" ? "destructive" : "default"}>
+      {state.status === "error" && state.message ? (
+        <Alert variant="destructive">
           <AlertDescription>{state.message}</AlertDescription>
         </Alert>
       ) : null}

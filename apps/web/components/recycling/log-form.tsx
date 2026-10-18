@@ -1,9 +1,10 @@
 "use client"
 
 import { useActionState, useEffect, useMemo, useRef, useState } from "react"
-import { CheckIcon, MinusIcon, PlusIcon, RecycleIcon, Trash2Icon } from "lucide-react"
+import { MinusIcon, PlusIcon, RecycleIcon, Trash2Icon } from "lucide-react"
+import { toast } from "sonner"
 
-import { logRecyclingAction } from "@/actions/recycling"
+import { logRecyclingAction, type RecyclingActionState } from "@/actions/recycling"
 import type { RecyclingMaterial } from "@/components/recycling/types"
 import { prepareImageForUpload } from "@/lib/media"
 import { getBrowserClient } from "@/lib/supabase/browser"
@@ -23,6 +24,19 @@ import { Spinner } from "@workspace/ui/components/spinner"
 import { cn } from "@workspace/ui/lib/utils"
 
 const idleState = { status: "idle" } as const
+
+async function logRecyclingWithFeedback(
+  state: RecyclingActionState,
+  formData: FormData
+) {
+  const result = await logRecyclingAction(state, formData)
+  if (result.status === "success") {
+    toast.success("Recycling estimate saved.", {
+      id: "recycling-estimate-saved",
+    })
+  }
+  return result
+}
 
 function clampQuantity(value: string) {
   const parsed = Number.parseInt(value, 10)
@@ -98,7 +112,7 @@ export function RecyclingLogForm({
   townshipId: string
   currentDate: string
 }) {
-  const [state, formAction, pending] = useActionState(logRecyclingAction, idleState)
+  const [state, formAction, pending] = useActionState(logRecyclingWithFeedback, idleState)
   const [method, setMethod] = useState<"count" | "custom_kg">("count")
   const [quantities, setQuantities] = useState<Record<string, string>>({})
   const [weights, setWeights] = useState<Record<string, string>>({})
@@ -374,10 +388,9 @@ export function RecyclingLogForm({
         </div>
       )}
 
-      {state.message ? (
-        <Alert variant={state.status === "error" ? "destructive" : "default"} className="mt-5">
-          <AlertDescription className="flex items-start gap-2">
-            {state.status === "success" ? <CheckIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0" /> : null}
+      {state.status === "error" && state.message ? (
+        <Alert variant="destructive" className="mt-5">
+          <AlertDescription>
             <span>{state.message}</span>
           </AlertDescription>
         </Alert>

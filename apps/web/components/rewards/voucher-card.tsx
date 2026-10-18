@@ -1,17 +1,21 @@
 "use client"
 
-import { TicketIcon } from "lucide-react"
+import { CalendarDaysIcon, CheckCircle2Icon, TicketIcon } from "lucide-react"
 import { CopyCodeButton } from "@/components/rewards/copy-code-button"
 import { formatEventDate } from "@/lib/format"
+import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@workspace/ui/components/dialog"
+import { Separator } from "@workspace/ui/components/separator"
 
 export function VoucherCard({
   title,
@@ -29,61 +33,101 @@ export function VoucherCard({
   validUntil?: string | null
 }) {
   return (
-    <li className="flex min-w-0 flex-col rounded-[20px] border border-hairline bg-white p-4">
-      <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
-        <p className="text-ink-soft">{partnerName ?? "Township reward"}</p>
-        <span className="rounded-full bg-lime px-2.5 py-1 font-bold text-ink">
+    <li className="flex min-w-0 flex-col gap-4 rounded-[20px] border border-hairline bg-white p-4 sm:p-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex size-10 items-center justify-center rounded-xl bg-lime text-ink">
+          <TicketIcon aria-hidden="true" className="size-5" />
+        </div>
+        <Badge>
+          <CheckCircle2Icon aria-hidden="true" data-icon="inline-start" />
           Ready to use
-        </span>
+        </Badge>
       </div>
-      <h3 className="mt-3 text-title text-ink">{title}</h3>
-      <p className="mt-1 text-sm text-ink-soft">
+      <div className="min-w-0">
+        <h3 className="text-xl leading-snug font-extrabold [overflow-wrap:anywhere] text-ink">
+          {title}
+        </h3>
+        <p className="mt-1 text-sm [overflow-wrap:anywhere] text-ink-soft">
+          {partnerName ?? "Township reward"}
+        </p>
+      </div>
+      <p className="flex items-start gap-2 text-sm leading-relaxed text-ink-soft">
+        {validUntil ? (
+          <CalendarDaysIcon
+            aria-hidden="true"
+            className="mt-0.5 size-4 shrink-0"
+          />
+        ) : null}
         {validUntil
-          ? `Valid until ${formatEventDate(validUntil)}`
-          : "Show your code to the partner."}
+          ? `Use by ${formatEventDate(validUntil)}`
+          : "Show your voucher code to the partner."}
       </p>
-      <div className="mt-auto flex flex-wrap items-center gap-2 pt-4">
-        <Dialog>
-          <DialogTrigger render={<Button variant="default" />}>
-            <TicketIcon aria-hidden="true" />
-            Show voucher
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader className="pr-8">
-              <DialogTitle>{title}</DialogTitle>
-              <DialogDescription>
-                Show this code to {partnerName ?? "the township partner"}. Each
-                voucher can be used once.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="rounded-[16px] bg-paper p-5 text-center">
-              <p className="mb-2 text-sm font-bold">Voucher code</p>
-              <code className="block font-mono text-2xl font-bold tracking-wider break-all text-ink">
-                {code}
-              </code>
-            </div>
-            <div className="flex justify-center">
-              <CopyCodeButton code={code} />
-            </div>
-            <dl className="grid gap-2 border-t border-hairline pt-4 text-sm">
-              <div className="flex justify-between gap-3">
-                <dt>Redeemed</dt>
-                <dd>{formatEventDate(redeemedAt)}</dd>
-              </div>
-              <div className="flex justify-between gap-3">
-                <dt>Points used</dt>
-                <dd>{costBp.toLocaleString("en-MY")} BP</dd>
-              </div>
-              {validUntil ? (
-                <div className="flex justify-between gap-3">
-                  <dt>Valid until</dt>
-                  <dd>{formatEventDate(validUntil)}</dd>
+      <div className="mt-auto flex flex-col gap-4">
+        <Separator />
+        <div className="flex flex-wrap items-center gap-2">
+          <Dialog>
+            <DialogTrigger
+              render={<Button variant="default" className="flex-1" />}
+            >
+              <TicketIcon aria-hidden="true" data-icon="inline-start" />
+              Show voucher
+            </DialogTrigger>
+            <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-md">
+              <DialogHeader className="shrink-0 gap-2 px-5 pt-5 pr-14 pb-4 sm:px-6 sm:pr-14">
+                <DialogTitle>Ready to use</DialogTitle>
+                <DialogDescription>
+                  Show this voucher to {partnerName ?? "the township partner"}.
+                  Each code can be used once.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="min-h-0 overflow-y-auto overscroll-contain px-5 pb-5 sm:px-6">
+                <h3 className="text-xl leading-snug font-bold text-balance [overflow-wrap:anywhere]">
+                  {title}
+                </h3>
+                <div className="my-5 rounded-2xl bg-lime px-4 py-5 text-center text-ink">
+                  <p className="mb-2 text-sm font-semibold">
+                    Your voucher code
+                  </p>
+                  <code className="block font-mono text-3xl leading-relaxed font-bold tracking-wider break-all select-all">
+                    {code}
+                  </code>
+                  <p className="mt-2 text-xs">
+                    Present this code when you use your reward.
+                  </p>
                 </div>
-              ) : null}
-            </dl>
-          </DialogContent>
-        </Dialog>
-        <CopyCodeButton code={code} />
+                <dl className="grid gap-3 text-sm">
+                  {validUntil ? (
+                    <div className="grid grid-cols-[1fr_1fr] items-start gap-3">
+                      <dt className="text-muted-foreground">Use by</dt>
+                      <dd className="text-right font-semibold">
+                        {formatEventDate(validUntil)}
+                      </dd>
+                    </div>
+                  ) : null}
+                  <div className="grid grid-cols-[1fr_1fr] items-start gap-3">
+                    <dt className="text-muted-foreground">Redeemed on</dt>
+                    <dd className="text-right">
+                      {formatEventDate(redeemedAt)}
+                    </dd>
+                  </div>
+                  <div className="grid grid-cols-[1fr_1fr] items-start gap-3">
+                    <dt className="text-muted-foreground">Points used</dt>
+                    <dd className="text-right tabular-nums">
+                      {costBp.toLocaleString("en-MY")} BP
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+              <DialogFooter className="mx-0 mb-0 shrink-0 flex-row flex-wrap items-start justify-between gap-2 px-5 py-3 sm:justify-between sm:px-6">
+                <CopyCodeButton code={code} />
+                <DialogClose render={<Button variant="default" />}>
+                  Done
+                </DialogClose>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          <CopyCodeButton code={code} />
+        </div>
       </div>
     </li>
   )

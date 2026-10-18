@@ -64,7 +64,7 @@ export default function RootLayout({
         <ThemeProvider>
           <PwaRegister />
           {children}
-          <Toaster position="top-center" closeButton />
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

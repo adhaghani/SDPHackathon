@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react"
 import { BookmarkIcon } from "lucide-react"
+import { toast } from "sonner"
 
 import { toggleSavedItem } from "@/actions/saved"
 import { cn } from "@workspace/ui/lib/utils"
@@ -26,13 +27,18 @@ export function SaveItemButton({
     setSaved(next)
     setError("")
 
+    const reportFailure = (message: string) => {
+      setSaved(!next)
+      setError(message)
+      toast.error(message, { id: `saved-item-error-${itemId}`, duration: 8000 })
+    }
+
     startTransition(async () => {
       try {
         const result = await toggleSavedItem(itemId, next)
 
         if (result.status === "error") {
-          setSaved(!next)
-          setError(
+          reportFailure(
             result.message ?? "We could not update your saved item. Try again."
           )
           return
@@ -40,8 +46,7 @@ export function SaveItemButton({
 
         setSaved(result.saved ?? next)
       } catch {
-        setSaved(!next)
-        setError("We could not update your saved item. Try again.")
+        reportFailure("We could not update your saved item. Try again.")
       }
     })
   }
@@ -67,9 +72,6 @@ export function SaveItemButton({
           strokeWidth={2}
         />
       </button>
-      <span className="sr-only" role="status" aria-live="polite">
-        {error}
-      </span>
     </>
   )
 }

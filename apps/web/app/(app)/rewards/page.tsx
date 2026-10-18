@@ -20,7 +20,6 @@ import { isDemoMode } from "@/lib/env"
 import { formatEventDate } from "@/lib/format"
 import { createClient } from "@/lib/supabase/server"
 import { Button } from "@workspace/ui/components/button"
-import { ScrollArea } from "@workspace/ui/components/scroll-area"
 
 export default async function RewardsPage() {
   const active = await requireActiveMember()
@@ -232,11 +231,15 @@ export default async function RewardsPage() {
           figures; current counts come from completed bookings.
         </p>
 
-        <section id="vouchers-heading" className="mt-8">
+        <section
+          id="vouchers-heading"
+          tabIndex={-1}
+          className="mt-8 scroll-mt-6"
+        >
           <div className="flex flex-wrap items-baseline justify-between gap-3">
             <h2 className="text-h2">My vouchers</h2>
             <p className="text-sm text-ink-soft">
-              Show the code to the partner. Each code works once.
+              Your redeemed rewards, ready to show at the partner.
             </p>
           </div>
           {readyVouchers.length ? (
@@ -287,39 +290,41 @@ export default async function RewardsPage() {
           ) : null}
         </section>
 
-        <section className="mt-[22px]">
-          <div className="flex items-baseline justify-between gap-3">
-            <h2 className="text-[22px] leading-[26px] font-extrabold">
-              Treat yourself
-            </h2>
-            <Link
-              href="#vouchers-heading"
-              className="text-sm font-semibold underline underline-offset-4"
-            >
-              My vouchers ({readyVouchers.length})
-            </Link>
+        <section
+          className="mt-10 min-w-0"
+          aria-labelledby="rewards-catalogue-heading"
+        >
+          <div className="flex flex-wrap items-baseline justify-between gap-3">
+            <div>
+              <h2 id="rewards-catalogue-heading" className="text-h2">
+                Find your next reward
+              </h2>
+              <p className="mt-1 text-sm leading-relaxed text-ink-soft">
+                Choose a reward and use your BetterPoints to redeem it.
+              </p>
+            </div>
+            <p className="text-sm font-semibold tabular-nums">
+              {balance.toLocaleString("en-MY")} BP available
+            </p>
           </div>
           {(rewardsResult.data ?? []).length ? (
-            <ScrollArea
-              orientation="horizontal"
-              className="mt-3 -mr-5 h-[184px] pr-5"
-            >
-              <ul className="flex h-[184px] w-max gap-3">
-                {(rewardsResult.data ?? []).map((reward) => (
-                  <RewardCard
-                    key={reward.id}
-                    id={reward.id}
-                    title={reward.title}
-                    partnerName={reward.partners?.name}
-                    kind={reward.kind}
-                    costBp={reward.cost_bp}
-                    imagePath={reward.image_path}
-                    stock={reward.stock}
-                    balance={balance}
-                  />
-                ))}
-              </ul>
-            </ScrollArea>
+            <ul className="mt-5 grid min-w-0 items-stretch gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              {(rewardsResult.data ?? []).map((reward) => (
+                <RewardCard
+                  key={reward.id}
+                  id={reward.id}
+                  title={reward.title}
+                  partnerName={reward.partners?.name}
+                  kind={reward.kind}
+                  costBp={reward.cost_bp}
+                  imagePath={reward.image_path}
+                  description={reward.description}
+                  validUntil={reward.valid_until}
+                  stock={reward.stock}
+                  balance={balance}
+                />
+              ))}
+            </ul>
           ) : (
             <p className="mt-4 rounded-[18px] bg-paper p-4 text-sm text-ink-soft">
               No rewards are available yet.

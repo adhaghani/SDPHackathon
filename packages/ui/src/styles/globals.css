@@ -463,7 +463,9 @@
 
   .bb-reduce-motion *,
   .bb-reduce-motion *::before,
-  .bb-reduce-motion *::after {
+  .bb-reduce-motion *::after,
+  body:has(.bb-reduce-motion) [data-sonner-toaster],
+  body:has(.bb-reduce-motion) [data-sonner-toaster] * {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

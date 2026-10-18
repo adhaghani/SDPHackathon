@@ -1,7 +1,9 @@
 "use client"
 
+import Link from "next/link"
 import { useActionState, useEffect, useState } from "react"
 import {
+  ArrowUpRightIcon,
   BatteryWarningIcon,
   CheckCircle2Icon,
   ChevronLeftIcon,
@@ -33,51 +35,105 @@ import { Spinner } from "@workspace/ui/components/spinner"
 
 const steps = [
   {
-    title: "Check the bin label",
-    description:
-      "Use the material name shown on the township bin. Bin colours and accepted items can differ between collection points.",
+    title: "Start with the bin label",
+    description: "Check what your collection point accepts before you sort.",
     icon: TagsIcon,
-    items: ["Paper and cardboard", "Plastic", "Glass", "Aluminium and steel"],
+    items: [
+      {
+        title: "Match the material",
+        detail: "Look for paper, plastic, glass or metal on the label.",
+      },
+      {
+        title: "Follow the local instructions",
+        detail: "Bin colours and accepted items can vary by location.",
+      },
+      {
+        title: "Unsure where it goes?",
+        detail: "Keep it out and check with the township office.",
+      },
+    ],
+    reminder: "The label on the bin is your first reference.",
   },
   {
-    title: "Empty, rinse and dry",
-    description:
-      "Remove food and liquid before recycling. A quick rinse helps prevent smells and keeps clean materials from being contaminated.",
+    title: "Empty, rinse, then drain",
+    description: "A little preparation keeps the rest of the recycling clean.",
     icon: DropletsIcon,
     items: [
-      "Empty every container",
-      "Give it a quick rinse",
-      "Let it drain before placing it in the bin",
+      {
+        title: "Empty the container",
+        detail: "Remove leftover drinks and food first.",
+      },
+      {
+        title: "Give it a quick rinse",
+        detail: "Clear away residue that could soil other materials.",
+      },
+      {
+        title: "Let the water drain",
+        detail: "Keep liquids out of the recycling bin.",
+      },
     ],
+    reminder: "Food and liquid can contaminate clean recyclables.",
   },
   {
-    title: "Prepare items properly",
+    title: "Make room for everyone",
     description:
-      "Flatten cardboard boxes to save space. Keep recyclable parts together unless the bin instructions ask you to separate them.",
+      "Prepare your items before taking them to the collection point.",
     icon: PackageOpenIcon,
     items: [
-      "Flatten boxes",
-      "Remove leftover food",
-      "Place items gently—do not force an overflowing bin",
+      {
+        title: "Flatten cardboard boxes",
+        detail: "They take up less space in the shared bin.",
+      },
+      {
+        title: "Check before separating parts",
+        detail: "Follow the bin instructions for recyclable parts.",
+      },
+      {
+        title: "Leave overflowing bins alone",
+        detail: "Do not force items in. Check with the township office.",
+      },
     ],
+    reminder: "Place items gently and keep the collection area usable.",
   },
   {
-    title: "Keep problem items separate",
-    description:
-      "Some items need a dedicated collection point and should not go into ordinary recycling bins.",
+    title: "Keep these out of the bin",
+    description: "These items do not belong in ordinary recycling bins.",
     icon: BatteryWarningIcon,
     items: [
-      "Batteries and electronics",
-      "Light bulbs, ceramics and mirrors",
-      "Tissues, nappies and food waste",
+      {
+        title: "Batteries and electronics",
+        detail: "Use a dedicated collection point.",
+      },
+      {
+        title: "Light bulbs, ceramics and mirrors",
+        detail: "Keep separate and check local disposal instructions.",
+      },
+      {
+        title: "Tissues, nappies and food waste",
+        detail: "Keep them out of your recyclable materials.",
+      },
     ],
+    reminder: "Ask the township office where to take special waste.",
   },
   {
-    title: "You are ready to recycle",
-    description:
-      "Sort by the label, keep materials clean, and use a dedicated collection point for special waste. When unsure, leave the item out and check with the township office.",
+    title: "Ready for your next trip",
+    description: "Use this quick checklist whenever you recycle.",
     icon: RecycleIcon,
-    items: ["Check", "Clean", "Sort", "Recycle"],
+    items: [
+      {
+        title: "Accepted by this collection point?",
+        detail: "Match your materials to the bin label.",
+      },
+      {
+        title: "Empty and clean?",
+        detail: "Remove food and liquid; flatten cardboard boxes.",
+      },
+      {
+        title: "Special waste kept separate?",
+        detail: "Check where it belongs before dropping it off.",
+      },
+    ],
+    reminder: "After recycling, log an estimate to track your contribution.",
   },
 ] as const
 
@@ -97,6 +153,7 @@ export function RecyclingGuideDialog({
     idleState
   )
   const isCompleted = completed || state.status === "success"
+  const isLastStep = step === steps.length - 1
   const current = steps[step] ?? steps[0]
   const Icon = current.icon
 
@@ -110,65 +167,104 @@ export function RecyclingGuideDialog({
         render={<Button type="button" variant="outline" className="shrink-0" />}
       >
         {isCompleted ? (
-          <CheckCircle2Icon aria-hidden="true" className="size-4" />
+          <CheckCircle2Icon aria-hidden="true" data-icon="inline-start" />
         ) : (
-          <CircleHelpIcon aria-hidden="true" className="size-4" />
+          <CircleHelpIcon aria-hidden="true" data-icon="inline-start" />
         )}
         {isCompleted
-          ? "Recycling guide completed"
+          ? "Revisit recycling guide"
           : `Recycling guide · +${rewardPoints} BP`}
       </DialogTrigger>
 
-      <DialogContent className="max-h-[calc(100svh-2rem)] overflow-y-auto p-0 sm:max-w-xl">
-        <DialogHeader className="px-5 pt-5 pr-12 sm:px-6 sm:pt-6">
-          <div className="flex items-center justify-between gap-4">
-            <p className="text-eyebrow text-ink-muted">
-              Rimba · Recycling basics
-            </p>
-            <span className="text-xs font-semibold text-ink-muted tabular-nums">
-              {step + 1} of {steps.length}
+      <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-xl">
+        <DialogHeader className="shrink-0 gap-3 px-5 pt-5 pr-14 pb-4 sm:px-6 sm:pr-14">
+          <div className="flex items-center gap-3">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-lime text-ink">
+              <RecycleIcon aria-hidden="true" className="size-5" />
+            </div>
+            <div className="flex min-w-0 flex-col gap-1">
+              <DialogTitle>Recycling made simple</DialogTitle>
+              <DialogDescription>
+                Five small steps for your next recycling trip.
+              </DialogDescription>
+            </div>
+          </div>
+        </DialogHeader>
+
+        <div className="shrink-0 px-5 sm:px-6">
+          <div className="mb-2 flex items-center justify-between gap-3 text-xs text-muted-foreground">
+            <span aria-live="polite" aria-atomic="true">
+              Step {step + 1} of {steps.length}
+              <span className="sr-only">: {current.title}</span>
+            </span>
+            <span>
+              {isCompleted
+                ? "Completed · revisit anytime"
+                : `Complete once · +${rewardPoints} BP`}
             </span>
           </div>
           <Progress
             value={((step + 1) / steps.length) * 100}
             aria-label={`Guide progress: step ${step + 1} of ${steps.length}`}
           />
-          <DialogTitle className="pt-2">{current.title}</DialogTitle>
-          <DialogDescription>{current.description}</DialogDescription>
-        </DialogHeader>
+        </div>
 
-        <div className="px-5 sm:px-6">
-          <div className="rounded-[24px] bg-mint-tint p-5 sm:p-6">
-            <div className="flex size-12 items-center justify-center rounded-full bg-ink text-lime">
-              <Icon aria-hidden="true" className="size-6" />
-            </div>
-            <ul className="mt-5 grid gap-3" aria-label="Key recycling guidance">
-              {current.items.map((item) => (
-                <li
-                  key={item}
-                  className="flex items-start gap-3 text-sm font-semibold text-ink"
+        {/* Only the reading area scrolls when viewport height or text zoom requires it. */}
+        <div className="min-h-0 overflow-y-auto overscroll-contain px-5 py-4 sm:px-6 sm:py-5">
+          <section aria-labelledby="recycling-guide-step-title">
+            <div className="flex items-start gap-2.5">
+              <Icon
+                aria-hidden="true"
+                className="mt-0.5 size-5 shrink-0 text-muted-foreground"
+              />
+              <div>
+                <h3
+                  id="recycling-guide-step-title"
+                  className="font-display text-xl leading-tight font-bold text-balance"
                 >
-                  <CheckCircle2Icon
-                    aria-hidden="true"
-                    className="text-forest mt-0.5 size-4 shrink-0"
-                  />
-                  <span>{item}</span>
+                  {current.title}
+                </h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                  {current.description}
+                </p>
+              </div>
+            </div>
+
+            <ul className="mt-4 grid gap-3" aria-label="Key recycling guidance">
+              {current.items.map((item) => (
+                <li key={item.title} className="flex items-start gap-3">
+                  {step === 3 ? (
+                    <BatteryWarningIcon
+                      aria-hidden="true"
+                      className="mt-0.5 size-4 shrink-0 text-muted-foreground"
+                    />
+                  ) : (
+                    <CheckCircle2Icon
+                      aria-hidden="true"
+                      className="mt-0.5 size-4 shrink-0 text-muted-foreground"
+                    />
+                  )}
+                  <div className="min-w-0 text-sm leading-snug">
+                    <p className="font-semibold">{item.title}</p>
+                    <p className="mt-0.5 text-muted-foreground">
+                      {item.detail}
+                    </p>
+                  </div>
                 </li>
               ))}
             </ul>
-          </div>
 
-          {step === steps.length - 1 && !isCompleted ? (
-            <p className="mt-4 text-sm text-ink-soft">
-              Finish this guide once to earn {rewardPoints} BetterPoints.
+            <p className="mt-4 text-sm leading-snug text-muted-foreground">
+              {current.reminder}
             </p>
-          ) : null}
+          </section>
 
-          {step === steps.length - 1 && isCompleted ? (
-            <Alert className="mt-4">
+          {isLastStep && isCompleted ? (
+            <Alert role="status" className="mt-4">
               <CheckCircle2Icon aria-hidden="true" />
               <AlertDescription>
-                {state.message ?? `Guide completed · ${rewardPoints} BP earned`}
+                {state.message ??
+                  "You have completed this guide. You can revisit it anytime."}
               </AlertDescription>
             </Alert>
           ) : null}
@@ -180,18 +276,19 @@ export function RecyclingGuideDialog({
           ) : null}
         </div>
 
-        <DialogFooter className="flex-row justify-between gap-2">
+        {/* Reset the shared footer's negative margins because this dialog has no outer padding. */}
+        <DialogFooter className="mx-0 mb-0 shrink-0 flex-row flex-wrap items-center justify-between gap-2 px-5 py-3 sm:justify-between sm:px-6">
           <Button
             type="button"
             variant="ghost"
             disabled={step === 0 || pending}
             onClick={() => setStep((value) => Math.max(0, value - 1))}
           >
-            <ChevronLeftIcon aria-hidden="true" />
+            <ChevronLeftIcon aria-hidden="true" data-icon="inline-start" />
             Back
           </Button>
 
-          {step < steps.length - 1 ? (
+          {!isLastStep ? (
             <Button
               type="button"
               variant="cta"
@@ -200,11 +297,12 @@ export function RecyclingGuideDialog({
               }
             >
               Next
-              <ChevronRightIcon aria-hidden="true" />
+              <ChevronRightIcon aria-hidden="true" data-icon="inline-end" />
             </Button>
           ) : isCompleted ? (
-            <Button type="button" variant="cta" onClick={() => setOpen(false)}>
-              Done
+            <Button variant="cta" render={<Link href="/recycling" />}>
+              Log recycling
+              <ArrowUpRightIcon aria-hidden="true" data-icon="inline-end" />
             </Button>
           ) : (
             <form action={action}>
@@ -212,9 +310,12 @@ export function RecyclingGuideDialog({
                 {pending ? (
                   <Spinner data-icon="inline-start" />
                 ) : (
-                  <CheckCircle2Icon aria-hidden="true" />
+                  <CheckCircle2Icon
+                    aria-hidden="true"
+                    data-icon="inline-start"
+                  />
                 )}
-                Finish and earn {rewardPoints} BP
+                {pending ? "Saving…" : `Finish · +${rewardPoints} BP`}
               </Button>
             </form>
           )}
