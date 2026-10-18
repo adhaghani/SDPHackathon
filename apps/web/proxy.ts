@@ -47,8 +47,9 @@ export async function proxy(request: NextRequest) {
   })
 
   const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    data,
+  } = await supabase.auth.getClaims()
+  const userId = data?.claims.sub
 
   const { pathname } = request.nextUrl
   const needsAuth = protectedPrefixes.some(
@@ -57,10 +58,10 @@ export async function proxy(request: NextRequest) {
 
   let redirectUrl: URL | undefined
 
-  if (needsAuth && !user) {
+  if (needsAuth && !userId) {
     redirectUrl = new URL("/sign-in", request.url)
     redirectUrl.searchParams.set("next", pathname)
-  } else if (user && (pathname === "/sign-in" || pathname === "/sign-up")) {
+  } else if (userId && (pathname === "/sign-in" || pathname === "/sign-up")) {
     redirectUrl = new URL("/home", request.url)
   }
 
@@ -78,6 +79,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|icons/|manifest.webmanifest).*)",
+    "/((?!_next/static|_next/image|favicon.ico|icons/|brand/|demo/|sw[.]js$|manifest.webmanifest).*)",
   ],
 }

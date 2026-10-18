@@ -1,7 +1,7 @@
 "use client"
 
 import { useActionState, useState } from "react"
-import Image from "next/image"
+import { PublicImage as Image } from "@/components/shared/public-image"
 
 import { saveItemGuide } from "@/actions/guides"
 import { PublicImageCropDialog } from "@/components/shared/public-image-crop-dialog"
@@ -117,7 +117,6 @@ export function ItemGuideForm({
           {photoPaths.map((src, index) => (
             <div key={src} className="relative aspect-[4/3]">
               <Image
-                unoptimized
                 src={src}
                 alt={`Guide photo ${index + 1}`}
                 fill

@@ -1,4 +1,4 @@
-import Image from "next/image"
+import { PublicImage as Image } from "@/components/shared/public-image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import {
@@ -169,11 +169,10 @@ export default async function ItemDetailPage({
             />
           </div>
           <Image
-            unoptimized
             src={photo}
             alt={item.title}
             fill
-            priority
+            preload
             sizes="(min-width: 1024px) 52vw, 100vw"
             className={
               isDemoArtwork ? "object-cover" : "object-contain p-4 sm:p-6"

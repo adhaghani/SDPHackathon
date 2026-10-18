@@ -1,4 +1,4 @@
-import Image from "next/image"
+import { PublicImage as Image } from "@/components/shared/public-image"
 import { CalendarDaysIcon, CheckIcon } from "lucide-react"
 
 import { RedeemButton } from "@/components/rewards/redeem-button"
@@ -49,7 +49,6 @@ export function RewardCard({
     <li className="flex min-w-0 flex-col rounded-[20px] bg-paper text-ink">
       <div className="relative aspect-[16/9] w-full shrink-0 overflow-hidden rounded-t-[20px] bg-white">
         <Image
-          unoptimized
           src={imagePath || rewardImageFor(kind)}
           alt={title}
           fill

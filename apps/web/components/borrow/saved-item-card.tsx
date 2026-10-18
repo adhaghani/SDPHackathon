@@ -1,4 +1,4 @@
-import Link from "next/link"
+import { IntentLink as Link } from "@/components/shared/intent-link"
 
 import { SaveItemButton } from "@/components/block/save-item-button"
 import { MediaPoster } from "@/components/shared/media-poster"

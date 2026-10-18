@@ -1,4 +1,4 @@
-import Image from "next/image"
+import { PublicImage as Image } from "@/components/shared/public-image"
 import type { ReactNode } from "react"
 
 import { cn } from "@workspace/ui/lib/utils"
@@ -35,11 +35,11 @@ export function MediaPoster({
 
   return (
     <div className={cn("bb-on-ink relative isolate w-full overflow-hidden rounded-lg bg-lilac-tint", ratio, className)}>
-      <Image unoptimized
+      <Image
         src={src}
         alt={alt}
         fill
-        priority={priority}
+        preload={priority}
         sizes={sizes}
         className="object-cover object-[50%_30%]"
       />

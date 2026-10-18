@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import { IntentLink as Link } from "@/components/shared/intent-link"
 import { usePathname } from "next/navigation"
 
 import { isActivePath } from "@/components/navigation/nav-utils"

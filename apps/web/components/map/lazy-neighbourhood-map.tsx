@@ -1,6 +1,7 @@
 "use client"
 
 import dynamic from "next/dynamic"
+import { DeferredMap } from "@/components/map/deferred-map"
 
 const NeighbourhoodMap = dynamic(
   () => import("@/components/map/neighbourhood-map").then((module) => module.NeighbourhoodMap),
@@ -11,5 +12,9 @@ const NeighbourhoodMap = dynamic(
 )
 
 export function LazyNeighbourhoodMap() {
-  return <NeighbourhoodMap />
+  return (
+    <DeferredMap placeholderClassName="h-[28rem] rounded-lg bg-lilac-tint">
+      <NeighbourhoodMap />
+    </DeferredMap>
+  )
 }

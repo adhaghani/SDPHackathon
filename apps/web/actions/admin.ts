@@ -1,8 +1,9 @@
 "use server"
 
-import { revalidatePath } from "next/cache"
+import { revalidatePath, updateTag } from "next/cache"
 
 import { createClient } from "@/lib/supabase/server"
+import { referenceCacheTag } from "@/lib/supabase/reference-fetch"
 import { requireActiveMember } from "@/lib/data"
 import { badgeCriteriaSchema } from "@/lib/validation/badges"
 import type { Json } from "@/types/database"
@@ -71,6 +72,7 @@ export async function saveBadge(
   if (error)
     return { status: "error", message: "The award could not be saved." }
 
+  updateTag(referenceCacheTag("badges"))
   revalidatePath("/admin/badges")
   revalidatePath("/rewards")
   revalidatePath("/profile")

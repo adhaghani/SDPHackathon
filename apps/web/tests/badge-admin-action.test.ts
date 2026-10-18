@@ -3,8 +3,12 @@ const mocks = vi.hoisted(() => ({
   rpc: vi.fn(),
   member: vi.fn(),
   revalidate: vi.fn(),
+  updateTag: vi.fn(),
 }))
-vi.mock("next/cache", () => ({ revalidatePath: mocks.revalidate }))
+vi.mock("next/cache", () => ({
+  revalidatePath: mocks.revalidate,
+  updateTag: mocks.updateTag,
+}))
 vi.mock("@/lib/data", () => ({ requireActiveMember: mocks.member }))
 vi.mock("@/lib/supabase/server", () => ({
   createClient: async () => ({ rpc: mocks.rpc }),
@@ -33,6 +37,7 @@ describe("badge admin saving", () => {
     expect((await saveBadge({ status: "idle" }, form())).status).toBe("success")
     expect(mocks.rpc.mock.calls[0]?.[1]).not.toHaveProperty("p_criteria")
     expect(mocks.revalidate).toHaveBeenCalledWith("/profile")
+    expect(mocks.updateTag).toHaveBeenCalledWith("reference:badges")
   })
   it("passes explicitly configured requirements intact", async () => {
     const rule = {

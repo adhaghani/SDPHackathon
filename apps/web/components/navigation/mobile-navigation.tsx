@@ -2,7 +2,7 @@
 
 import { BrandLogo } from "@/components/shared/brand-logo"
 
-import Link from "next/link"
+import { IntentLink as Link } from "@/components/shared/intent-link"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 import {

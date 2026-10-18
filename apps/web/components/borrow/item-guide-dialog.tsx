@@ -1,6 +1,6 @@
 "use client"
 
-import Image from "next/image"
+import { PublicImage as Image } from "@/components/shared/public-image"
 import { BookOpenIcon, PencilIcon } from "lucide-react"
 
 import { ItemGuideForm } from "@/components/borrow/item-guide-form"
@@ -86,7 +86,6 @@ export function ItemGuideDialog({
                     className="relative block aspect-[4/3] overflow-hidden rounded-xl bg-paper"
                   >
                     <Image
-                      unoptimized
                       src={src}
                       alt={`How-to guide photo ${index + 1}`}
                       fill

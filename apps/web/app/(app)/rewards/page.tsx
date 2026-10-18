@@ -33,7 +33,6 @@ export default async function RewardsPage() {
   const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0)
 
   const [
-    pointsResult,
     ledgerResult,
     statsResult,
     badgesResult,
@@ -42,17 +41,10 @@ export default async function RewardsPage() {
     levelsResult,
     rewardsResult,
     redemptionsResult,
-    valueResult,
     streakResult,
     blockTotalResult,
     blockMineResult,
   ] = await Promise.all([
-    supabase
-      .from("v_member_points")
-      .select("balance,lifetime_points,last_activity_at")
-      .eq("user_id", active.user.id)
-      .eq("township_id", active.townshipId)
-      .maybeSingle(),
     supabase
       .from("points_ledger")
       .select("id,delta,action_type,source_type,created_at,metadata")
@@ -60,13 +52,7 @@ export default async function RewardsPage() {
       .eq("township_id", active.townshipId)
       .order("created_at", { ascending: false })
       .limit(3),
-    supabase
-      .from("points_ledger")
-      .select("action_type")
-      .eq("user_id", active.user.id)
-      .eq("township_id", active.townshipId)
-      .gt("delta", 0)
-      .limit(1000),
+    supabase.rpc("get_my_reward_stats", { p_township_id: active.townshipId }),
     supabase.from("badges").select("id,slug,name,description,icon,criteria"),
     supabase
       .from("user_badges")
@@ -94,12 +80,6 @@ export default async function RewardsPage() {
       .eq("user_id", active.user.id)
       .eq("township_id", active.townshipId)
       .order("created_at", { ascending: false }),
-    supabase
-      .from("bookings")
-      .select("estimated_value_saved_rm")
-      .eq("borrower_id", active.user.id)
-      .eq("township_id", active.townshipId)
-      .eq("status", "completed"),
     supabase.rpc("compute_user_streak", { p_user_id: active.user.id }),
     supabase
       .from("bookings")
@@ -121,13 +101,11 @@ export default async function RewardsPage() {
     throw new Error(earnedBadgesResult.error.message)
   if (badgeProgressResult.error)
     throw new Error(badgeProgressResult.error.message)
-  if (valueResult.error) throw new Error(valueResult.error.message)
+  if (statsResult.error) throw new Error(statsResult.error.message)
   if (streakResult.error) throw new Error(streakResult.error.message)
 
-  const estimatedShared = (valueResult.data ?? []).reduce(
-    (sum, row) => sum + Number(row.estimated_value_saved_rm ?? 0),
-    0
-  )
+  const rewardStats = statsResult.data as { action_counts?: Record<string, number>; estimated_shared_rm?: number } | null
+  const estimatedShared = Number(rewardStats?.estimated_shared_rm ?? 0)
   const streak = streakResult.data as {
     streak_months?: number
     current_month_active?: boolean
@@ -135,8 +113,8 @@ export default async function RewardsPage() {
     next_deadline?: string
   } | null
 
-  const lifetime = pointsResult.data?.lifetime_points ?? 0
-  const balance = pointsResult.data?.balance ?? 0
+  const lifetime = active.points?.lifetime_points ?? 0
+  const balance = active.points?.balance ?? 0
   const level = levelProgress(lifetime, levelsResult.data ?? [])
   const ledger = ledgerResult.data ?? []
   const badgeDefinitions = badgesResult.data ?? []
@@ -151,13 +129,7 @@ export default async function RewardsPage() {
       }>
     ).map((badge) => [badge.badge_id, badge.progress])
   )
-  const actionCounts = (statsResult.data ?? []).reduce<Record<string, number>>(
-    (counts, row) => {
-      counts[row.action_type] = (counts[row.action_type] ?? 0) + 1
-      return counts
-    },
-    {}
-  )
+  const actionCounts = rewardStats?.action_counts ?? {}
   const demo = isDemoMode()
   const redemptions = redemptionsResult.data ?? []
   const readyVouchers = redemptions.filter((row) => row.status === "issued")

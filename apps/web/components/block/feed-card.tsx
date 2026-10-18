@@ -1,5 +1,5 @@
-import Image from "next/image"
-import Link from "next/link"
+import { PublicImage as Image } from "@/components/shared/public-image"
+import { IntentLink as Link } from "@/components/shared/intent-link"
 import { HandHelpingIcon, PackageIcon } from "lucide-react"
 
 import { PillarTag, type Pillar } from "@/components/block/pillar-tag"
@@ -53,7 +53,7 @@ export function FeedCard({
             <span className="block text-[10px] font-bold tracking-[0.08em] uppercase">{date.month}</span>
           </div>
         ) : image ? (
-          <Image unoptimized src={image} alt="" fill sizes="82px" className="object-cover" />
+          <Image src={image} alt="" fill sizes="82px" className="object-cover" />
         ) : variant === "help" ? (
           <HandHelpingIcon aria-hidden="true" className="size-8 text-ink" strokeWidth={1.8} />
         ) : (

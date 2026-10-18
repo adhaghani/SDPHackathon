@@ -5,19 +5,37 @@ import { createClient } from "@/lib/supabase/server"
 
 export type SessionContext = Awaited<ReturnType<typeof getSessionContext>>
 
-export const getSessionContext = cache(async () => {
+const getCurrentUser = cache(async () => {
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
+  return user
+})
+
+export const getUnreadNotificationCount = cache(async () => {
+  const user = await getCurrentUser()
+  if (!user) return 0
+  const supabase = await createClient()
+  const result = await supabase
+    .from("notifications")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id)
+    .is("read_at", null)
+  return result.count ?? 0
+})
+
+export const getSessionContext = cache(async () => {
+  const user = await getCurrentUser()
 
   if (!user) {
     return { user: null, membership: null, profile: null, points: null }
   }
 
+  const supabase = await createClient()
   const cookieStore = await cookies()
   const selectedTownshipId = cookieStore.get("selected_township_id")?.value
-  const [membershipsResult, profileResult] = await Promise.all([
+  const [membershipsResult, profileResult, pointsResult] = await Promise.all([
     supabase
       .from("township_members")
       .select(
@@ -33,12 +51,17 @@ export const getSessionContext = cache(async () => {
       )
       .eq("id", user.id)
       .maybeSingle(),
+    supabase
+      .from("v_member_points")
+      .select("township_id,balance,lifetime_points,last_activity_at")
+      .eq("user_id", user.id),
   ])
 
-  if (membershipsResult.error || profileResult.error) {
+  if (membershipsResult.error || profileResult.error || pointsResult.error) {
     throw new Error(
       membershipsResult.error?.message ??
         profileResult.error?.message ??
+        pointsResult.error?.message ??
         "Could not load resident context."
     )
   }
@@ -57,17 +80,6 @@ export const getSessionContext = cache(async () => {
     memberships[0] ??
     null
 
-  const pointsResult = membership
-    ? await supabase
-        .from("v_member_points")
-        .select("township_id,balance,lifetime_points,last_activity_at")
-        .eq("user_id", user.id)
-        .eq("township_id", membership.township_id)
-        .maybeSingle()
-    : { data: null, error: null }
-
-  if (pointsResult.error) throw new Error(pointsResult.error.message)
-
   return {
     user,
     membership,
@@ -76,7 +88,10 @@ export const getSessionContext = cache(async () => {
       (row) => row.townships?.lifecycle !== "active"
     ),
     profile: profileResult.data,
-    points: pointsResult.data,
+    points:
+      pointsResult.data?.find(
+        (row) => row.township_id === membership?.township_id
+      ) ?? null,
   }
 })
 

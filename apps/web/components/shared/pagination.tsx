@@ -8,11 +8,13 @@ export function Pagination({
   totalPages,
   basePath,
   searchParams,
+  pageParam = "page",
 }: {
   page: number
   totalPages: number
   basePath: string
   searchParams?: Record<string, string | undefined>
+  pageParam?: string
 }) {
   if (totalPages <= 1) return null
 
@@ -21,7 +23,7 @@ export function Pagination({
     for (const [key, value] of Object.entries(searchParams ?? {})) {
       if (value) params.set(key, value)
     }
-    params.set("page", String(nextPage))
+    params.set(pageParam, String(nextPage))
     return `${basePath}?${params.toString()}`
   }
 

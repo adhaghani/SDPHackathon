@@ -1879,6 +1879,14 @@ isOneToOne: false
 "get_my_badge_progress":
 { Args: { "p_township_id": string }; Returns: Json
                            },
+"get_my_incoming_request_trust":
+{ Args: { "p_booking_ids": (string)[] }; Returns: {
+              "booking_id": string,"tier": string
+            }[]
+                           },
+"get_my_reward_stats":
+{ Args: { "p_township_id": string }; Returns: Json
+                           },
 "get_or_create_invite":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },

@@ -1,6 +1,7 @@
 "use client"
 
 import dynamic from "next/dynamic"
+import { DeferredMap } from "@/components/map/deferred-map"
 
 const EventMap = dynamic(
   () => import("@/components/map/event-map").then((module) => module.EventMap),
@@ -11,5 +12,9 @@ const EventMap = dynamic(
 )
 
 export function LazyEventMap(props: React.ComponentProps<typeof EventMap>) {
-  return <EventMap {...props} />
+  return (
+    <DeferredMap placeholderClassName={`h-72 rounded-lg bg-lilac-tint sm:h-[22rem] ${props.className ?? ""}`}>
+      <EventMap {...props} />
+    </DeferredMap>
+  )
 }

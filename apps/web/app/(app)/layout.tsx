@@ -6,7 +6,7 @@ import { MobileNavigation } from "@/components/navigation/mobile-navigation"
 import { TabBar } from "@/components/navigation/tab-bar"
 import { PageSurface } from "@/components/shared/page-surface"
 import { RealtimeRefresh } from "@/components/shared/realtime-refresh"
-import { getSessionContext } from "@/lib/data"
+import { getSessionContext, getUnreadNotificationCount } from "@/lib/data"
 import { isFeatureEnabled } from "@/lib/env"
 import { getPreferredLocale } from "@/lib/i18n"
 import { createClient } from "@/lib/supabase/server"
@@ -15,8 +15,11 @@ import { cn } from "@workspace/ui/lib/utils"
 export default async function AppLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const context = await getSessionContext()
-  const locale = isFeatureEnabled("bm_ui") ? await getPreferredLocale() : "en"
+  const [context, unreadCount, locale] = await Promise.all([
+    getSessionContext(),
+    getUnreadNotificationCount(),
+    isFeatureEnabled("bm_ui") ? getPreferredLocale() : Promise.resolve("en" as const),
+  ])
 
   if (!context.user) {
     redirect("/sign-in")
@@ -28,13 +31,6 @@ export default async function AppLayout({
     if (platformAdmin) redirect("/superadmin")
     redirect("/onboarding")
   }
-
-  const supabase = await createClient()
-  const unread = await supabase
-    .from("notifications")
-    .select("id", { count: "exact", head: true })
-    .eq("user_id", context.user.id)
-    .is("read_at", null)
 
   const comfort = context.profile?.comfort_prefs
   const comfortPrefs =
@@ -77,7 +73,7 @@ export default async function AppLayout({
         townshipName={townshipName}
         enabledFlags={[...enabledFlags]}
         balance={context.points?.balance ?? 0}
-        unreadCount={unread.count ?? 0}
+        unreadCount={unreadCount}
       />
       <main
         id="main-content"
@@ -94,7 +90,7 @@ export default async function AppLayout({
         townshipName={townshipName}
         enabledFlags={[...enabledFlags]}
         balance={context.points?.balance ?? 0}
-        unreadCount={unread.count ?? 0}
+        unreadCount={unreadCount}
       />
       <Link
         href="/profile/settings"

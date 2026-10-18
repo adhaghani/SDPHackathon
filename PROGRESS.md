@@ -231,3 +231,11 @@ The project owner requested that the implementation goal be considered completed
 - Added upload progress and disabled save controls during uploads. Failed replacements preserve the previous saved image. Removed raw file fields from server-action submissions; the forms submit the uploaded URL.
 - Verification: production build, TypeScript, workspace lint and all 124 unit tests passed. Five production Playwright scenarios cover all six upload surfaces, saved images after reload, actual image decoding, PNG/JPEG/WebP inputs and a rejected replacement upload. Guide and reward layouts were visually reviewed at desktop and 390px widths.
 - Existing campaign-dependent recycling scenarios could not pass against the current local data because no active campaign progress widget is available. The independent recycling photo upload/save/reload/decoding scenario passed. No demo reset, hosted migration or deployment was performed.
+
+
+## Load-time improvements — 18 October 2026
+
+- Parallelised catalogue and session/shell reads; Home now streams optional sections independently and avoids unused feed rows and separate event count requests.
+- Added credential-scoped reference-data caching with immediate badge invalidation, responsive public Storage images, deferred maps, intent-based route prefetching and batched realtime refreshes. Private and transactional data remain fresh.
+- Reused session points, moved Rewards totals into a caller-scoped aggregate RPC and added 20-record history pagination with a batched incoming-trust RPC. Applied the additive migration locally and regenerated types without resetting data. No hosted migration or deployment was performed.
+- Validation: production build, TypeScript and ESLint passed; all 168 app tests and 309 database assertions passed. Desktop/mobile browser checks passed for the five affected pages. See [performance notes](docs/PERFORMANCE.md) for implementation, local before/after measurements, limitations and rollout order.

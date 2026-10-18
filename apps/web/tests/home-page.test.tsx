@@ -62,6 +62,7 @@ vi.mock("@/lib/supabase/server", () => ({
         "or",
         "order",
         "limit",
+        "maybeSingle",
       ])
         chain[method] = () => chain
       return chain
@@ -70,6 +71,11 @@ vi.mock("@/lib/supabase/server", () => ({
 }))
 
 import HomePage from "@/app/(app)/home/page"
+import {
+  HomeFeed,
+  HomeRecyclingImpact,
+  HomeRecyclingGoal,
+} from "@/components/home/sections"
 
 describe("Home partial service failure", () => {
   it.each(["error response", "rejected request"])(
@@ -83,7 +89,18 @@ describe("Home partial service failure", () => {
               error: { message: "recycling unavailable" },
             })
       )
-      render(await HomePage())
+      const sections = await Promise.all([
+        HomeFeed({ now: new Date().toISOString() }),
+        HomeRecyclingImpact(),
+        HomeRecyclingGoal(),
+      ])
+      render(
+        <>
+          {sections.map((section, index) => (
+            <div key={index}>{section}</div>
+          ))}
+        </>
+      )
       expect(
         screen.getByRole("link", { name: "Neighbour's drill" })
       ).toHaveAttribute("href", "/borrow/items/drill")
@@ -99,4 +116,10 @@ describe("Home partial service failure", () => {
       ).toBeVisible()
     }
   )
+  it("returns the Home shell without waiting for optional services", async () => {
+    mocks.rpc.mockClear()
+    const shell = await HomePage()
+    expect(shell).toBeTruthy()
+    expect(mocks.rpc).not.toHaveBeenCalled()
+  })
 })

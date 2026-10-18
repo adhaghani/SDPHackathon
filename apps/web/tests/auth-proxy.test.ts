@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { NextRequest } from "next/server"
+import { unstable_doesMiddlewareMatch } from "next/experimental/testing/server"
 
 const mocks = vi.hoisted(() => ({
   user: null as { id: string } | null,
@@ -27,7 +28,7 @@ vi.mock("@supabase/ssr", () => ({
     }
   ) => ({
     auth: {
-      getUser: async () => {
+      getClaims: async () => {
         if (mocks.refresh)
           options.cookies.setAll([
             {
@@ -36,12 +37,12 @@ vi.mock("@supabase/ssr", () => ({
               options: { path: "/" },
             },
           ])
-        return { data: { user: mocks.user } }
+        return { data: mocks.user ? { claims: { sub: mocks.user.id } } : null }
       },
     },
   }),
 }))
-import { proxy } from "@/proxy"
+import { config, proxy } from "@/proxy"
 
 describe("session proxy", () => {
   beforeEach(() => {
@@ -67,5 +68,25 @@ describe("session proxy", () => {
       )
       expect(response.headers.get("cache-control")).toBe("private, no-store")
     }
+  )
+  it.each([
+    "/brand/logo.svg",
+    "/demo/item.webp",
+    "/sw.js",
+    "/_next/static/chunk.js",
+    "/_next/image?url=photo",
+    "/icons/icon.png",
+  ])("skips auth work for public asset %s", (url) =>
+    expect(unstable_doesMiddlewareMatch({ config, url })).toBe(false)
+  )
+  it.each([
+    "/home",
+    "/borrow/items/123",
+    "/pass/token",
+    "/api/profile/export",
+    "/auth/callback",
+    "/sign-in",
+  ])("retains session handling on %s", (url) =>
+    expect(unstable_doesMiddlewareMatch({ config, url })).toBe(true)
   )
 })

@@ -1,4 +1,4 @@
-import Link from "next/link"
+import { IntentLink as Link } from "@/components/shared/intent-link"
 import { PlusIcon } from "lucide-react"
 
 import { BorrowSearchForm } from "@/components/borrow/borrow-search-form"
@@ -26,15 +26,14 @@ export default async function BorrowPage({
   const pageSize = 12
   const page = Math.max(1, Number(params.page ?? 1) || 1)
   const offset = (page - 1) * pageSize
-  const categories = await supabase.from("item_categories").select("id,slug,name,kind").order("name")
-  const bundlesResult = await supabase
+  const categoriesQuery = supabase.from("item_categories").select("id,slug,name,kind").order("name")
+  const bundlesQuery = supabase
     .from("bundles")
     .select("id,title,description,cover_path,bundle_items(count)")
     .eq("township_id", active.townshipId)
     .eq("is_demo", false)
     .order("title")
     .limit(4)
-  if (bundlesResult.error) throw new Error(bundlesResult.error.message)
   const naturalLanguage = isFeatureEnabled("ai_search") && params.nl ? parseNaturalLanguageSearch(params.nl) : null
 
   let query = supabase
@@ -53,7 +52,11 @@ export default async function BorrowPage({
   if (naturalLanguage?.category) query = query.eq("item_categories.slug", naturalLanguage.category)
   if (naturalLanguage?.freeOnly) query = query.eq("deposit_rm", 0)
 
-  const items = await query
+  const [categories, bundlesResult, items] = await Promise.all([
+    categoriesQuery, bundlesQuery, query,
+  ])
+  if (categories.error) throw new Error(categories.error.message)
+  if (bundlesResult.error) throw new Error(bundlesResult.error.message)
   if (items.error) throw new Error(items.error.message)
 
   const totalPages = Math.max(1, Math.ceil((items.count ?? 0) / pageSize))

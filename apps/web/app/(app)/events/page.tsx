@@ -1,4 +1,4 @@
-import Link from "next/link"
+import { IntentLink as Link } from "@/components/shared/intent-link"
 import { PlusIcon, SearchIcon } from "lucide-react"
 
 import { PageBand } from "@/components/shared/page-band"
@@ -24,7 +24,7 @@ export default async function EventsPage({
   const page = Math.max(1, Number(params.page ?? 1) || 1)
   const offset = (page - 1) * pageSize
 
-  const categoriesResult = await supabase
+  const categoriesQuery = supabase
     .from("event_categories")
     .select("id,slug,name,counts_as_sustainability")
     .order("name")
@@ -41,7 +41,8 @@ export default async function EventsPage({
   if (params.category) query = query.eq("event_categories.slug", params.category)
   if (params.q) query = query.ilike("title", `%${params.q}%`)
 
-  const [eventsResult] = await Promise.all([query])
+  const [categoriesResult, eventsResult] = await Promise.all([categoriesQuery, query])
+  if (categoriesResult.error) throw new Error(categoriesResult.error.message)
   if (eventsResult.error) throw new Error(eventsResult.error.message)
   const totalPages = Math.max(1, Math.ceil((eventsResult.count ?? 0) / pageSize))
   const mapMarkers = (eventsResult.data ?? []).map((event) => ({

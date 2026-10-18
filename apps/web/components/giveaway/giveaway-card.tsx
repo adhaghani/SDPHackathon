@@ -1,4 +1,4 @@
-import Image from "next/image"
+import { PublicImage as Image } from "@/components/shared/public-image"
 
 import {
   GiveawayActions,
@@ -51,7 +51,7 @@ export function GiveawayCard({
   return (
     <article className={cn("bb-card overflow-hidden", className)}>
       <div className="relative aspect-[4/3] overflow-hidden bg-lilac-tint">
-        <Image unoptimized
+        <Image
           src={giveaway.photo_path || "/demo/item-placeholder.svg"}
           alt={giveaway.title}
           fill
