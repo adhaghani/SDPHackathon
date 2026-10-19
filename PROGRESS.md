@@ -239,3 +239,18 @@ The project owner requested that the implementation goal be considered completed
 - Added credential-scoped reference-data caching with immediate badge invalidation, responsive public Storage images, deferred maps, intent-based route prefetching and batched realtime refreshes. Private and transactional data remain fresh.
 - Reused session points, moved Rewards totals into a caller-scoped aggregate RPC and added 20-record history pagination with a batched incoming-trust RPC. Applied the additive migration locally and regenerated types without resetting data. No hosted migration or deployment was performed.
 - Validation: production build, TypeScript and ESLint passed; all 168 app tests and 309 database assertions passed. Desktop/mobile browser checks passed for the five affected pages. See [performance notes](docs/PERFORMANCE.md) for implementation, local before/after measurements, limitations and rollout order.
+
+## 3R pitch presentation - 19 October 2026
+
+- Added the public `/brief` recording companion with 12 manually advanced scenes following the five-member planet-first script: introduction, Reduce, Reuse, Recycle, recognition, proposed pilot and closing.
+- Reused the connected-homes logo, township garden, pressure-washer asset, existing typefaces and lime/ink/paper palette. No new dependencies or database writes.
+- Added scene selection, previous/next controls, replay, keyboard shortcuts, browser fullscreen, clean recording mode, narration cues and separate links to actual app workflows. Scene URLs preserve the selected scene and clean mode; search indexing is disabled.
+- Clean mode keeps a 16:9 composition with cursor/controls hidden. Editor preview stacks on phones; reduced-motion preferences remove entrance animations. Capture guidance is in `docs/BRIEF.md`.
+- Verification: workspace lint and TypeScript passed; production build passed. Browser checks covered all 12 scenes, navigation/replay, clean mode, URL/reload persistence, double-click recovery, fullscreen, first/last boundaries, reduced motion, invalid-scene fallback and noindex metadata. Desktop and phone previews and all recording scenes were visually inspected. No resident data, database fixtures or hosted deployment were changed.
+- Replaced the Reduce scene's SVG mock with an AI-edited version of the owner's supplied Kärcher photograph, isolated on transparency with leaf/reuse-arrow accents. Preserved the original photo and saved the generation prompt. Updated presentation image decoding, desktop clean-mode and 390px preview checks passed; final build, lint and TypeScript passed.
+
+## Mouse-led pitch scenes - 19 October 2026
+
+- Made the three-R principles, borrowing steps, giveaway roles, recycling materials and proposed pilot measures selectable. Each click highlights the selection and reveals a short explanation on the same scene, including in clean recording mode.
+- Kept the cursor visible for pointer-led recordings. Replay resets scene interactions. Double-clicking an interactive button no longer restores editor controls; empty-stage double-click recovery remains available. No simulated transaction writes or environmental totals were introduced.
+- Production browser checks passed all five interaction types, selected-state semantics, replay/reset, double-click behavior, Enter activation, 390px layout and reduced motion. Desktop recording frames and the phone preview were visually reviewed. Workspace lint, typecheck and production build passed.
