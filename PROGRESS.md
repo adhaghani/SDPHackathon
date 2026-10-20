@@ -254,3 +254,39 @@ The project owner requested that the implementation goal be considered completed
 - Made the three-R principles, borrowing steps, giveaway roles, recycling materials and proposed pilot measures selectable. Each click highlights the selection and reveals a short explanation on the same scene, including in clean recording mode.
 - Kept the cursor visible for pointer-led recordings. Replay resets scene interactions. Double-clicking an interactive button no longer restores editor controls; empty-stage double-click recovery remains available. No simulated transaction writes or environmental totals were introduced.
 - Production browser checks passed all five interaction types, selected-state semantics, replay/reset, double-click behavior, Enter activation, 390px layout and reduced motion. Desktop recording frames and the phone preview were visually reviewed. Workspace lint, typecheck and production build passed.
+
+## Everyday scenarios and transition cues - 19 October 2026
+
+- Kept the opening scene first and added a second, clickable three-scenario scene with the owner's edited pressure-washer photo and generated chair/bottle cutouts. The presentation now contains 13 scenes; existing scene URLs remain stable.
+- Added an editor-only transition strip to every scene with a verbatim script line and the next scene's title. The opening cues the start of Member 1; the final scene instructs a closing hold. Guidance is hidden in clean recording mode.
+- Fixed image overlap by using positioned fixed-height image frames and contained fill images. Reduced the editor preview height so desktop transition guidance remains visible.
+- Verification passed: lint, TypeScript/production build, cues and next labels on all 13 scenes, scenario selection/replay, clean-mode cue removal, image decoding and no caption overlap at 1440px, 1920px and 390px. Desktop recording and phone layouts were visually checked. Asset prompts are recorded in `docs/brief-assets/scenario-images.prompts.txt`.
+
+## 2026-10-19 — Script-led brief refinement
+- Re-read all five recorded-script sections and checked all 13 transition quotes against the source script.
+- Repeated the washer, chair and bottles through Reduce, Reuse, estimate explanation and closing; added click-controlled object responses.
+- Added a labelled two-confirmation giveaway illustration: the chair moves only after both confirmations. No application transactions or data writes.
+- Added Count items / Custom kg explanation and the script's documented-factor condition for carbon and energy equivalents.
+- Updated editor capture notes; enlarged affected mobile previews to avoid clipping and bottom-motif collisions.
+- Validation: lint, typecheck, production build and diff whitespace checks passed. Browser checks covered changed scenes at 390px and 1440px, with final mobile and 1920x1080 clean-mode captures; verified both confirmations, estimate switching, keyboard activation, replay reset, reduced motion and hidden recording cues. No full E2E suite or deployment.
+
+## 2026-10-20 — Full script coverage and keyboard presentation
+- Read the supplied `borrowlah-3r-pitch-team-pack (1).pdf`, including all five spoken sections. Rebuilt `/brief` as 26 slides / 73 reversible visual beats, including the opening hold. Concatenated narration matches PDF pages 2–6 word for word.
+- Added the missing visual stages for item availability/dates, loan return/completion, borrowing aims/pilot evidence, giveaway condition/location/reservation, estimate methods/material breakdown, factor-supported equivalents, estimate limits, participation, pilot measures, feedback and staff effort.
+- Centralised beat state: Right/Page Down and Left/Page Up drive every interaction and cross-slide transition. Clicks use the same state. URLs preserve one-based beat numbers. Added restart, slide-jump and boundary handling. Recording mode hides cursor and editor cues; entering it restores the frame to the top.
+- Added generated transparent tool, books/plant and paper/cans groups for visual variety. Kept the named opening objects and consistent pressure-washer loan example. Saved images in public/images/brief and prompts/provenance in docs/brief-assets/variety-images.prompts.txt.
+- Added docs/BRIEF_SCRIPT_MAP.md and refreshed docs/BRIEF.md with narration and recording controls.
+- Validation: lint, typecheck and production build passed. Browser traversal verified all 73 beats forward and back, with no page errors. All 26 slides were checked at 1440px and 390px for overflow/clipping. Final checks passed URL reload, reverse interaction, click/key state parity, cursor/cue hiding, restart, slide jump, fallback and both motion preferences.
+- Fixed-frame check completed across heights 700/1000: desktop editor 1376×774, clean 1440×810; mobile editor 366×660, clean 390×219.375, consistent across tested slides. No database writes, full E2E run or deployment.
+
+## 2026-10-20 — Actual mobile app UI inside the pitch
+- Added real mobile screenshots to slides 6 (find/check/request), 10 (giveaway listing/condition/shared location) and 15 (recycling Count items/Custom kg). Reused the app's existing routes and components, with illustrated product assets and labelled sample data; no redrawn form UI.
+- Added a slide-only phone frame and adjacent step controls. The existing narration beat controls the captured screen, including reverse navigation, Page keys, click selection and URL restoration. All current-slide captures load eagerly. Script, slide/beat count and editor controls are unchanged.
+- Recorded capture sources and sample-content substitutions in docs/brief-assets/app-ui-captures.md. Borrowing shows dates selected and a request ready to send; giveaway forms and recycling inputs remain unsaved. No transaction, upload or publication was submitted.
+- Validation: production build/TypeScript, project lint command and diff whitespace checks passed. Browser checks covered all eight captured states at 1440px, 390px and 1920×1080 recording mode; no broken images, clipping or page errors. Confirmed keyboard reverse, Page Down, click parity, URL beat restoration, cursor hiding and normal/reduced motion. Frame sizes remained constant across heights 700/1000. No full E2E suite or deployment.
+
+## 2026-10-20 — Full-width presenter workspace and summary arrow
+- Removed the presentation/editor width caps. Desktop `/brief` now uses a viewport-height 70% slide / 30% presenter-script layout. Narration, transition cues, navigation and guidance are in an independently scrolling right panel. At widths up to 900px, the panel stacks below the full-width slide. Clean recording mode expands the slide to the full viewport width.
+- Preserved width-based 16:9 geometry, keyboard/beat state and script content. Short viewports scroll within the slide pane rather than shrinking the slide.
+- Fixed the everyday-scenarios summary arrow: its generic card grid had overridden the summary's flex layout. Increased selector specificity and grouped the text so the arrow stays inline, centred next to the phrase.
+- Validation: production build/TypeScript, project lint and whitespace checks passed. Browser checks passed the 70/30 proportions at 1024, 1440, 1920 and 2560px; checked the 390px stacked layout and all 26 slides at desktop/mobile for content bounds. Summary arrow stayed vertically centred beside its text at all five widths. Confirmed fixed geometry across short/tall viewports, full-width clean mode, panel restoration, reverse/Page-key navigation and no page errors.

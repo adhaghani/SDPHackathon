@@ -11,12 +11,13 @@ export const metadata: Metadata = {
 export default async function BriefPage({
   searchParams,
 }: {
-  searchParams: Promise<{ scene?: string; clean?: string }>
+  searchParams: Promise<{ scene?: string; clean?: string; beat?: string }>
 }) {
   const params = await searchParams
   return (
     <BriefPresentation
       initialScene={sceneIndex(params.scene)}
+      initialBeat={Number(params.beat ?? "1") - 1}
       initialClean={params.clean === "1"}
     />
   )

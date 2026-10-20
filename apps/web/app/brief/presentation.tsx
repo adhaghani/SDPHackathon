@@ -1,175 +1,57 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import Image from "next/image"
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
-  GiftIcon,
-  LeafIcon,
   MaximizeIcon,
   MinimizeIcon,
-  RecycleIcon,
   RotateCcwIcon,
-  UsersIcon,
   VideoIcon,
 } from "lucide-react"
 import { BrandLogo } from "@/components/shared/brand-logo"
 import { Button, buttonVariants } from "@workspace/ui/components/button"
 import { cn } from "@workspace/ui/lib/utils"
-import { scenes, sceneIndex, type BriefScene } from "./scenes"
+import { scenes, sceneIndex, timeline, timelineIndex } from "./scenes"
 import styles from "./brief.module.css"
-import {
-  Principles,
-  GiveawayRoles,
-  BorrowJourney,
-  RecyclingMaterials,
-  PilotMeasures,
-} from "./interactions"
-
-function Visual({ scene }: { scene: BriefScene }) {
-  switch (scene.visual) {
-    case "garden":
-      return (
-        <div className={styles.garden}>
-          <Image
-            src="/images/township-garden.webp"
-            alt="A green garden surrounded by township homes"
-            fill
-            priority
-            sizes="60vw"
-          />
-          <div className={styles.photoCaption}>
-            <LeafIcon aria-hidden="true" /> Caring for the planet, close to
-            home.
-          </div>
-        </div>
-      )
-    case "pillars":
-      return <Principles />
-    case "washer":
-      return (
-        <div className={styles.itemVisual}>
-          <Image
-            src="/images/brief/pressure-washer-photo.png"
-            alt="Edited photo of a yellow Kärcher pressure washer with illustrated reuse arrows and leaves"
-            width={1536}
-            height={1024}
-            sizes="(max-width: 700px) 270px, 45vw"
-            priority
-          />
-          <span className={styles.itemCaption}>
-            An afternoon&apos;s task.
-            <br />A neighbour&apos;s useful tool.
-          </span>
-        </div>
-      )
-    case "borrow":
-      return <BorrowJourney />
-    case "give":
-      return (
-        <div className={styles.giftVisual}>
-          <div className={styles.giftOrbit}>
-            <GiftIcon aria-hidden="true" />
-          </div>
-          <div className={styles.giftLabel}>
-            Still useful.
-            <br />
-            <strong>Just not yours anymore.</strong>
-          </div>
-        </div>
-      )
-    case "handover":
-      return <GiveawayRoles />
-    case "materials":
-      return <RecyclingMaterials />
-    case "estimate":
-      return (
-        <div className={styles.estimate}>
-          <div>
-            <strong>Count items</strong>
-            <span>or enter custom kg</span>
-          </div>
-          <ArrowRightIcon aria-hidden="true" />
-          <div>
-            <strong>Estimated kg</strong>
-            <span>broken down by material</span>
-          </div>
-          <p>
-            Self-reported estimates.
-            <br />
-            Logging does not itself recycle the material.
-          </p>
-        </div>
-      )
-    case "goal":
-      return (
-        <div className={styles.collective}>
-          <div className={styles.people}>
-            {Array.from({ length: 5 }, (_, i) => (
-              <span key={i} style={{ animationDelay: `${i * 100}ms` }}>
-                <UsersIcon aria-hidden="true" />
-              </span>
-            ))}
-          </div>
-          <div className={styles.joinLine} />
-          <RecycleIcon className={styles.goalIcon} aria-hidden="true" />
-          <strong>
-            Individual contributions.
-            <br />
-            Collective participation.
-          </strong>
-          <p>Campaign progress uses self-reported estimates.</p>
-        </div>
-      )
-    case "recognition":
-      return (
-        <div className={styles.recognition}>
-          <LeafIcon aria-hidden="true" />
-          <strong>BetterPoints</strong>
-          <span>
-            Recognise contributions.
-            <br />
-            Encourage the next action.
-          </span>
-          <p>Participation rewards, not a carbon score.</p>
-        </div>
-      )
-    case "pilot":
-      return <PilotMeasures />
-    case "closing":
-      return (
-        <div className={styles.closing}>
-          <BrandLogo />
-          <div className={styles.closingMark}>
-            <LeafIcon aria-hidden="true" />
-          </div>
-          <span>Caring for the planet starts close to home.</span>
-        </div>
-      )
-  }
-}
+import { SlideVisual } from "./interactions"
 
 export function BriefPresentation({
   initialScene,
   initialClean,
+  initialBeat = 0,
 }: {
   initialScene: number
   initialClean: boolean
+  initialBeat?: number
 }) {
-  const [index, setIndex] = useState(initialScene)
+  const [position, setPosition] = useState(() =>
+    timelineIndex(initialScene, initialBeat)
+  )
   const [clean, setClean] = useState(initialClean)
   const [replay, setReplay] = useState(0)
   const [fullscreen, setFullscreen] = useState(false)
   const [message, setMessage] = useState("")
   const root = useRef<HTMLDivElement>(null)
   const hideButton = useRef<HTMLButtonElement>(null)
+  const current = timeline[position]!
+  const index = current.sceneIndex
+  const beatIndex = current.beatIndex
   const scene = scenes[index]!
+  const beat = current.beat
+  const next = timeline[position + 1]
 
-  const go = useCallback((next: number) => {
-    setIndex(Math.min(scenes.length - 1, Math.max(0, next)))
-    setReplay((value) => value + 1)
+  const move = useCallback((next: number) => {
+    setPosition(Math.min(timeline.length - 1, Math.max(0, next)))
   }, [])
+  const goScene = useCallback((next: number) => {
+    setPosition(timelineIndex(next))
+  }, [])
+  const goBeat = (next: number) => setPosition(timelineIndex(index, next))
+  const restart = () => {
+    setPosition(timelineIndex(index))
+    setReplay((value) => value + 1)
+  }
 
   const toggleFullscreen = useCallback(async () => {
     try {
@@ -188,17 +70,30 @@ export function BriefPresentation({
   }, [])
 
   useEffect(() => {
+    if (clean) {
+      root.current?.focus({ preventScroll: true })
+      window.scrollTo(0, 0)
+    }
+  }, [clean])
+
+  useEffect(() => {
     const url = new URL(window.location.href)
     url.searchParams.set("scene", scenes[index]!.id)
+    url.searchParams.set("beat", String(beatIndex + 1))
     if (clean) url.searchParams.set("clean", "1")
     else url.searchParams.delete("clean")
     window.history.replaceState(null, "", url)
-  }, [index, clean])
+  }, [index, beatIndex, clean])
 
   useEffect(() => {
     const sync = () => {
       const params = new URLSearchParams(window.location.search)
-      setIndex(sceneIndex(params.get("scene") ?? undefined))
+      setPosition(
+        timelineIndex(
+          sceneIndex(params.get("scene") ?? undefined),
+          Number(params.get("beat") ?? "1") - 1
+        )
+      )
       setClean(params.get("clean") === "1")
     }
     window.addEventListener("popstate", sync)
@@ -228,23 +123,26 @@ export function BriefPresentation({
         case "pagedown":
         case " ":
           event.preventDefault()
-          go(index + 1)
+          if (event.shiftKey) goScene(index + 1)
+          else move(position + 1)
           break
         case "arrowleft":
         case "pageup":
           event.preventDefault()
-          go(index - 1)
+          if (event.shiftKey) goScene(index - 1)
+          else move(position - 1)
           break
         case "home":
           event.preventDefault()
-          go(0)
+          move(0)
           break
         case "end":
           event.preventDefault()
-          go(scenes.length - 1)
+          move(timeline.length - 1)
           break
         case "r":
           event.preventDefault()
+          setPosition(timelineIndex(index))
           setReplay((value) => value + 1)
           break
         case "h":
@@ -263,7 +161,7 @@ export function BriefPresentation({
     }
     window.addEventListener("keydown", keydown)
     return () => window.removeEventListener("keydown", keydown)
-  }, [go, index, toggleFullscreen])
+  }, [move, goScene, position, index, toggleFullscreen])
 
   return (
     <div
@@ -318,18 +216,28 @@ export function BriefPresentation({
           key={`${scene.id}-${replay}`}
           aria-labelledby="scene-title"
           data-scene={scene.id}
+          data-beat={beatIndex + 1}
+          data-visual={scene.visual}
         >
           <div className={styles.sceneHeader}>
             <BrandLogo variant={scene.tone === "ink" ? "dark" : "light"} />
             <span>Reduce. Reuse. Recycle.</span>
           </div>
           <div className={styles.composition}>
-            <div className={styles.words}>
-              <h1 id="scene-title">{scene.title}</h1>
-              <p>{scene.body}</p>
+            <div
+              className={styles.words}
+              key={`${scene.id}-${beatIndex}-words`}
+            >
+              <h1 id="scene-title">{beat.title}</h1>
+              <p>{beat.body}</p>
             </div>
             <div className={styles.visual}>
-              <Visual scene={scene} />
+              <SlideVisual
+                scene={scene}
+                beat={beat}
+                beatIndex={beatIndex}
+                onBeat={goBeat}
+              />
             </div>
           </div>
           <div className={styles.townshipLine} aria-hidden="true">
@@ -348,20 +256,24 @@ export function BriefPresentation({
         </Button>
       )}
       <span className="sr-only" aria-live="polite" aria-atomic="true">
-        Scene {index + 1} of {scenes.length}: {scene.chapter}.{" "}
+        Slide {index + 1} of {scenes.length}, beat {beatIndex + 1} of{" "}
+        {scene.beats.length}: {beat.title.replaceAll("\n", " ")}.{" "}
         {clean
           ? "Controls hidden. Press H or Escape to restore."
           : "Controls visible."}
       </span>
       {!clean && (
-        <footer className={styles.editor}>
+        <aside
+          className={styles.editor}
+          aria-label="Presenter script and controls"
+        >
           <div className={styles.navigation}>
             <div className={styles.selectGroup}>
-              <label htmlFor="brief-scene">Jump to scene</label>
+              <label htmlFor="brief-scene">Jump to slide</label>
               <select
                 id="brief-scene"
                 value={index}
-                onChange={(event) => go(Number(event.target.value))}
+                onChange={(event) => goScene(Number(event.target.value))}
               >
                 {scenes.map((item, i) => (
                   <option value={i} key={item.id}>
@@ -375,41 +287,42 @@ export function BriefPresentation({
               <Button
                 variant="outline"
                 size="icon"
-                aria-label="Previous scene"
-                disabled={index === 0}
-                onClick={() => go(index - 1)}
+                aria-label="Previous beat"
+                disabled={position === 0}
+                onClick={() => move(position - 1)}
               >
                 <ArrowLeftIcon />
               </Button>
               <span className={styles.counter}>
-                {index + 1} / {scenes.length}
+                Slide {index + 1}/{scenes.length} · Beat {beatIndex + 1}/
+                {scene.beats.length}
               </span>
               <Button
                 variant="outline"
                 size="icon"
-                aria-label="Next scene"
-                disabled={index === scenes.length - 1}
-                onClick={() => go(index + 1)}
+                aria-label="Next beat"
+                disabled={position === timeline.length - 1}
+                onClick={() => move(position + 1)}
               >
                 <ArrowRightIcon />
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setReplay((value) => value + 1)}
-              >
+              <Button variant="outline" size="sm" onClick={restart}>
                 <RotateCcwIcon data-icon="inline-start" />
-                Replay
+                Restart slide
               </Button>
             </div>
           </div>
           <div className={styles.cue}>
             <div>
-              <strong>Member {scene.member} · narration cue</strong>
-              <p>“{scene.cue}”</p>
+              <strong>Member {scene.member} · current narration</strong>
+              <p>
+                {beat.speech
+                  ? `“${beat.speech}”`
+                  : "Opening hold before narration."}
+              </p>
               <span>{scene.note}</span>
             </div>
-            {"route" in scene && (
+            {scene.route && (
               <a
                 className={buttonVariants({ variant: "secondary", size: "sm" })}
                 href={scene.route}
@@ -420,19 +333,35 @@ export function BriefPresentation({
               </a>
             )}
           </div>
+          <section className={styles.transitionCue} aria-label="Transition cue">
+            <div>
+              <strong>
+                {position === 0
+                  ? "Start Member 1, then press Right as this line begins"
+                  : next
+                    ? "Press Right / Page Down after this line"
+                    : "Finish after this line, then hold"}
+              </strong>
+              <p>“{position === 0 ? timeline[1]!.beat.speech : beat.speech}”</p>
+            </div>
+            <span>
+              {next
+                ? `Next: ${next.beat.title.replaceAll("\n", " ")} ${next.sceneIndex === index ? `(beat ${next.beatIndex + 1})` : `(slide ${next.sceneIndex + 1})`}`
+                : "End of presentation"}
+            </span>
+          </section>
           <p className={styles.help}>
-            ← → scenes · R replay · H hide / show controls · F fullscreen · Esc
-            or double-click the scene to restore controls. Manual advance: every
-            animation settles and holds. Click the principles, borrowing steps,
-            materials and pilot measures to explore. Record app workflows
-            separately.
+            ← / Page Up: previous beat · → / Page Down: next beat · Shift +
+            arrows: jump slides · R: restart slide · H: hide / show controls ·
+            F: fullscreen · Esc: show controls. All visual changes follow the
+            keys. Recording mode hides the cursor.
           </p>
           {message && (
             <p role="status" className={styles.help}>
               {message}
             </p>
           )}
-        </footer>
+        </aside>
       )}
     </div>
   )
