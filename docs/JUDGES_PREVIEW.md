@@ -52,6 +52,18 @@ Local verification covered the overview and all four perspectives:
 
 - Desktop/mobile screenshot pairs in `output/playwright/judges/` passed visual review with no material fixes remaining; the mechanical design detector returned no findings.
 - Automated axe checks found zero WCAG 2 A/AA or WCAG 2.1 AA violations on all five pages. No horizontal overflow was found at 320, 390, 768, or 1440 pixels.
-- All 18 functional browser checks passed, with no page errors or Supabase calls. Build, lint, typecheck, and 45 targeted tests passed.
+- All 18 functional browser checks passed, with no page errors or Supabase calls. Build, lint, typecheck, and all 194 unit tests passed.
 
 These checks describe the local preview. They do not establish deployment or custom-domain status.
+
+## Deployment verified — 21 October 2026
+
+- Public URL: https://judges.borrowlah.my, assigned to `judges-preview` on the existing `borrowlah` Vercel project. Application source commit: `ac52ffd`.
+- `NEXT_PUBLIC_JUDGES_PREVIEW=true` is scoped to Preview / `judges-preview`; production settings are unchanged.
+- Vercel protection exception applies only to `judges.borrowlah.my`, allowing anonymous judges to enter. Other preview/deployment protections remain enabled. The exception is configured on the domain alias, not by disabling project protection.
+- DNS and TLS work. The overview and all four role pages return HTTP 200 without an authentication redirect, with `X-Robots-Tag: noindex, nofollow`.
+- All 18 browser interaction checks passed against the public domain, with no page errors or Supabase requests observed.
+- Direct API requests and preview POST requests return 403. Live app paths such as `/admin` redirect to the preview overview.
+- `www.borrowlah.my` still returns the original production landing page, without judges UI. No production deployment was promoted or replaced.
+
+Future pushes to `judges-preview` automatically update the branch domain. Keep the branch-specific flag and domain exception in place.

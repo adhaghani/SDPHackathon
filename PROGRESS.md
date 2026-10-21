@@ -300,6 +300,6 @@ The project owner requested that the implementation goal be considered completed
 - [x] Preview flag scoped to judges-preview in Vercel; judges.borrowlah.my assigned to that branch, verified DNS.
 - [x] Build, lint, typecheck, diff check, 194 unit tests; 18 browser interaction checks without Supabase requests or page errors.
 - [x] All five pages: no document overflow at 320/390/768/1440; zero automated axe WCAG A/AA violations; desktop/mobile visual review passed.
-- [ ] Verify public deployed branch domain after push.
+- [x] Public deployed branch domain verified: all five pages return 200 without sign-in; 18 live browser checks pass; API/POST routes return 403; production remains unchanged.
 
 Instructions and demonstration sequence: [JUDGES_PREVIEW.md](docs/JUDGES_PREVIEW.md).
