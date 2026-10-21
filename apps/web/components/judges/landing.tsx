@@ -1,7 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import {
-  ArrowDownIcon,
+  CompassIcon,
   ArrowRightIcon,
   ArrowUpRightIcon,
   Building2Icon,
@@ -54,10 +54,18 @@ export function JudgesLanding() {
               what you need, join community events, welcome visitors, and turn
               everyday participation into a more connected place to live.
             </p>
-            <a href="#perspectives" className={styles.primaryLink}>
-              Step inside the demo{" "}
-              <ArrowDownIcon size={18} aria-hidden="true" />
-            </a>
+            <div className={styles.heroActions}>
+              <Link
+                href="/preview/resident?task=borrow"
+                className={styles.primaryLink}
+              >
+                Start the guided demo{" "}
+                <ArrowRightIcon size={18} aria-hidden="true" />
+              </Link>
+              <a href="#perspectives" className={styles.textLink}>
+                Choose a perspective
+              </a>
+            </div>
             <div className={styles.heroMeta}>
               <MousePointer2Icon size={16} aria-hidden="true" /> Four
               perspectives. No account needed.
@@ -90,6 +98,39 @@ export function JudgesLanding() {
             .
           </p>
         </div>
+        <section className={styles.routeIntro} aria-labelledby="route-title">
+          <div>
+            <CompassIcon size={26} aria-hidden="true" />
+            <div>
+              <h2 id="route-title">One neighbourhood. A connected story.</h2>
+              <p>
+                A suggested 3–5 minute route. Your progress follows you between
+                perspectives.
+              </p>
+            </div>
+          </div>
+          <ol>
+            <li>
+              <span>Resident</span>Borrow & return
+            </li>
+            <li>
+              <span>Resident → organiser</span>RSVP & check in
+            </li>
+            <li>
+              <span>Guard</span>Welcome a visitor
+            </li>
+            <li>
+              <span>Manager</span>Review & understand
+            </li>
+          </ol>
+          <Link
+            href="/preview/resident?task=borrow"
+            className={styles.routeStart}
+          >
+            Take the guided route{" "}
+            <ArrowRightIcon size={17} aria-hidden="true" />
+          </Link>
+        </section>
         <section
           id="perspectives"
           className={styles.perspectives}
@@ -138,7 +179,10 @@ export function JudgesLanding() {
           <div>
             <h2 id="before-title">Before you demo.</h2>
             <p>A little context for a smoother visit.</p>
-            <Link href="/preview/resident" className={styles.textLink}>
+            <Link
+              href="/preview/resident?task=borrow"
+              className={styles.textLink}
+            >
               Start with the resident journey{" "}
               <ArrowRightIcon size={17} aria-hidden="true" />
             </Link>
@@ -150,9 +194,10 @@ export function JudgesLanding() {
                 Follow the prompts
               </dt>
               <dd>
-                Each perspective has a “Try this” guide. Search, filter, and try
-                the sample actions. Unavailable features explain their limits in
-                a toast.
+                Use “Your demo route” to jump to the next action and see your
+                progress. Search, filter, and try the sample actions. A
+                recent-activity log shows what changed across roles. Unavailable
+                features explain their limits in a toast.
               </dd>
             </div>
             <div>

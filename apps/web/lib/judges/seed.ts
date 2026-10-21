@@ -1,3 +1,6 @@
+import { isJudgeRole } from "./config"
+import type { DemoActivity } from "./journey"
+
 export const items = [
   {
     id: "washer",
@@ -96,6 +99,7 @@ export const bookingActions = [
 
 export type PreviewState = {
   version: 1
+  activity: DemoActivity[]
   bookings: Record<string, number>
   saved: string[]
   rsvp: boolean
@@ -108,6 +112,7 @@ export type PreviewState = {
 }
 export const initialPreviewState: PreviewState = {
   version: 1,
+  activity: [],
   bookings: {},
   saved: [],
   rsvp: false,
@@ -144,7 +149,27 @@ export function parsePreviewState(value: string | null): PreviewState {
       !["pending", "approved", "declined"].includes(data.membership)
     )
       return structuredClone(initialPreviewState)
-    return data as PreviewState
+    // Keep sessions from the first preview release; activity is a new optional field.
+    const activity = Array.isArray(data.activity)
+      ? data.activity
+          .filter((entry: unknown): entry is DemoActivity => {
+            if (!entry || typeof entry !== "object") return false
+            const record = entry as Record<string, unknown>
+            return (
+              typeof record.id === "string" &&
+              typeof record.message === "string" &&
+              record.message.length <= 200 &&
+              typeof record.role === "string" &&
+              isJudgeRole(record.role) &&
+              typeof record.at === "number" &&
+              Number.isFinite(record.at) &&
+              record.at >= 0 &&
+              record.at <= 8.64e15
+            )
+          })
+          .slice(0, 8)
+      : []
+    return { ...data, activity } as PreviewState
   } catch {
     return structuredClone(initialPreviewState)
   }

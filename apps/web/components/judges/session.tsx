@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
+import type { JudgeRole } from "@/lib/judges/config"
 import {
   initialPreviewState,
   parsePreviewState,
@@ -9,14 +10,15 @@ import {
 } from "@/lib/judges/seed"
 
 const key = "borrowlah-judges-v1"
-export function usePreviewSession() {
+export function usePreviewSession(role: JudgeRole) {
   const [state, setState] = useState<PreviewState>(initialPreviewState)
   const [ready, setReady] = useState(false)
+  const [storageAvailable, setStorageAvailable] = useState(true)
   useEffect(() => {
     try {
       setState(parsePreviewState(sessionStorage.getItem(key)))
     } catch {
-      /* Storage may be disabled; in-memory interactions still work. */
+      setStorageAvailable(false)
     }
     setReady(true)
   }, [])
@@ -25,7 +27,7 @@ export function usePreviewSession() {
     try {
       sessionStorage.setItem(key, JSON.stringify(state))
     } catch {
-      /* The current page remains interactive without persistence. */
+      setStorageAvailable(false)
     }
   }, [state, ready])
   function reset() {
@@ -36,12 +38,21 @@ export function usePreviewSession() {
     })
   }
   function update(change: Partial<PreviewState>, message: string) {
-    setState((previous) => ({ ...previous, ...change }))
+    setState((previous) => ({
+      ...previous,
+      ...change,
+      activity: [
+        { id: crypto.randomUUID(), message, role, at: Date.now() },
+        ...previous.activity,
+      ].slice(0, 8),
+    }))
     toast.success(message, {
-      description: "Demo only · saved in this tab. No database connection.",
+      description: storageAvailable
+        ? "Demo only · saved in this tab. No database connection."
+        : "Demo only · browser storage is unavailable. Progress may reset when you leave.",
     })
   }
-  return { state, setState, ready, reset, update }
+  return { state, ready, storageAvailable, reset, update }
 }
 export type PreviewSession = ReturnType<typeof usePreviewSession>
 export function unavailable(action: string) {

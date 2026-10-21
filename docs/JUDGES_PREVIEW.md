@@ -67,3 +67,19 @@ These checks describe the local preview. They do not establish deployment or cus
 - `www.borrowlah.my` still returns the original production landing page, without judges UI. No production deployment was promoted or replaced.
 
 Future pushes to `judges-preview` automatically update the branch domain. Keep the branch-specific flag and domain exception in place.
+
+## Guided walkthrough improvements — 21 October 2026
+
+The landing page now offers a guided entry as well as free role selection. Every role has a shared five-step route: complete a loan, RSVP, check in Aisyah, complete a visitor’s arrival/departure, and review a membership. Completion is derived from the current sample state; it does not create real points or outcomes. The route can reopen a task after it has been closed or its local feature tab has changed.
+
+Supported task links:
+
+- `/preview/resident?task=borrow` opens the sample pressure washer journey.
+- `/preview/resident?task=events`, `?task=recycling`, and `?task=rewards` open the corresponding resident feature.
+- `/preview/manager?task=review` opens the sample membership review.
+
+Borrowing now explains whose action is being simulated and shows six-step progress, followed by links to the updated manager pulse and sample event. A recent-activity log retains the newest eight sample actions across roles. Existing sessions from the first release are preserved. Reset clears both activity and journey progress.
+
+“Copy link” shares the current view only, without encoding the tab’s state. If storage is disabled, the preview explains the persistence limit and keeps in-memory actions usable. Mobile refinements include persistent role navigation, larger supporting text and form inputs, and uncropped catalogue illustrations.
+
+Validation: all 200 unit tests passed, together with lint, typecheck, and build. Browser checks covered the full connected route, task reopening, activity persistence/cap, reset, copy-link disclosure, invalid task handling, and disabled storage. Default pages have no horizontal overflow at 320/390/768/1440, and automated WCAG A/AA scans returned no violations.

@@ -11,11 +11,15 @@ import {
   DatabaseIcon,
   HouseIcon,
   RotateCcwIcon,
+  LinkIcon,
   ShieldCheckIcon,
   UsersIcon,
 } from "lucide-react"
 import { BrandLogo } from "@/components/shared/brand-logo"
 import { judgeRoles, type JudgeRole } from "@/lib/judges/config"
+import { toast } from "sonner"
+import type { PreviewTask } from "@/lib/judges/journey"
+import { DemoJourney, DemoActivityLog } from "./demo-journey"
 import { usePreviewSession } from "./session"
 import { ResidentView } from "./resident"
 import { ManagerView, GuardView, EventView } from "./team-views"
@@ -28,9 +32,21 @@ const icons = {
   event: CalendarDaysIcon,
 }
 
-export function PreviewApp({ role }: { role: JudgeRole }) {
-  const session = usePreviewSession()
+export function PreviewApp({
+  role,
+  task,
+}: {
+  role: JudgeRole
+  task?: PreviewTask
+}) {
+  const session = usePreviewSession(role)
   const [resetOpen, setResetOpen] = useState(false)
+  const [viewRevision, setViewRevision] = useState(0)
+  function reopenTask(href: string) {
+    if (window.location.pathname + window.location.search === href) {
+      setViewRevision((revision) => revision + 1)
+    }
+  }
   const current = judgeRoles.find((item) => item.id === role)!
   return (
     <div className={styles.world}>
@@ -92,6 +108,26 @@ export function PreviewApp({ role }: { role: JudgeRole }) {
           <header className={styles.appHeader}>
             <span>{current.name} perspective</span>
             <div>
+              <button
+                className={styles.shareButton}
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(window.location.href)
+                    toast.success("Perspective link copied", {
+                      description:
+                        "The link opens this view. Your tab’s demo progress is not included.",
+                    })
+                  } catch {
+                    toast.info("Copy the address from your browser", {
+                      description:
+                        "This browser could not access the clipboard. Your demo progress is not included in the link.",
+                    })
+                  }
+                }}
+              >
+                <LinkIcon size={15} aria-hidden="true" />
+                Copy link
+              </button>
               <a href="https://borrowlah.my" target="_blank" rel="noreferrer">
                 Live app <ArrowUpRightIcon size={15} aria-hidden="true" />
               </a>
@@ -134,10 +170,34 @@ export function PreviewApp({ role }: { role: JudgeRole }) {
               <p role="status">Loading seeded demo…</p>
             ) : (
               <>
-                {role === "resident" && <ResidentView session={session} />}
-                {role === "manager" && <ManagerView session={session} />}
-                {role === "guard" && <GuardView session={session} />}
-                {role === "event" && <EventView session={session} />}
+                {!session.storageAvailable && (
+                  <p className={styles.storageNotice} role="status">
+                    Browser storage is unavailable. You can still try the
+                    actions, but progress may reset when you leave this page.
+                  </p>
+                )}
+                <DemoJourney state={session.state} onOpenTask={reopenTask} />
+                {role === "resident" && (
+                  <ResidentView
+                    key={`${task ?? "browse"}:${viewRevision}`}
+                    session={session}
+                    task={task}
+                  />
+                )}
+                {role === "manager" && (
+                  <ManagerView
+                    key={`${task ?? "pulse"}:${viewRevision}`}
+                    session={session}
+                    task={task}
+                  />
+                )}
+                {role === "guard" && (
+                  <GuardView key={viewRevision} session={session} />
+                )}
+                {role === "event" && (
+                  <EventView key={viewRevision} session={session} />
+                )}
+                <DemoActivityLog state={session.state} />
               </>
             )}
           </main>

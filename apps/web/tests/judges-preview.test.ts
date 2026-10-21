@@ -84,3 +84,33 @@ describe("demo session recovery", () => {
     expect(parsePreviewState(JSON.stringify(state))).toEqual(state)
   })
 })
+
+describe("guided preview session compatibility", () => {
+  it("preserves older demo progress when no activity log exists", () => {
+    const { activity: _activity, ...legacy } = initialPreviewState
+    const restored = parsePreviewState(
+      JSON.stringify({ ...legacy, rsvp: true, bookings: { washer: 4 } })
+    )
+    expect(restored.rsvp).toBe(true)
+    expect(restored.bookings.washer).toBe(4)
+    expect(restored.activity).toEqual([])
+  })
+  it("discards malformed activity without losing the demo state", () => {
+    const value = {
+      ...initialPreviewState,
+      redeemed: true,
+      activity: [
+        { id: "bad", message: "bad timestamp", role: "resident", at: 1e100 },
+        {
+          id: "valid",
+          message: "Sample RSVP joined",
+          role: "resident",
+          at: 1000,
+        },
+      ],
+    }
+    const restored = parsePreviewState(JSON.stringify(value))
+    expect(restored.redeemed).toBe(true)
+    expect(restored.activity.map((entry) => entry.id)).toEqual(["valid"])
+  })
+})

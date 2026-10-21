@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
+import { parsePreviewTask } from "@/lib/judges/journey"
 import { PreviewApp } from "@/components/judges/preview-app"
 import { isJudgeRole, isJudgesPreview, judgeRoles } from "@/lib/judges/config"
 
@@ -17,10 +18,13 @@ export async function generateMetadata({
 
 export default async function Page({
   params,
+  searchParams,
 }: {
   params: Promise<{ role: string }>
+  searchParams: Promise<{ task?: string | string[] }>
 }) {
   const { role } = await params
   if (!isJudgesPreview() || !isJudgeRole(role)) notFound()
-  return <PreviewApp role={role} />
+  const { task } = await searchParams
+  return <PreviewApp role={role} task={parsePreviewTask(task)} />
 }

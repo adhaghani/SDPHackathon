@@ -15,6 +15,7 @@ import {
   SearchIcon,
   XIcon,
 } from "lucide-react"
+import { bookingGuidance, type PreviewTask } from "@/lib/judges/journey"
 import { bookingActions, bookingSteps, items } from "@/lib/judges/seed"
 import { unavailable, type PreviewSession } from "./session"
 import styles from "./judges.module.css"
@@ -22,12 +23,28 @@ import styles from "./judges.module.css"
 type ResidentTab = "Borrow & lend" | "Events" | "Recycling" | "Rewards"
 const tabs: ResidentTab[] = ["Borrow & lend", "Events", "Recycling", "Rewards"]
 
-export function ResidentView({ session }: { session: PreviewSession }) {
+export function ResidentView({
+  session,
+  task,
+}: {
+  session: PreviewSession
+  task?: PreviewTask
+}) {
   const { state, update } = session
-  const [tab, setTab] = useState<ResidentTab>("Borrow & lend")
+  const [tab, setTab] = useState<ResidentTab>(
+    task === "events"
+      ? "Events"
+      : task === "recycling"
+        ? "Recycling"
+        : task === "rewards"
+          ? "Rewards"
+          : "Borrow & lend"
+  )
   const [query, setQuery] = useState("")
   const [category, setCategory] = useState("All items")
-  const [selected, setSelected] = useState<string | null>(null)
+  const [selected, setSelected] = useState<string | null>(
+    task === "borrow" ? "washer" : null
+  )
   const bookingPanel = useRef<HTMLElement>(null)
   useEffect(() => {
     if (!selected) return
@@ -166,6 +183,26 @@ export function ResidentView({ session }: { session: PreviewSession }) {
                 Sample dates: 24–25 October 2026 · Community hub · Owner:{" "}
                 {selectedItem.owner}
               </p>
+              <div className={styles.bookingContext} aria-live="polite">
+                <div>
+                  <strong>
+                    {step < 6
+                      ? bookingGuidance[step]!.actor
+                      : "The sharing loop is complete"}
+                  </strong>
+                  <span>{step} of 6 steps complete</span>
+                </div>
+                <progress
+                  max={6}
+                  value={step}
+                  aria-label="Sample borrowing progress"
+                />
+                <p>
+                  {step < 6
+                    ? bookingGuidance[step]!.text
+                    : "You’ve tried both neighbours’ parts of a loan. See the completed-loan total in the manager view, or continue to the community event."}
+                </p>
+              </div>
               <ol className={styles.bookingSteps}>
                 {bookingSteps.slice(1).map((label, index) => (
                   <li
@@ -213,6 +250,24 @@ export function ResidentView({ session }: { session: PreviewSession }) {
                   </button>
                 )}
               </div>
+              {step === 6 && (
+                <div className={styles.inlineActions}>
+                  <Link
+                    href="/preview/manager"
+                    className={styles.secondaryButton}
+                  >
+                    See the manager’s updated pulse{" "}
+                    <ArrowRightIcon size={16} aria-hidden="true" />
+                  </Link>
+                  <Link
+                    href="/preview/resident?task=events"
+                    className={styles.textLink}
+                  >
+                    Continue to the garden event{" "}
+                    <ArrowRightIcon size={16} aria-hidden="true" />
+                  </Link>
+                </div>
+              )}
             </section>
           )}
           <div className={styles.itemGrid}>
@@ -223,7 +278,8 @@ export function ResidentView({ session }: { session: PreviewSession }) {
                     src={`/demo/${item.image}`}
                     alt={item.name}
                     width={400}
-                    height={280}
+                    height={250}
+                    sizes="(max-width: 430px) 100vw, (max-width: 1499px) 50vw, 25vw"
                   />
                   <button
                     className={styles.saveButton}

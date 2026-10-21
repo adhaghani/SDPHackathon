@@ -13,6 +13,7 @@ import {
   ShieldCheckIcon,
   UsersIcon,
 } from "lucide-react"
+import type { PreviewTask } from "@/lib/judges/journey"
 import { attendees, visitors } from "@/lib/judges/seed"
 import { unavailable, type PreviewSession } from "./session"
 import styles from "./judges.module.css"
@@ -30,9 +31,17 @@ function Stats({ values }: { values: [string, string][] }) {
   )
 }
 
-export function ManagerView({ session }: { session: PreviewSession }) {
+export function ManagerView({
+  session,
+  task,
+}: {
+  session: PreviewSession
+  task?: PreviewTask
+}) {
   const { state, update } = session
-  const [tab, setTab] = useState("Township pulse")
+  const [tab, setTab] = useState(
+    task === "review" ? "Resident reviews" : "Township pulse"
+  )
   const [period, setPeriod] = useState("30")
   const short = period === "7"
   const completed = Object.values(state.bookings).filter(

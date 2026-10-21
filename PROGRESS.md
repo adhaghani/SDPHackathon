@@ -303,3 +303,11 @@ The project owner requested that the implementation goal be considered completed
 - [x] Public deployed branch domain verified: all five pages return 200 without sign-in; 18 live browser checks pass; API/POST routes return 403; production remains unchanged.
 
 Instructions and demonstration sequence: [JUDGES_PREVIEW.md](docs/JUDGES_PREVIEW.md).
+
+### Judges preview refinement — 21 October 2026
+
+- [x] Guided landing entry, five-step shared route, direct feature links, and task reopening.
+- [x] Borrower/lender explanations, step progress, and completion links to the manager pulse and event.
+- [x] Recent activity across roles, old-session compatibility, copy-view links, and storage-disabled feedback.
+- [x] Persistent mobile role navigation, larger supporting text/inputs, and full catalogue illustrations.
+- [x] 200 unit tests, lint/typecheck/build, connected browser journey and storage/reopening checks; default-page accessibility and responsive checks pass.

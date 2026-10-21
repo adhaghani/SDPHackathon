@@ -1510,3 +1510,456 @@
     transform: none;
   }
 }
+
+/* Guided evaluation shares the established BorrowLah visual system. */
+.heroActions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 22px;
+}
+.routeIntro {
+  max-width: 1224px;
+  margin: 38px auto 0;
+  background: #161b14;
+  color: #fff;
+  padding: 30px 32px;
+  border-radius: 16px;
+}
+.routeIntro > div {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+.routeIntro h2 {
+  font-size: 25px;
+  letter-spacing: -0.025em;
+}
+.routeIntro p {
+  margin-top: 9px;
+  font-size: 14px;
+  line-height: 1.65;
+  color: #d1d8c8;
+}
+.routeIntro ol {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+  list-style: none;
+  padding: 24px 0;
+  margin: 24px 0 0;
+  border-top: 1px solid #45503b;
+}
+.routeIntro li {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.routeIntro li span {
+  display: block;
+  font-size: 12px;
+  color: #d1d8c8;
+  font-weight: 400;
+  margin-bottom: 6px;
+}
+.routeStart {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  color: #d9f45a;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 0;
+}
+.routeIntro a:focus-visible {
+  outline-color: #d9f45a;
+}
+.shareButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: transparent;
+  border: 0;
+  min-height: 44px;
+  font-size: 12px !important;
+}
+.shareButton:hover {
+  text-decoration: underline;
+}
+.journey {
+  margin-bottom: 28px;
+  border: 1px solid #c7ccbe;
+  padding: 20px 24px 0;
+  border-radius: 12px;
+  background: #fff;
+}
+.journeyTop {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 17px;
+}
+.journeyHeading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.journeyHeading > svg {
+  flex-shrink: 0;
+}
+.journeyHeading h2 {
+  font-family: var(--font-instrument), sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+}
+.journeyHeading p {
+  font-size: 12px;
+  line-height: 1.7;
+  color: #4b5147;
+  margin-top: 5px;
+  max-width: 55ch;
+}
+.journeyNext {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: #e9eddf;
+  color: #111;
+  border-radius: 8px;
+  text-decoration: none;
+  padding: 12px 14px;
+  font-size: 12px;
+  font-weight: 650;
+  max-width: 310px;
+  flex-shrink: 0;
+}
+.journeyNext:hover {
+  background: #d9f45a;
+}
+.journeyNext > svg {
+  flex-shrink: 0;
+}
+.journeyDetails {
+  border-top: 1px solid #dcded3;
+}
+.journeyDetails summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  cursor: pointer;
+  min-height: 45px;
+  font-size: 12px;
+  list-style: none;
+}
+.journeyDetails summary::-webkit-details-marker {
+  display: none;
+}
+.journeyDetails summary > span:last-child {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  font-weight: 600;
+}
+.journeyDetails summary:focus-visible {
+  outline: 3px solid #111;
+  outline-offset: 4px;
+}
+.journeyDetails[open] summary > span:last-child svg {
+  transform: rotate(180deg);
+}
+.journeyProgress {
+  accent-color: #536a21;
+  width: 100%;
+  height: 8px;
+  display: block;
+  margin: 8px 0 15px;
+}
+.journeyDetails ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.journeyDetails li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 0;
+  border-bottom: 1px solid #e9eddf;
+}
+.journeyDetails li > div {
+  flex: 1;
+  min-width: 0;
+}
+.journeyDetails li a {
+  font-weight: 650;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 14px;
+}
+.journeyDetails li p {
+  font-size: 12px;
+  line-height: 1.6;
+  color: #4b5147;
+  margin-top: 6px;
+}
+.journeyNumber,
+.journeyDone {
+  display: grid;
+  place-items: center;
+  width: 29px;
+  height: 29px;
+  border-radius: 50%;
+  border: 1px solid #b9c0ae;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+.journeyDone {
+  border-color: #d9f45a;
+  background: #d9f45a;
+}
+.journeyState {
+  font-size: 11px;
+  color: #4b5147;
+}
+.journeyDetails > p {
+  padding: 18px 0;
+}
+.bookingPanel {
+  scroll-margin-top: 24px;
+}
+.bookingContext {
+  background: #e9eddf;
+  border-radius: 10px;
+  padding: 18px;
+  margin-top: 20px;
+}
+.bookingContext > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  align-items: center;
+}
+.bookingContext strong {
+  font-size: 14px;
+}
+.bookingContext span {
+  font-size: 12px;
+  flex-shrink: 0;
+}
+.bookingContext progress {
+  display: block;
+  width: 100%;
+  height: 8px;
+  accent-color: #536a21;
+  margin: 14px 0;
+}
+.bookingContext p {
+  font-size: 13px;
+  line-height: 1.7;
+  max-width: 75ch;
+}
+.activityLog {
+  margin-top: 36px;
+  border-top: 1px solid #cbd0c0;
+  padding-top: 30px;
+}
+.activityLog h2 {
+  font-size: 24px;
+}
+.activityLog ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.activityLog li {
+  display: flex;
+  gap: 13px;
+  padding: 15px 0;
+  align-items: flex-start;
+  border-bottom: 1px solid #dcded3;
+}
+.activityLog li > svg {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+.activityLog li > div {
+  flex: 1;
+}
+.activityLog li p {
+  font-size: 13px;
+  line-height: 1.5;
+}
+.activityLog li span,
+.activityLog time {
+  font-size: 11px;
+  color: #4b5147;
+  line-height: 1.7;
+}
+.activityLog li span {
+  display: block;
+  margin-top: 3px;
+}
+.activityLog time {
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+.storageNotice {
+  padding: 15px;
+  background: #fff0b8;
+  font-size: 13px;
+  line-height: 1.7;
+  border-radius: 8px;
+  margin-bottom: 20px !important;
+}
+/* Preserve the complete catalogue illustrations rather than cropping them. */
+.itemImage > img {
+  height: auto;
+  aspect-ratio: 8 / 5;
+  object-fit: contain;
+}
+@media (max-width: 1100px) {
+  .routeIntro {
+    margin-inline: 48px;
+  }
+  .journeyTop {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .journeyNext {
+    max-width: none;
+  }
+}
+@media (max-width: 760px) {
+  .routeIntro {
+    margin: 28px 22px 0;
+    padding: 25px 22px;
+  }
+  .routeIntro h2 {
+    font-size: 24px;
+  }
+  .routeIntro > div {
+    align-items: flex-start;
+  }
+  .routeIntro > div > svg {
+    flex-shrink: 0;
+    margin-top: 3px;
+  }
+  .routeIntro ol {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+  }
+  .routeIntro p {
+    font-size: 13px;
+  }
+  .heroActions {
+    gap: 18px;
+  }
+  .journey {
+    padding: 18px 18px 0;
+    margin-bottom: 22px;
+  }
+  .journeyHeading h2 {
+    font-size: 15px;
+  }
+  .journeyNext {
+    width: 100%;
+    justify-content: space-between;
+    font-size: 13px;
+  }
+  .journeyHeading p {
+    font-size: 13px;
+  }
+  .journeyDetails li {
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .journeyDetails li a {
+    font-size: 13px;
+  }
+  .journeyState {
+    display: none;
+  }
+  .journeyDetails summary {
+    gap: 10px;
+    font-size: 11px;
+  }
+  .bookingContext > div {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .bookingSteps li {
+    font-size: 12px;
+  }
+  .tryGuide > p,
+  .sectionTop p,
+  .small,
+  .itemCopy > p,
+  .location,
+  .panel > p.small,
+  .guide p,
+  .details > div,
+  .checkbox {
+    font-size: 13px;
+  }
+  .status {
+    font-size: 11px;
+  }
+  .metrics dd,
+  .attendees li p {
+    font-size: 12px;
+  }
+  .selectLabel {
+    font-size: 12px;
+  }
+  .sidebar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+  .sidebar > a:first-child {
+    display: none;
+  }
+  .sidebar nav a {
+    padding-block: 9px;
+  }
+  .sidebar nav a > svg {
+    width: 17px;
+    height: 17px;
+  }
+  .demoBar {
+    font-size: 11px;
+  }
+  .appHeader {
+    flex-wrap: wrap;
+  }
+  .appHeader > div {
+    gap: 15px;
+  }
+  .shareButton {
+    font-size: 11px !important;
+  }
+  .bookingPanel {
+    scroll-margin-top: 105px;
+  }
+  .world :is(input, select) {
+    font-size: 16px;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .journeyDone {
+    animation: stepConfirmed 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes stepConfirmed {
+    from {
+      box-shadow: 0 0 0 5px #d9f45a66;
+    }
+    to {
+      box-shadow: 0 0 0 0 #d9f45a00;
+    }
+  }
+}
