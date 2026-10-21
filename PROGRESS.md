@@ -290,3 +290,16 @@ The project owner requested that the implementation goal be considered completed
 - Preserved width-based 16:9 geometry, keyboard/beat state and script content. Short viewports scroll within the slide pane rather than shrinking the slide.
 - Fixed the everyday-scenarios summary arrow: its generic card grid had overridden the summary's flex layout. Increased selector specificity and grouped the text so the arrow stays inline, centred next to the phrase.
 - Validation: production build/TypeScript, project lint and whitespace checks passed. Browser checks passed the 70/30 proportions at 1024, 1440, 1920 and 2560px; checked the 390px stacked layout and all 26 slides at desktop/mobile for content bounds. Summary arrow stayed vertically centred beside its text at all five widths. Confirmed fixed geometry across short/tall viewports, full-width clean mode, panel restoration, reverse/Page-key navigation and no page errors.
+
+## Judges preview — 21 October 2026
+
+- [x] New project overview, four role entry points, and before-demo notes.
+- [x] Browser-only seeded resident, manager, guard, and event organiser views, including cross-role event RSVP/check-in.
+- [x] Six-step borrowing, sample membership review, visitor arrival/departure, search/filter/save, recycling and reward simulations.
+- [x] Persistent seeded/no-database labels, unavailable-action toasts, reset, and API/server-action blocking before Supabase client construction.
+- [x] Preview flag scoped to judges-preview in Vercel; judges.borrowlah.my assigned to that branch, verified DNS.
+- [x] Build, lint, typecheck, diff check, 194 unit tests; 18 browser interaction checks without Supabase requests or page errors.
+- [x] All five pages: no document overflow at 320/390/768/1440; zero automated axe WCAG A/AA violations; desktop/mobile visual review passed.
+- [ ] Verify public deployed branch domain after push.
+
+Instructions and demonstration sequence: [JUDGES_PREVIEW.md](docs/JUDGES_PREVIEW.md).

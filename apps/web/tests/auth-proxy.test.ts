@@ -46,6 +46,7 @@ import { config, proxy } from "@/proxy"
 
 describe("session proxy", () => {
   beforeEach(() => {
+    vi.stubEnv("NEXT_PUBLIC_JUDGES_PREVIEW", "false")
     mocks.user = null
     mocks.refresh = false
   })

@@ -1,6 +1,8 @@
 import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
 
+import { isJudgesPreview } from "@/lib/judges/config"
+
 import { getPublishableKey, getSupabaseUrl } from "@/lib/env"
 
 const protectedPrefixes = [
@@ -25,6 +27,32 @@ const protectedPrefixes = [
 ]
 
 export async function proxy(request: NextRequest) {
+  // The judges deployment never constructs a Supabase client or reaches live routes.
+  if (isJudgesPreview()) {
+    const { pathname } = request.nextUrl
+    const isRead = request.method === "GET" || request.method === "HEAD"
+    const isPreviewPage =
+      pathname === "/" ||
+      pathname === "/preview" ||
+      pathname.startsWith("/preview/")
+    const isImage = pathname.startsWith("/images/")
+    const response =
+      !isRead || pathname.startsWith("/api/")
+        ? NextResponse.json(
+            {
+              error:
+                "Judges preview is not connected to a database. Use borrowlah.my for the live app.",
+            },
+            { status: 403 }
+          )
+        : isPreviewPage || isImage
+          ? NextResponse.next({ request })
+          : NextResponse.redirect(new URL("/", request.url))
+    response.headers.set("Cache-Control", "private, no-store")
+    response.headers.set("X-Robots-Tag", "noindex, nofollow")
+    return response
+  }
+
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(getSupabaseUrl(), getPublishableKey(), {
@@ -46,9 +74,7 @@ export async function proxy(request: NextRequest) {
     },
   })
 
-  const {
-    data,
-  } = await supabase.auth.getClaims()
+  const { data } = await supabase.auth.getClaims()
   const userId = data?.claims.sub
 
   const { pathname } = request.nextUrl

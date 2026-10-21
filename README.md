@@ -220,3 +220,7 @@ Follow [the deployment runbook](docs/SETUP.md). No cloud preview is deployed yet
 | [Email templates](docs/EMAILS.md) | Branded Auth emails, local inbox previews, and hosted template setup. |
 
 The app includes an install-support service worker without general offline data caching. Offline handover-token queuing is a separate, limited workflow.
+
+## Judges preview
+
+See [docs/JUDGES_PREVIEW.md](docs/JUDGES_PREVIEW.md) for local use, the four seeded perspectives, and branch-domain deployment. Enable with `NEXT_PUBLIC_JUDGES_PREVIEW=true` only on the judges preview.
